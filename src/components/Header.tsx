@@ -1,80 +1,158 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Trophy, Users, TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Trophy, 
+  Target, 
+  Users, 
+  Zap, 
+  Menu,
+  User,
+  Settings,
+  LogOut,
+  Crown,
+  Bell
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const navigation = [
-    { name: "Стаи", href: "#", icon: Users },
-    { name: "Класиране", href: "#", icon: Trophy },
-    { name: "Статистики", href: "#", icon: TrendingUp },
-  ];
-
+  const userPoints = 1247;
+  const userRank = "Gold";
+  
   return (
-    <header className="fixed top-0 w-full z-50 backdrop-blur-md bg-background/80 border-b border-border">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-gradient">Glowter</h1>
+    <header className="bg-card/80 backdrop-blur-lg border-b border-border/50 sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Logo & Brand */}
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-glow">
+                G
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full animate-pulse"></div>
+            </div>
+            <div>
+              <span className="text-xl font-bold text-gradient">
+                Glowter
+              </span>
+              <div className="text-xs text-muted-foreground">Live Predictions</div>
+            </div>
           </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="flex items-center space-x-1 text-muted-foreground hover:text-secondary transition-colors"
-              >
-                <item.icon className="h-4 w-4" />
-                <span>{item.name}</span>
-              </a>
-            ))}
+          
+          {/* Navigation */}
+          <nav className="hidden lg:flex items-center gap-8">
+            <a href="#" className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 font-medium">
+              <Zap className="w-4 h-4" />
+              Live Scores
+            </a>
+            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
+              <Target className="w-4 h-4" />
+              My Predictions
+            </a>
+            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
+              <Trophy className="w-4 h-4" />
+              Rankings
+            </a>
+            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
+              <Users className="w-4 h-4" />
+              Rooms
+            </a>
           </nav>
-
-          {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost">Вход</Button>
-            <Button variant="hero">Регистрация</Button>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
+          
+          {/* User Section */}
+          <div className="flex items-center gap-4">
+            {/* User Stats */}
+            <div className="hidden md:flex items-center gap-3">
+              <Badge variant="secondary" className="gap-1">
+                <Crown className="w-3 h-3" />
+                {userRank}
+              </Badge>
+              <div className="text-right">
+                <div className="text-sm font-semibold text-foreground">{userPoints.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">points</div>
+              </div>
+            </div>
+            
+            {/* Notifications */}
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="w-4 h-4" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full text-xs flex items-center justify-center text-black font-bold">
+                3
+              </div>
+            </Button>
+            
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                    JP
+                  </div>
+                  <span className="hidden sm:inline">John Player</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2">
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2 text-red-600">
+                  <LogOut className="w-4 h-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Mobile Menu */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="lg:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              <Menu className="w-5 h-5" />
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        <div className={cn(
-          "md:hidden transition-all duration-300 ease-in-out",
-          isMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
-        )}>
-          <div className="px-2 pt-2 pb-3 space-y-1 border-t border-border mt-4">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-secondary transition-colors block px-3 py-2 rounded-md"
-              >
-                <item.icon className="h-4 w-4" />
-                <span>{item.name}</span>
+        {isMenuOpen && (
+          <div className="lg:hidden mt-4 pt-4 border-t border-border/50">
+            <nav className="flex flex-col gap-3">
+              <a href="#" className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+                <Zap className="w-4 h-4" />
+                Live Scores
               </a>
-            ))}
-            <div className="flex flex-col space-y-2 px-3 pt-4">
-              <Button variant="ghost" className="w-full">Вход</Button>
-              <Button variant="hero" className="w-full">Регистрация</Button>
-            </div>
+              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+                <Target className="w-4 h-4" />
+                My Predictions
+              </a>
+              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+                <Trophy className="w-4 h-4" />
+                Rankings
+              </a>
+              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+                <Users className="w-4 h-4" />
+                Rooms
+              </a>
+            </nav>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );
