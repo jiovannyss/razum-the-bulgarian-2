@@ -9,7 +9,12 @@ import {
   BarChart3,
   MoreHorizontal,
   Eye,
-  Timer
+  Timer,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +32,8 @@ const mockMatches = [
     status: "upcoming",
     predictions: 147,
     popularPrediction: "1",
-    odds: "1.85"
+    rank: 3,
+    myPrediction: null
   },
   {
     id: 2,
@@ -40,7 +46,9 @@ const mockMatches = [
     status: "live",
     predictions: 89,
     popularPrediction: "1",
-    odds: "2.10"
+    rank: 2,
+    myPrediction: "1",
+    myPredictionCorrect: null // still playing
   },
   {
     id: 3,
@@ -53,7 +61,9 @@ const mockMatches = [
     status: "finished",
     predictions: 324,
     popularPrediction: "X",
-    odds: "2.80"
+    rank: 2,
+    myPrediction: "1",
+    myPredictionCorrect: true
   },
   {
     id: 4,
@@ -66,7 +76,9 @@ const mockMatches = [
     status: "upcoming",
     predictions: 892,
     popularPrediction: "2",
-    odds: "2.45"
+    rank: 3,
+    myPrediction: "X",
+    myPredictionCorrect: false
   },
   {
     id: 5,
@@ -79,12 +91,15 @@ const mockMatches = [
     status: "live",
     predictions: 156,
     popularPrediction: "X",
-    odds: "3.20"
+    rank: 1,
+    myPrediction: null
   }
 ];
 
 const LiveScore = () => {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [collapsedTournaments, setCollapsedTournaments] = useState<Record<string, boolean>>({});
+  const [currentGameWeek, setCurrentGameWeek] = useState(1);
 
   const filters = ["All", "Live", "Upcoming", "Finished"];
 
@@ -130,6 +145,61 @@ const LiveScore = () => {
     }
   };
 
+  const renderStars = (rank: number) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= rank ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const getMyPredictionDisplay = (match: any) => {
+    if (!match.myPrediction) {
+      return (
+        <Button size="sm" variant="outline" className="gap-2">
+          <Target className="w-3 h-3" />
+          Predict
+        </Button>
+      );
+    }
+
+    if (match.status === "finished") {
+      if (match.myPredictionCorrect) {
+        return (
+          <div className="px-3 py-1 bg-green-500/20 text-green-600 border border-green-500/30 rounded-md text-sm font-medium">
+            {match.myPrediction} ✓
+          </div>
+        );
+      } else {
+        return (
+          <div className="px-3 py-1 bg-red-500/20 text-red-600 border border-red-500/30 rounded-md text-sm font-medium">
+            {match.myPrediction} ✗
+          </div>
+        );
+      }
+    }
+
+    return (
+      <div className="px-3 py-1 bg-muted text-muted-foreground border border-border rounded-md text-sm font-medium">
+        {match.myPrediction}
+      </div>
+    );
+  };
+
+  const toggleTournament = (tournament: string) => {
+    setCollapsedTournaments(prev => ({
+      ...prev,
+      [tournament]: !prev[tournament]
+    }));
+  };
+
   return (
     <main className="min-h-screen bg-gradient-subtle p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
@@ -150,6 +220,29 @@ const LiveScore = () => {
               <div className="flex items-center gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-accent" />
                 <span className="text-muted-foreground">Active Tournaments: 3</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <span className="text-muted-foreground">Game Week:</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCurrentGameWeek(Math.max(1, currentGameWeek - 1))}
+                    disabled={currentGameWeek === 1}
+                    className="h-7 w-7 p-0"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <span className="font-medium min-w-[2rem] text-center">{currentGameWeek}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCurrentGameWeek(currentGameWeek + 1)}
+                    className="h-7 w-7 p-0"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -302,7 +395,7 @@ const LiveScore = () => {
           <div className="xl:col-span-3 space-y-8">
             {Object.entries(matchesByTournament).map(([tournament, matches]) => (
               <Card key={tournament} className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-4 cursor-pointer" onClick={() => toggleTournament(tournament)}>
                   <CardTitle className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                       <Trophy className="w-4 h-4 text-white" />
@@ -311,84 +404,67 @@ const LiveScore = () => {
                     <Badge variant="secondary" className="ml-auto">
                       {matches.length} matches
                     </Badge>
+                    {collapsedTournaments[tournament] ? (
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                    )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {matches.map((match) => (
-                      <div
-                        key={match.id}
-                        className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-5 bg-gradient-card rounded-xl border border-border/50 hover:shadow-elegant transition-all duration-300 group"
-                      >
-                        {/* Time & Status */}
-                        <div className="flex items-center gap-3 mb-3 lg:mb-0 lg:w-24">
-                          {getStatusBadge(match.status, match.time)}
-                        </div>
+                {!collapsedTournaments[tournament] && (
+                  <CardContent>
+                    <div className="space-y-3">
+                      {matches.map((match) => (
+                        <div
+                          key={match.id}
+                          className="flex items-center justify-between p-4 bg-gradient-card rounded-xl border border-border/50 hover:shadow-elegant transition-all duration-300 group"
+                        >
+                          {/* Rank Stars */}
+                          <div className="flex items-center gap-3">
+                            {renderStars(match.rank)}
+                          </div>
 
-                        {/* Teams & Score */}
-                        <div className="flex-1 lg:mx-8 w-full lg:w-auto">
-                          <div className="flex items-center justify-between bg-background/50 rounded-lg p-4 border border-border/30">
-                            <div className="flex items-center gap-3 flex-1">
-                              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
-                                {match.homeTeam.slice(0, 2).toUpperCase()}
+                          {/* Time & Status */}
+                          <div className="flex items-center gap-3">
+                            {getStatusBadge(match.status, match.time)}
+                          </div>
+
+                          {/* Teams & Score */}
+                          <div className="flex-1 mx-6">
+                            <div className="flex items-center justify-center gap-4 text-center">
+                              <div className="flex items-center gap-2 flex-1 justify-end">
+                                <span className="font-semibold text-base">{match.homeTeam}</span>
+                                <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
+                                  {match.homeTeam.slice(0, 2).toUpperCase()}
+                                </div>
                               </div>
-                              <span className="font-semibold text-lg">{match.homeTeam}</span>
-                            </div>
-                            <div className="text-2xl font-bold mx-4 text-gradient">
-                              {match.homeScore !== null ? `${match.homeScore} - ${match.awayScore}` : "vs"}
-                            </div>
-                            <div className="flex items-center gap-3 flex-1 justify-end">
-                              <span className="font-semibold text-lg">{match.awayTeam}</span>
-                              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
-                                {match.awayTeam.slice(0, 2).toUpperCase()}
+                              <div className="text-xl font-bold text-gradient min-w-[80px]">
+                                {match.homeScore !== null ? `${match.homeScore} - ${match.awayScore}` : "vs"}
+                              </div>
+                              <div className="flex items-center gap-2 flex-1">
+                                <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
+                                  {match.awayTeam.slice(0, 2).toUpperCase()}
+                                </div>
+                                <span className="font-semibold text-base">{match.awayTeam}</span>
                               </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Glowter Stats */}
-                        <div className="flex items-center gap-6 mt-4 lg:mt-0 lg:w-64">
-                          <div className="text-center">
+                          {/* Predictions Count */}
+                          <div className="text-center mr-6">
                             <div className="text-xs text-muted-foreground mb-1">Predictions</div>
-                            <div className="font-bold text-lg text-primary">{match.predictions}</div>
+                            <div className="font-bold text-sm text-primary">{match.predictions}</div>
                           </div>
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Popular</div>
-                            <div className={`font-bold text-sm px-2 py-1 rounded-md ${getPredictionColor(match.popularPrediction)}`}>
-                              {match.popularPrediction}
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Odds</div>
-                            <div className="font-bold text-sm">{match.odds}</div>
-                          </div>
-                        </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-3 mt-4 lg:mt-0 lg:ml-6">
-                          {match.status === "upcoming" ? (
-                            <Button size="sm" className="gap-2 btn-glow card-hover">
-                              <Target className="w-3 h-3" />
-                              Predict
-                            </Button>
-                          ) : match.status === "live" ? (
-                            <Button size="sm" variant="secondary" className="gap-2 btn-secondary-glow card-hover">
-                              <Eye className="w-3 h-3" />
-                              Watch
-                            </Button>
-                          ) : (
-                            <Button size="sm" variant="outline" className="gap-2 card-hover">
-                              Details
-                            </Button>
-                          )}
-                          <Button size="sm" variant="ghost" className="opacity-60 hover:opacity-100 transition-opacity">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
+                          {/* My Prediction */}
+                          <div className="flex items-center gap-3">
+                            {getMyPredictionDisplay(match)}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
               </Card>
             ))}
           </div>
