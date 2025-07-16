@@ -10,7 +10,7 @@ import {
   MoreHorizontal,
   Eye,
   Timer,
-  Star,
+  Shield,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -145,17 +145,15 @@ const LiveScore = () => {
     }
   };
 
-  const renderStars = (rank: number) => {
+  const renderRankShields = (rank: number) => {
+    if (rank === 1) return null;
+    
     return (
-      <div className="flex gap-1">
-        {[1, 2, 3].map((star) => (
-          <Star
-            key={star}
-            className={`w-4 h-4 ${
-              star <= rank ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
-            }`}
-          />
-        ))}
+      <div className="relative">
+        <Shield className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
+          {rank}
+        </span>
       </div>
     );
   };
@@ -220,29 +218,6 @@ const LiveScore = () => {
               <div className="flex items-center gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-accent" />
                 <span className="text-muted-foreground">Active Tournaments: 3</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <span className="text-muted-foreground">Game Week:</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setCurrentGameWeek(Math.max(1, currentGameWeek - 1))}
-                    disabled={currentGameWeek === 1}
-                    className="h-7 w-7 p-0"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <span className="font-medium min-w-[2rem] text-center">{currentGameWeek}</span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setCurrentGameWeek(currentGameWeek + 1)}
-                    className="h-7 w-7 p-0"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
@@ -401,63 +376,102 @@ const LiveScore = () => {
                       <Trophy className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-xl">{tournament}</span>
-                    <Badge variant="secondary" className="ml-auto">
-                      {matches.length} matches
-                    </Badge>
-                    {collapsedTournaments[tournament] ? (
-                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                    ) : (
-                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                    )}
+                    <div className="flex items-center gap-3 ml-auto">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">Round:</span>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentGameWeek(Math.max(1, currentGameWeek - 1));
+                            }}
+                            disabled={currentGameWeek === 1}
+                            className="h-6 w-6 p-0"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </Button>
+                          <span className="font-medium min-w-[1.5rem] text-center text-sm">{currentGameWeek}</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentGameWeek(currentGameWeek + 1);
+                            }}
+                            className="h-6 w-6 p-0"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      <Badge variant="secondary">
+                        {matches.length} matches
+                      </Badge>
+                      {collapsedTournaments[tournament] ? (
+                        <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                      )}
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 {!collapsedTournaments[tournament] && (
                   <CardContent>
+                    <div className="grid grid-cols-6 gap-4 items-center mb-4 text-sm font-medium text-muted-foreground border-b border-border/50 pb-2">
+                      <div className="text-center">Rank</div>
+                      <div className="text-center">Time</div>
+                      <div className="col-span-2 text-center">Match</div>
+                      <div className="text-center">Popular</div>
+                      <div className="text-center">My Prediction</div>
+                    </div>
                     <div className="space-y-3">
                       {matches.map((match) => (
                         <div
                           key={match.id}
-                          className="flex items-center justify-between p-4 bg-gradient-card rounded-xl border border-border/50 hover:shadow-elegant transition-all duration-300 group"
+                          className="grid grid-cols-6 gap-4 items-center p-3 bg-gradient-card rounded-xl border border-border/50 hover:shadow-elegant transition-all duration-300 group"
                         >
-                          {/* Rank Stars */}
-                          <div className="flex items-center gap-3">
-                            {renderStars(match.rank)}
+                          {/* Rank */}
+                          <div className="flex justify-center">
+                            {renderRankShields(match.rank)}
                           </div>
 
                           {/* Time & Status */}
-                          <div className="flex items-center gap-3">
+                          <div className="flex justify-center">
                             {getStatusBadge(match.status, match.time)}
                           </div>
 
                           {/* Teams & Score */}
-                          <div className="flex-1 mx-6">
-                            <div className="flex items-center justify-center gap-4 text-center">
-                              <div className="flex items-center gap-2 flex-1 justify-end">
-                                <span className="font-semibold text-base">{match.homeTeam}</span>
-                                <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
+                          <div className="col-span-2">
+                            <div className="flex items-center justify-center gap-3 text-center">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-sm">{match.homeTeam}</span>
+                                <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
                                   {match.homeTeam.slice(0, 2).toUpperCase()}
                                 </div>
                               </div>
-                              <div className="text-xl font-bold text-gradient min-w-[80px]">
+                              <div className="font-bold text-gradient min-w-[60px]">
                                 {match.homeScore !== null ? `${match.homeScore} - ${match.awayScore}` : "vs"}
                               </div>
-                              <div className="flex items-center gap-2 flex-1">
-                                <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
                                   {match.awayTeam.slice(0, 2).toUpperCase()}
                                 </div>
-                                <span className="font-semibold text-base">{match.awayTeam}</span>
+                                <span className="font-semibold text-sm">{match.awayTeam}</span>
                               </div>
                             </div>
                           </div>
 
-                          {/* Predictions Count */}
-                          <div className="text-center mr-6">
-                            <div className="text-xs text-muted-foreground mb-1">Predictions</div>
-                            <div className="font-bold text-sm text-primary">{match.predictions}</div>
+                          {/* Popular Prediction */}
+                          <div className="flex justify-center">
+                            <Badge className={`text-xs ${getPredictionColor(match.popularPrediction)}`}>
+                              {match.popularPrediction}
+                            </Badge>
                           </div>
 
                           {/* My Prediction */}
-                          <div className="flex items-center gap-3">
+                          <div className="flex justify-center">
                             {getMyPredictionDisplay(match)}
                           </div>
                         </div>
