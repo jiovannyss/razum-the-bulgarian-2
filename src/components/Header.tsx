@@ -10,8 +10,10 @@ import {
   Settings,
   LogOut,
   Crown,
-  Bell
+  Bell,
+  TrendingUp
 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +25,8 @@ import {
 import { useState } from "react";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const userPoints = 1247;
   const userRank = "Gold";
@@ -64,6 +68,19 @@ const Header = () => {
               Chat
             </a>
           </nav>
+          
+          {/* CTA Button */}
+          <div className="hidden md:block">
+            <Button 
+              variant="hero" 
+              size="lg"
+              className="px-8 py-3 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
+              onClick={() => navigate('/make-prediction')}
+            >
+              <TrendingUp className="w-6 h-6 mr-2" />
+              Make Prediction
+            </Button>
+          </div>
           
           {/* User Section */}
           <div className="flex items-center gap-4">
