@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { footballApi, type Match } from "@/services/footballApi";
+import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi";
 import { useToast } from "@/hooks/use-toast";
 import League from "./League";
+import { ApiKeySetup } from "./ApiKeySetup";
 
 interface ProcessedMatch {
   id: string;
@@ -41,113 +42,117 @@ const LiveScore = () => {
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [competitions, setCompetitions] = useState<Competition[]>([]);
+  const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const { toast } = useToast();
 
+  // Check if API key is configured on component mount
+  useEffect(() => {
+    setApiKeyConfigured(footballDataApi.hasApiKey());
+  }, []);
 
-  // Transform API match to our format
-  const transformMatch = (apiMatch: Match): ProcessedMatch => {
+  // Transform Football-Data.org API match to our format
+  const transformMatch = (apiMatch: Match, competitionName: string): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
-    let time = apiMatch.match_time;
+    let time = new Date(apiMatch.utcDate).toLocaleTimeString('bg-BG', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
 
-    if (apiMatch.match_status === 'Finished') {
+    if (apiMatch.status === 'FINISHED') {
       status = 'finished';
       time = 'FT';
-    } else if (apiMatch.match_live === '1') {
+    } else if (apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
       status = 'live';
-      time = apiMatch.match_status || 'Live';
+      time = 'Live';
+    } else if (apiMatch.status === 'SCHEDULED') {
+      status = 'upcoming';
     }
 
     return {
-      id: apiMatch.match_id,
-      tournament: `${apiMatch.country_name}: ${apiMatch.league_name}`,
-      homeTeam: apiMatch.match_hometeam_name,
-      awayTeam: apiMatch.match_awayteam_name,
-      homeScore: apiMatch.match_hometeam_score ? parseInt(apiMatch.match_hometeam_score) : null,
-      awayScore: apiMatch.match_awayteam_score ? parseInt(apiMatch.match_awayteam_score) : null,
+      id: apiMatch.id.toString(),
+      tournament: competitionName,
+      homeTeam: apiMatch.homeTeam.name,
+      awayTeam: apiMatch.awayTeam.name,
+      homeScore: apiMatch.score.fullTime.home,
+      awayScore: apiMatch.score.fullTime.away,
       time,
       status,
-      homeLogo: apiMatch.team_home_badge,
-      awayLogo: apiMatch.team_away_badge,
+      homeLogo: apiMatch.homeTeam.crest,
+      awayLogo: apiMatch.awayTeam.crest,
       predictions: Math.floor(Math.random() * 500) + 50,
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
       rank: Math.floor(Math.random() * 3) + 1,
       myPrediction: null,
       myPredictionCorrect: null,
-      round: apiMatch.match_round || '1'
+      round: apiMatch.matchday.toString()
     };
   };
 
   const loadMatches = async () => {
+    if (!footballDataApi.hasApiKey()) {
+      setApiKeyConfigured(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Starting to load leagues and matches...');
+      console.log('🔍 Starting to load competitions and matches...');
 
-      // First, try to get available leagues for free plan
-      try {
-        const leagues = await footballApi.getLeagues();
-        console.log('📋 Available leagues in free plan:', leagues);
-        console.log('📊 Number of leagues found:', leagues.length);
-        
-        if (leagues.length > 0) {
-          leagues.forEach((league, index) => {
-            console.log(`${index + 1}. ${league.country_name}: ${league.league_name} (ID: ${league.league_id})`);
-          });
-        }
-
-        if (leagues.length === 0) {
-          console.log('⚠️ No leagues available in current plan');
-          throw new Error('No leagues available in current plan');
-        }
-
-        // Try to get matches for the first available league
-        const leagueId = leagues[0]?.league_id;
-        console.log(`🎯 Trying to get matches for league: ${leagues[0]?.league_name} (ID: ${leagueId})`);
-        
-        const today = footballApi.getTodayDate();
-        console.log('📅 Today date:', today);
-        
-        // Try different date ranges - current season 2024/2025 (API free plan only covers this)
-        const dates = [
-          { from: today, to: '2025-05-31', name: 'Upcoming matches this season' },
-          { from: '2024-08-01', to: '2025-05-31', name: 'Full season 2024/2025' },
-          { from: today, to: today, name: 'Today only' },
-        ];
-
-        let allMatches: any[] = [];
-
-        for (const dateRange of dates) {
-          try {
-            console.log(`🔄 Trying ${dateRange.name}: ${dateRange.from} to ${dateRange.to}`);
-            const matches = await footballApi.getMatches(
-              dateRange.from, 
-              dateRange.to, 
-              leagueId
-            );
-            console.log(`📊 Found ${matches?.length || 0} matches for ${dateRange.name}`);
-            
-            if (matches && matches.length > 0) {
-              allMatches = matches;
-              console.log('✅ Successfully found matches!');
-              break;
-            }
-          } catch (err) {
-            console.log(`❌ No matches for ${dateRange.name}:`, err);
-          }
-        }
-
-        const transformedMatches = allMatches.map(transformMatch);
-        console.log(`🏁 Final transformed matches count: ${transformedMatches.length}`);
-        setMatches(transformedMatches);
-        
-      } catch (leagueError) {
-        console.error('❌ Error getting leagues:', leagueError);
-        throw leagueError;
+      // Get available competitions (only free tier)
+      const availableCompetitions = await footballDataApi.getCompetitions();
+      console.log('📋 Available competitions in free plan:', availableCompetitions);
+      console.log('📊 Number of competitions found:', availableCompetitions.length);
+      
+      if (availableCompetitions.length > 0) {
+        availableCompetitions.forEach((comp, index) => {
+          console.log(`${index + 1}. ${comp.area.name}: ${comp.name} (ID: ${comp.id})`);
+        });
       }
+
+      if (availableCompetitions.length === 0) {
+        console.log('⚠️ No competitions available in current plan');
+        throw new Error('No competitions available in current plan');
+      }
+
+      setCompetitions(availableCompetitions);
+
+      // Get matches for all available competitions
+      let allMatches: ProcessedMatch[] = [];
+
+      for (const competition of availableCompetitions.slice(0, 3)) { // Limit to first 3 to avoid rate limits
+        try {
+          console.log(`🎯 Getting matches for: ${competition.name} (ID: ${competition.id})`);
+          
+          // Get current matchday first
+          const currentMatchday = await footballDataApi.getCurrentMatchday(competition.id);
+          console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
+          
+          // Get matches for current matchday
+          const matches = await footballDataApi.getMatches(competition.id, currentMatchday);
+          console.log(`📊 Found ${matches?.length || 0} matches for ${competition.name} matchday ${currentMatchday}`);
+          
+          if (matches && matches.length > 0) {
+            const transformedMatches = matches.map(match => 
+              transformMatch(match, `${competition.area.name}: ${competition.name}`)
+            );
+            allMatches.push(...transformedMatches);
+            console.log(`✅ Added ${transformedMatches.length} matches from ${competition.name}`);
+          }
+        } catch (err) {
+          console.log(`❌ Error getting matches for ${competition.name}:`, err);
+        }
+      }
+
+      console.log(`🏁 Final matches count: ${allMatches.length}`);
+      setMatches(allMatches);
+        
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);
+      console.error('❌ Error loading data:', err);
       toast({
         title: "Грешка при зареждане",
         description: `Неуспешно зареждане на мачовете: ${errorMessage}`,
@@ -159,16 +164,30 @@ const LiveScore = () => {
   };
 
   useEffect(() => {
-    loadMatches();
-  }, []);
+    if (apiKeyConfigured) {
+      loadMatches();
+    }
+  }, [apiKeyConfigured]);
+
+  const handleApiKeySet = () => {
+    setApiKeyConfigured(true);
+  };
+
+  // Show API key setup if not configured
+  if (!apiKeyConfigured) {
+    return <ApiKeySetup onApiKeySet={handleApiKeySet} />;
+  }
 
   // Filter matches based on active tab
   const getFilteredMatches = (tabFilter: string) => {
+    const now = new Date();
+    const today = now.toDateString();
+    
     switch (tabFilter) {
       case "today":
         return matches.filter(match => {
-          // For demo purposes, consider all matches as "today" since API returns 404
-          return true; 
+          // Check if match is today (simplified)
+          return match.status === 'upcoming' || match.status === 'live';
         });
       case "live":
         return matches.filter(match => match.status === "live");
