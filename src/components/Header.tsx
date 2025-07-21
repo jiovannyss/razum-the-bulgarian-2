@@ -37,7 +37,10 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
-            <div>
+            <div 
+              className="cursor-pointer"
+              onClick={() => navigate('/')}
+            >
               <span className="text-2xl font-bold text-gradient">
                 Glowter
               </span>
@@ -46,7 +49,7 @@ const Header = () => {
           </div>
           
           {/* Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8">
             <button 
               onClick={() => navigate('/')} 
               className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 font-medium"
