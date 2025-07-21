@@ -42,72 +42,6 @@ const LiveScore = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Generate demo matches for fallback
-  const generateDemoMatches = (): ProcessedMatch[] => {
-    const demoMatches = [
-      {
-        id: 'demo1',
-        tournament: 'England: Premier League',
-        homeTeam: 'Manchester City',
-        awayTeam: 'Arsenal',
-        homeScore: 2,
-        awayScore: 1,
-        time: 'FT',
-        status: 'finished' as const,
-        homeLogo: '',
-        awayLogo: '',
-        predictions: 1247,
-        popularPrediction: '1',
-        rank: 1
-      },
-      {
-        id: 'demo2',
-        tournament: 'Spain: La Liga',
-        homeTeam: 'Real Madrid',
-        awayTeam: 'Barcelona',
-        homeScore: 1,
-        awayScore: 1,
-        time: '78\'',
-        status: 'live' as const,
-        homeLogo: '',
-        awayLogo: '',
-        predictions: 2156,
-        popularPrediction: 'X',
-        rank: 2
-      },
-      {
-        id: 'demo3',
-        tournament: 'Germany: Bundesliga',
-        homeTeam: 'Bayern Munich',
-        awayTeam: 'Borussia Dortmund',
-        homeScore: null,
-        awayScore: null,
-        time: '20:30',
-        status: 'upcoming' as const,
-        homeLogo: '',
-        awayLogo: '',
-        predictions: 987,
-        popularPrediction: '1',
-        rank: 3
-      },
-      {
-        id: 'demo4',
-        tournament: 'Italy: Serie A',
-        homeTeam: 'Juventus',
-        awayTeam: 'AC Milan',
-        homeScore: null,
-        awayScore: null,
-        time: '21:45',
-        status: 'upcoming' as const,
-        homeLogo: '',
-        awayLogo: '',
-        predictions: 743,
-        popularPrediction: '2',
-        rank: 1
-      }
-    ];
-    return demoMatches;
-  };
 
   // Transform API match to our format
   const transformMatch = (apiMatch: Match): ProcessedMatch => {
@@ -150,36 +84,19 @@ const LiveScore = () => {
       const tomorrow = footballApi.getTomorrowDate();
       const yesterday = footballApi.getYesterdayDate();
 
-      // Try to load matches from API first
-      try {
-        const [todayMatches, tomorrowMatches, yesterdayMatches] = await Promise.all([
-          footballApi.getMatches(today, today),
-          footballApi.getMatches(tomorrow, tomorrow),
-          footballApi.getMatches(yesterday, yesterday)
-        ]);
+      const [todayMatches, tomorrowMatches, yesterdayMatches] = await Promise.all([
+        footballApi.getMatches(today, today),
+        footballApi.getMatches(tomorrow, tomorrow),
+        footballApi.getMatches(yesterday, yesterday)
+      ]);
 
-        const allMatches = [
-          ...yesterdayMatches,
-          ...todayMatches, 
-          ...tomorrowMatches
-        ].map(transformMatch);
+      const allMatches = [
+        ...yesterdayMatches,
+        ...todayMatches, 
+        ...tomorrowMatches
+      ].map(transformMatch);
 
-        if (allMatches.length > 0) {
-          setMatches(allMatches);
-          return;
-        }
-      } catch (apiError) {
-        console.log('API error, using demo data:', apiError);
-      }
-
-      // Fallback to demo data when API fails or returns no data
-      const demoMatches = generateDemoMatches();
-      setMatches(demoMatches);
-      
-      toast({
-        title: "Demo режим",
-        description: "Показват се демо данни поради ограничения в Free плана на API.",
-      });
+      setMatches(allMatches);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);
@@ -333,130 +250,85 @@ const LiveScore = () => {
           </div>
         )}
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="xl:col-span-1 space-y-6">
-            {/* My Predictions */}
-            <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Target className="w-5 h-5 text-primary" />
-                  My Predictions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div>
-                    <div className="font-semibold text-sm">Chelsea vs Arsenal</div>
-                    <div className="text-xs text-muted-foreground">2-1 (Your prediction)</div>
-                  </div>
-                  <Badge variant="secondary" className="animate-pulse">
-                    Live
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-success/10 rounded-xl border border-success/20">
-                  <div>
-                    <div className="font-semibold text-sm">Man City vs Liverpool</div>
-                    <div className="text-xs text-success font-medium">1-0 ✓ Correct!</div>
-                  </div>
-                  <Badge className="bg-success animate-fade-in-up">
-                    +25 pts
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-destructive/10 rounded-xl border border-destructive/20">
-                  <div>
-                    <div className="font-semibold text-sm">Barcelona vs Madrid</div>
-                    <div className="text-xs text-destructive">0-2 ✗ Wrong</div>
-                  </div>
-                  <Badge variant="destructive" className="opacity-75">
-                    0 pts
-                  </Badge>
-                </div>
-                <Button variant="outline" size="sm" className="w-full card-hover">
-                  View All Predictions
-                </Button>
-              </CardContent>
-            </Card>
+        {/* Leagues */}
+        <div className="space-y-6 mb-8">
+          {!loading && !error && Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => (
+            <League
+              key={leagueName}
+              leagueName={leagueName}
+              matches={leagueMatches}
+              gameWeeks={38} // Standard number of game weeks
+            />
+          ))}
+        </div>
 
-            {/* Quick Stats */}
-            <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <BarChart3 className="w-5 h-5 text-primary" />
-                  Quick Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                    <div className="font-bold text-2xl text-gradient">87%</div>
-                    <div className="text-xs text-muted-foreground">Accuracy</div>
+        {/* Bottom Content */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Quick Stats */}
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                Quick Stats
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-2xl text-gradient">87%</div>
+                  <div className="text-xs text-muted-foreground">Accuracy</div>
+                </div>
+                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-2xl text-gradient">1,247</div>
+                  <div className="text-xs text-muted-foreground">Points</div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">This Week</span>
+                  <span className="font-semibold text-success">+156 pts</span>
+                </div>
+                <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
+                  <div className="bg-gradient-primary h-3 rounded-full transition-all duration-1000 animate-fade-in-up" style={{ width: "78%" }}></div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                  <div className="text-center">
+                    <div className="font-medium text-foreground">12</div>
+                    <div>Correct</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                    <div className="font-bold text-2xl text-gradient">1,247</div>
-                    <div className="text-xs text-muted-foreground">Points</div>
+                  <div className="text-center">
+                    <div className="font-medium text-foreground">3</div>
+                    <div>Wrong</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-foreground">5</div>
+                    <div>Pending</div>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">This Week</span>
-                    <span className="font-semibold text-success">+156 pts</span>
-                  </div>
-                  <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
-                    <div className="bg-gradient-primary h-3 rounded-full transition-all duration-1000 animate-fade-in-up" style={{ width: "78%" }}></div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                    <div className="text-center">
-                      <div className="font-medium text-foreground">12</div>
-                      <div>Correct</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-foreground">3</div>
-                      <div>Wrong</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-foreground">5</div>
-                      <div>Pending</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Quick Actions */}
-            <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start gap-2 card-hover">
-                  <Users className="w-4 h-4" />
-                  Join Room
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2 card-hover">
-                  <Trophy className="w-4 h-4" />
-                  Rankings
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2 card-hover">
-                  <Clock className="w-4 h-4" />
-                  Match History
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Leagues */}
-          <div className="xl:col-span-3 space-y-6">
-            {!loading && !error && Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => (
-              <League
-                key={leagueName}
-                leagueName={leagueName}
-                matches={leagueMatches}
-                gameWeeks={38} // Standard number of game weeks
-              />
-            ))}
-          </div>
+          {/* Quick Actions */}
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start gap-2 card-hover">
+                <Users className="w-4 h-4" />
+                Join Room
+              </Button>
+              <Button variant="outline" className="w-full justify-start gap-2 card-hover">
+                <Trophy className="w-4 h-4" />
+                Rankings
+              </Button>
+              <Button variant="outline" className="w-full justify-start gap-2 card-hover">
+                <Clock className="w-4 h-4" />
+                Match History
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </main>
