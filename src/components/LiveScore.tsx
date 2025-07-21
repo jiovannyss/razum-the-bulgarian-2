@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi";
+import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi"; // Updated API
 import { useToast } from "@/hooks/use-toast";
 import League from "./League";
 import { ApiKeySetup } from "./ApiKeySetup";
