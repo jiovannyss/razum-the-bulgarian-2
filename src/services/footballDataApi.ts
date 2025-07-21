@@ -1,5 +1,6 @@
 // Football-Data.org API Service
 // Documentation: https://www.football-data.org/documentation/api
+import { demoCompetitions, getAllDemoMatches, getDemoMatchesByCompetition, getDemoMatchesByMatchday } from './demoData';
 
 export interface Competition {
   id: number;
@@ -108,41 +109,65 @@ class FootballDataApiService {
     return data;
   }
 
-  // Get available competitions
+  // Get available competitions (with demo fallback for CORS issues)
   async getCompetitions(): Promise<Competition[]> {
-    const response = await this.makeRequest<CompetitionsResponse>('/competitions');
-    return response.competitions.filter(comp => comp.plan === 'TIER_ONE');
+    try {
+      const response = await this.makeRequest<CompetitionsResponse>('/competitions');
+      return response.competitions.filter(comp => comp.plan === 'TIER_ONE');
+    } catch (error) {
+      console.log('🔄 Using demo data due to CORS restrictions');
+      return demoCompetitions;
+    }
   }
 
-  // Get matches for a specific competition
+  // Get matches for a specific competition (with demo fallback)
   async getMatches(competitionId: number, matchday?: number): Promise<Match[]> {
-    let endpoint = `/competitions/${competitionId}/matches`;
-    
-    const params = new URLSearchParams();
-    if (matchday) {
-      params.append('matchday', matchday.toString());
-    }
-    
-    if (params.toString()) {
-      endpoint += `?${params.toString()}`;
-    }
+    try {
+      let endpoint = `/competitions/${competitionId}/matches`;
+      
+      const params = new URLSearchParams();
+      if (matchday) {
+        params.append('matchday', matchday.toString());
+      }
+      
+      if (params.toString()) {
+        endpoint += `?${params.toString()}`;
+      }
 
-    const response = await this.makeRequest<MatchesResponse>(endpoint);
-    return response.matches;
+      const response = await this.makeRequest<MatchesResponse>(endpoint);
+      return response.matches;
+    } catch (error) {
+      console.log('🔄 Using demo matches due to CORS restrictions');
+      if (matchday) {
+        return getDemoMatchesByMatchday(competitionId, matchday);
+      }
+      return getDemoMatchesByCompetition(competitionId);
+    }
   }
 
-  // Get current matchday for competition
+  // Get current matchday for competition (with demo fallback)
   async getCurrentMatchday(competitionId: number): Promise<number> {
-    const competitions = await this.getCompetitions();
-    const competition = competitions.find(c => c.id === competitionId);
-    return competition?.currentSeason.currentMatchday || 1;
+    try {
+      const competitions = await this.getCompetitions();
+      const competition = competitions.find(c => c.id === competitionId);
+      return competition?.currentSeason.currentMatchday || 1;
+    } catch (error) {
+      // Use demo data matchday
+      const demoComp = demoCompetitions.find(c => c.id === competitionId);
+      return demoComp?.currentSeason.currentMatchday || 18;
+    }
   }
 
-  // Get all matchdays for a competition (for navigation)
+  // Get all matchdays for a competition (with demo fallback)
   async getMatchdays(competitionId: number): Promise<number[]> {
-    const allMatches = await this.getMatches(competitionId);
-    const matchdays = [...new Set(allMatches.map(m => m.matchday))].sort((a, b) => a - b);
-    return matchdays;
+    try {
+      const allMatches = await this.getMatches(competitionId);
+      const matchdays = [...new Set(allMatches.map(m => m.matchday))].sort((a, b) => a - b);
+      return matchdays;
+    } catch (error) {
+      // Return demo matchdays
+      return [16, 17, 18, 19, 20];
+    }
   }
 }
 
