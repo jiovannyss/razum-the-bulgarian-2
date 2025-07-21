@@ -70,7 +70,9 @@ class FootballDataApiService {
   private apiKeyStorageKey = 'football_data_api_key';
 
   private getApiKey(): string | null {
-    return localStorage.getItem(this.apiKeyStorageKey);
+    // Use provided API key as default
+    const providedKey = '4c0b967130864749a36fb552c0755910';
+    return localStorage.getItem(this.apiKeyStorageKey) || providedKey;
   }
 
   public setApiKey(apiKey: string): void {
