@@ -80,23 +80,45 @@ const LiveScore = () => {
       setLoading(true);
       setError(null);
 
+      // First, try to get available leagues for free plan
+      const leagues = await footballApi.getLeagues();
+      console.log('Available leagues:', leagues);
+
+      if (leagues.length === 0) {
+        throw new Error('No leagues available in current plan');
+      }
+
+      // Try to get matches for the first available league
+      const leagueId = leagues[0]?.league_id;
       const today = footballApi.getTodayDate();
-      const tomorrow = footballApi.getTomorrowDate();
-      const yesterday = footballApi.getYesterdayDate();
+      
+      // Try different date ranges - current season usually runs from August
+      const dates = [
+        { from: '2024-08-01', to: '2024-12-31' }, // Current season
+        { from: '2025-01-01', to: '2025-05-31' }, // Second half
+        { from: today, to: today }, // Today only
+      ];
 
-      const [todayMatches, tomorrowMatches, yesterdayMatches] = await Promise.all([
-        footballApi.getMatches(today, today),
-        footballApi.getMatches(tomorrow, tomorrow),
-        footballApi.getMatches(yesterday, yesterday)
-      ]);
+      let allMatches: any[] = [];
 
-      const allMatches = [
-        ...yesterdayMatches,
-        ...todayMatches, 
-        ...tomorrowMatches
-      ].map(transformMatch);
+      for (const dateRange of dates) {
+        try {
+          const matches = await footballApi.getMatches(
+            dateRange.from, 
+            dateRange.to, 
+            leagueId
+          );
+          if (matches && matches.length > 0) {
+            allMatches = matches;
+            break;
+          }
+        } catch (err) {
+          console.log(`No matches for ${dateRange.from} to ${dateRange.to}:`, err);
+        }
+      }
 
-      setMatches(allMatches);
+      const transformedMatches = allMatches.map(transformMatch);
+      setMatches(transformedMatches);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);

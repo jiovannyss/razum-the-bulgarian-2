@@ -57,13 +57,6 @@ const Header = () => {
               <Zap className="w-4 h-4" />
               Live Scores
             </button>
-            <button 
-              onClick={() => navigate('/available-leagues')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200"
-            >
-              <Trophy className="w-4 h-4" />
-              Available Leagues
-            </button>
             <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
               <Target className="w-4 h-4" />
               My Predictions
@@ -84,7 +77,7 @@ const Header = () => {
               variant="hero" 
               size="lg"
               className="px-8 py-3 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
-              onClick={() => navigate('/make-prediction')}
+              onClick={() => navigate('/')}
             >
               <TrendingUp className="w-6 h-6 mr-2" />
               Make Prediction
@@ -164,13 +157,6 @@ const Header = () => {
               >
                 <Zap className="w-4 h-4" />
                 Live Scores
-              </button>
-              <button 
-                onClick={() => navigate('/available-leagues')}
-                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50 w-full text-left"
-              >
-                <Trophy className="w-4 h-4" />
-                Available Leagues
               </button>
               <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
                 <Target className="w-4 h-4" />
