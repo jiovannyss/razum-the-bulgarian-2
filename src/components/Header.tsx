@@ -47,14 +47,20 @@ const Header = () => {
           
           {/* Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            <a href="#" className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 font-medium">
+            <button 
+              onClick={() => navigate('/')} 
+              className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 font-medium"
+            >
               <Zap className="w-4 h-4" />
               Live Scores
-            </a>
-            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
-              <Users className="w-4 h-4" />
-              Rooms
-            </a>
+            </button>
+            <button 
+              onClick={() => navigate('/available-leagues')}
+              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200"
+            >
+              <Trophy className="w-4 h-4" />
+              Available Leagues
+            </button>
             <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
               <Target className="w-4 h-4" />
               My Predictions
@@ -149,14 +155,20 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden mt-4 pt-4 border-t border-border/50">
             <nav className="flex flex-col gap-3">
-              <a href="#" className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+              <button 
+                onClick={() => navigate('/')} 
+                className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50 w-full text-left"
+              >
                 <Zap className="w-4 h-4" />
                 Live Scores
-              </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
-                <Users className="w-4 h-4" />
-                Rooms
-              </a>
+              </button>
+              <button 
+                onClick={() => navigate('/available-leagues')}
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50 w-full text-left"
+              >
+                <Trophy className="w-4 h-4" />
+                Available Leagues
+              </button>
               <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
                 <Target className="w-4 h-4" />
                 My Predictions
