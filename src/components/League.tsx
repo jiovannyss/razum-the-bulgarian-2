@@ -44,33 +44,78 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   }, {} as Record<string, ProcessedMatch[]>);
   
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
-  const maxGameWeeks = availableRounds.length;
+  const maxGameWeeks = Math.max(availableRounds.length, 1);
   
   const [currentGameWeek, setCurrentGameWeek] = useState(1);
   
-  // Get matches for current round
-  const currentRound = availableRounds[currentGameWeek - 1] || '1';
-  const currentMatches = matchesByRound[currentRound] || [];
+  // Get matches for current round - fix the logic
+  const currentRound = availableRounds.length > 0 ? availableRounds[currentGameWeek - 1] : '1';
+  const currentMatches = availableRounds.length > 0 ? (matchesByRound[currentRound] || []) : matches;
+
+  const formatMatchTime = (timeString: string) => {
+    try {
+      // If it's already in HH:mm format, try to add date
+      if (timeString.match(/^\d{2}:\d{2}$/)) {
+        return timeString;
+      }
+      
+      // Parse ISO date string
+      const date = new Date(timeString);
+      if (isNaN(date.getTime())) {
+        return timeString; // Return original if can't parse
+      }
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const matchDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const diffDays = Math.floor((matchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      const timeStr = date.toLocaleTimeString('bg-BG', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: 'Europe/Sofia'
+      });
+      
+      if (diffDays === 0) {
+        return `днес ${timeStr}`;
+      } else if (diffDays === 1) {
+        return `утре ${timeStr}`;
+      } else if (diffDays === -1) {
+        return `вчера ${timeStr}`;
+      } else {
+        const dateStr = date.toLocaleDateString('bg-BG', { 
+          day: '2-digit', 
+          month: '2-digit',
+          timeZone: 'Europe/Sofia'
+        });
+        return `${dateStr} ${timeStr}`;
+      }
+    } catch (error) {
+      return timeString; // Return original if any error
+    }
+  };
 
   const getStatusBadge = (status: string, time: string) => {
+    const formattedTime = formatMatchTime(time);
+    
     switch (status) {
       case "live":
         return (
           <Badge className="bg-live text-white animate-pulse gap-1">
             <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            {time}
+            {formattedTime}
           </Badge>
         );
       case "upcoming":
         return (
           <Badge variant="outline" className="text-muted-foreground gap-1">
-            {time}
+            {formattedTime}
           </Badge>
         );
       case "finished":
-        return <Badge variant="secondary">{time}</Badge>;
+        return <Badge variant="secondary">{formattedTime}</Badge>;
       default:
-        return <Badge variant="outline">{time}</Badge>;
+        return <Badge variant="outline">{formattedTime}</Badge>;
     }
   };
 
@@ -159,7 +204,7 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
           {currentMatches.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
               <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Няма мачове за кръг {currentGameWeek}</p>
+              <p>Няма мачове за кръг {currentRound || currentGameWeek}</p>
             </div>
           ) : (
             currentMatches.map((match) => (

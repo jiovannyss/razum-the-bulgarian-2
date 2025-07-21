@@ -46,10 +46,7 @@ const LiveScore = () => {
   // Transform Football-Data.org API match to our format
   const transformMatch = (apiMatch: Match): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
-    let time = new Date(apiMatch.utcDate).toLocaleTimeString('bg-BG', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    let time = apiMatch.utcDate; // Keep the full ISO date string
 
     if (apiMatch.status === 'FINISHED') {
       status = 'finished';
@@ -57,8 +54,9 @@ const LiveScore = () => {
     } else if (apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
       status = 'live';
       time = 'Live';
-    } else if (apiMatch.status === 'SCHEDULED') {
+    } else if (apiMatch.status === 'SCHEDULED' || apiMatch.status === 'TIMED') {
       status = 'upcoming';
+      // Keep the full ISO date string for upcoming matches
     }
 
     return {
