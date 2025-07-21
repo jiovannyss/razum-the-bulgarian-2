@@ -13,10 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi"; // Updated API
+import { footballApi, type Match } from "@/services/footballApi";
 import { useToast } from "@/hooks/use-toast";
 import League from "./League";
-import { ApiKeySetup } from "./ApiKeySetup";
 
 interface ProcessedMatch {
   id: string;
@@ -42,107 +41,91 @@ const LiveScore = () => {
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const { toast } = useToast();
 
-  // Check if API key is configured on component mount
-  useEffect(() => {
-    setApiKeyConfigured(footballDataApi.hasApiKey());
-  }, []);
-
-  // Transform Football-Data.org API match to our format
-  const transformMatch = (apiMatch: Match, competitionName: string): ProcessedMatch => {
+  // Transform API match to our format
+  const transformMatch = (apiMatch: Match): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
-    let time = new Date(apiMatch.utcDate).toLocaleTimeString('bg-BG', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    let time = apiMatch.match_time;
 
-    if (apiMatch.status === 'FINISHED') {
+    if (apiMatch.match_status === 'Finished') {
       status = 'finished';
       time = 'FT';
-    } else if (apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
+    } else if (apiMatch.match_live === '1') {
       status = 'live';
-      time = 'Live';
-    } else if (apiMatch.status === 'SCHEDULED') {
-      status = 'upcoming';
+      time = apiMatch.match_status || 'Live';
+    } else {
+      // Parse the date to show properly formatted time
+      const matchDate = new Date(`${apiMatch.match_date}T${apiMatch.match_time}`);
+      if (!isNaN(matchDate.getTime())) {
+        time = matchDate.toLocaleTimeString('bg-BG', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      }
     }
 
     return {
-      id: apiMatch.id.toString(),
-      tournament: competitionName,
-      homeTeam: apiMatch.homeTeam.name,
-      awayTeam: apiMatch.awayTeam.name,
-      homeScore: apiMatch.score.fullTime.home,
-      awayScore: apiMatch.score.fullTime.away,
+      id: apiMatch.match_id,
+      tournament: `${apiMatch.country_name}: ${apiMatch.league_name}`,
+      homeTeam: apiMatch.match_hometeam_name,
+      awayTeam: apiMatch.match_awayteam_name,
+      homeScore: apiMatch.match_hometeam_score ? parseInt(apiMatch.match_hometeam_score) : null,
+      awayScore: apiMatch.match_awayteam_score ? parseInt(apiMatch.match_awayteam_score) : null,
       time,
       status,
-      homeLogo: apiMatch.homeTeam.crest,
-      awayLogo: apiMatch.awayTeam.crest,
+      homeLogo: apiMatch.team_home_badge,
+      awayLogo: apiMatch.team_away_badge,
       predictions: Math.floor(Math.random() * 500) + 50,
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
       rank: Math.floor(Math.random() * 3) + 1,
       myPrediction: null,
       myPredictionCorrect: null,
-      round: apiMatch.matchday.toString()
+      round: apiMatch.match_round || '1'
     };
   };
 
   const loadMatches = async () => {
-    if (!footballDataApi.hasApiKey()) {
-      setApiKeyConfigured(false);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Starting to load competitions and matches...');
+      console.log('🔍 Starting to load leagues and upcoming matches...');
 
-      // Get available competitions (only free tier)
-      const availableCompetitions = await footballDataApi.getCompetitions();
-      console.log('📋 Available competitions in free plan:', availableCompetitions);
-      console.log('📊 Number of competitions found:', availableCompetitions.length);
+      // First, get available leagues
+      const leagues = await footballApi.getLeagues();
+      console.log('📋 Available leagues:', leagues);
+      console.log('📊 Number of leagues found:', leagues.length);
       
-      if (availableCompetitions.length > 0) {
-        availableCompetitions.forEach((comp, index) => {
-          console.log(`${index + 1}. ${comp.area.name}: ${comp.name} (ID: ${comp.id})`);
+      if (leagues.length > 0) {
+        leagues.forEach((league, index) => {
+          console.log(`${index + 1}. ${league.country_name}: ${league.league_name} (ID: ${league.league_id})`);
         });
       }
 
-      if (availableCompetitions.length === 0) {
-        console.log('⚠️ No competitions available in current plan');
-        throw new Error('No competitions available in current plan');
+      if (leagues.length === 0) {
+        console.log('⚠️ No leagues available');
+        throw new Error('No leagues available');
       }
 
-      setCompetitions(availableCompetitions);
-
-      // Get matches for all available competitions
+      // Get upcoming matches for all leagues
       let allMatches: ProcessedMatch[] = [];
 
-      for (const competition of availableCompetitions.slice(0, 3)) { // Limit to first 3 to avoid rate limits
+      for (const league of leagues) {
         try {
-          console.log(`🎯 Getting matches for: ${competition.name} (ID: ${competition.id})`);
+          console.log(`🎯 Getting upcoming matches for: ${league.league_name} (ID: ${league.league_id})`);
           
-          // Get current matchday first
-          const currentMatchday = await footballDataApi.getCurrentMatchday(competition.id);
-          console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
-          
-          // Get matches for current matchday
-          const matches = await footballDataApi.getMatches(competition.id, currentMatchday);
-          console.log(`📊 Found ${matches?.length || 0} matches for ${competition.name} matchday ${currentMatchday}`);
+          // Get upcoming matches for this league
+          const matches = await footballApi.getUpcomingMatches(league.league_id);
+          console.log(`📊 Found ${matches?.length || 0} upcoming matches for ${league.league_name}`);
           
           if (matches && matches.length > 0) {
-            const transformedMatches = matches.map(match => 
-              transformMatch(match, `${competition.area.name}: ${competition.name}`)
-            );
+            const transformedMatches = matches.map(transformMatch);
             allMatches.push(...transformedMatches);
-            console.log(`✅ Added ${transformedMatches.length} matches from ${competition.name}`);
+            console.log(`✅ Added ${transformedMatches.length} matches from ${league.league_name}`);
           }
         } catch (err) {
-          console.log(`❌ Error getting matches for ${competition.name}:`, err);
+          console.log(`❌ Error getting matches for ${league.league_name}:`, err);
         }
       }
 
@@ -164,19 +147,8 @@ const LiveScore = () => {
   };
 
   useEffect(() => {
-    if (apiKeyConfigured) {
-      loadMatches();
-    }
-  }, [apiKeyConfigured]);
-
-  const handleApiKeySet = () => {
-    setApiKeyConfigured(true);
-  };
-
-  // Show API key setup if not configured
-  if (!apiKeyConfigured) {
-    return <ApiKeySetup onApiKeySet={handleApiKeySet} />;
-  }
+    loadMatches();
+  }, []);
 
   // Filter matches based on active tab
   const getFilteredMatches = (tabFilter: string) => {
@@ -186,7 +158,7 @@ const LiveScore = () => {
     switch (tabFilter) {
       case "today":
         return matches.filter(match => {
-          // Check if match is today (simplified)
+          // Check if match is today
           return match.status === 'upcoming' || match.status === 'live';
         });
       case "live":
@@ -303,7 +275,7 @@ const LiveScore = () => {
                 <span className="font-semibold">No matches found</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                No matches available for the selected filter. Try refreshing or changing the filter.
+                No upcoming matches available. Try refreshing or check back later.
               </p>
               <Button 
                 onClick={loadMatches} 
