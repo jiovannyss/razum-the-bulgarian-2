@@ -21,18 +21,36 @@ interface ProcessedMatch {
   rank?: number;
   myPrediction?: string | null;
   myPredictionCorrect?: boolean | null;
+  round: string;
 }
 
 interface LeagueProps {
   leagueName: string;
   matches: ProcessedMatch[];
   leagueLogo?: string;
-  gameWeeks?: number;
 }
 
-const League = ({ leagueName, matches, leagueLogo, gameWeeks = 1 }: LeagueProps) => {
+const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // Group matches by round and get available rounds
+  const matchesByRound = matches.reduce((acc, match) => {
+    const round = match.round;
+    if (!acc[round]) {
+      acc[round] = [];
+    }
+    acc[round].push(match);
+    return acc;
+  }, {} as Record<string, ProcessedMatch[]>);
+  
+  const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
+  const maxGameWeeks = availableRounds.length;
+  
   const [currentGameWeek, setCurrentGameWeek] = useState(1);
+  
+  // Get matches for current round
+  const currentRound = availableRounds[currentGameWeek - 1] || '1';
+  const currentMatches = matchesByRound[currentRound] || [];
 
   const getStatusBadge = (status: string, time: string) => {
     switch (status) {
@@ -72,7 +90,7 @@ const League = ({ leagueName, matches, leagueLogo, gameWeeks = 1 }: LeagueProps)
   };
 
   const handleNextGameWeek = () => {
-    if (currentGameWeek < gameWeeks) {
+    if (currentGameWeek < maxGameWeeks) {
       setCurrentGameWeek(prev => prev + 1);
     }
   };
@@ -112,7 +130,7 @@ const League = ({ leagueName, matches, leagueLogo, gameWeeks = 1 }: LeagueProps)
               variant="ghost"
               size="sm"
               onClick={handleNextGameWeek}
-              disabled={currentGameWeek >= gameWeeks}
+              disabled={currentGameWeek >= maxGameWeeks}
               className="h-8 w-8 p-0"
             >
               <ChevronRight className="h-4 w-4" />
@@ -138,13 +156,13 @@ const League = ({ leagueName, matches, leagueLogo, gameWeeks = 1 }: LeagueProps)
       {/* Matches List */}
       {!isCollapsed && (
         <div className="divide-y divide-border/50">
-          {matches.length === 0 ? (
+          {currentMatches.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
               <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Няма мачове за показване</p>
+              <p>Няма мачове за кръг {currentGameWeek}</p>
             </div>
           ) : (
-            matches.map((match) => (
+            currentMatches.map((match) => (
               <div
                 key={match.id}
                 className="p-4 hover:bg-accent/5 transition-colors"

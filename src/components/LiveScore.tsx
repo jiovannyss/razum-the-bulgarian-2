@@ -33,6 +33,7 @@ interface ProcessedMatch {
   rank?: number;
   myPrediction?: string | null;
   myPredictionCorrect?: boolean | null;
+  round: string;
 }
 
 const LiveScore = () => {
@@ -71,7 +72,8 @@ const LiveScore = () => {
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
       rank: Math.floor(Math.random() * 3) + 1,
       myPrediction: null,
-      myPredictionCorrect: null
+      myPredictionCorrect: null,
+      round: apiMatch.match_round || '1'
     };
   };
 
@@ -106,10 +108,10 @@ const LiveScore = () => {
         const today = footballApi.getTodayDate();
         console.log('📅 Today date:', today);
         
-        // Try different date ranges - current season usually runs from August
+        // Try different date ranges - current season 2025-2026
         const dates = [
-          { from: '2024-08-01', to: '2024-12-31', name: 'Current season first half' }, 
-          { from: '2025-01-01', to: '2025-05-31', name: 'Current season second half' }, 
+          { from: '2025-08-01', to: '2025-12-31', name: 'Current season first half (2025)' }, 
+          { from: '2026-01-01', to: '2026-05-31', name: 'Current season second half (2026)' }, 
           { from: today, to: today, name: 'Today only' },
         ];
 
@@ -303,7 +305,6 @@ const LiveScore = () => {
               key={leagueName}
               leagueName={leagueName}
               matches={leagueMatches}
-              gameWeeks={38} // Standard number of game weeks
             />
           ))}
         </div>
