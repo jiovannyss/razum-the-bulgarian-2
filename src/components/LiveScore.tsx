@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Clock, 
   Users, 
@@ -14,104 +14,146 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  RefreshCw,
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { footballApi, type Match } from "@/services/footballApi";
+import { useToast } from "@/hooks/use-toast";
 
-const mockMatches = [
-  {
-    id: 1,
-    tournament: "ЕВРОПА: Шампионска лига - Квалификация",
-    homeTeam: "Лудогорец",
-    awayTeam: "Дин. Минск",
-    homeScore: null,
-    awayScore: null,
-    time: "14:45",
-    status: "upcoming",
-    predictions: 147,
-    popularPrediction: "1",
-    rank: 3,
-    myPrediction: null
-  },
-  {
-    id: 2,
-    tournament: "ЕВРОПА: Лига на конференциите - Квалификация", 
-    homeTeam: "Ауда",
-    awayTeam: "Ларн",
-    homeScore: 1,
-    awayScore: 0,
-    time: "67'",
-    status: "live",
-    predictions: 89,
-    popularPrediction: "1",
-    rank: 2,
-    myPrediction: "1",
-    myPredictionCorrect: null // still playing
-  },
-  {
-    id: 3,
-    tournament: "БЪЛГАРИЯ: Първа лига",
-    homeTeam: "ЦСКА 1948",
-    awayTeam: "Левски",
-    homeScore: 2,
-    awayScore: 1,
-    time: "FT",
-    status: "finished",
-    predictions: 324,
-    popularPrediction: "X",
-    rank: 2,
-    myPrediction: "1",
-    myPredictionCorrect: true
-  },
-  {
-    id: 4,
-    tournament: "ЕВРОПА: Шампионска лига - Квалификация",
-    homeTeam: "Арсенал",
-    awayTeam: "Челси",
-    homeScore: null,
-    awayScore: null,
-    time: "16:30",
-    status: "upcoming",
-    predictions: 892,
-    popularPrediction: "2",
-    rank: 3,
-    myPrediction: "X",
-    myPredictionCorrect: false
-  },
-  {
-    id: 5,
-    tournament: "БЪЛГАРИЯ: Първа лига",
-    homeTeam: "Ботев Пд",
-    awayTeam: "Черно море",
-    homeScore: 0,
-    awayScore: 0,
-    time: "23'",
-    status: "live",
-    predictions: 156,
-    popularPrediction: "X",
-    rank: 1,
-    myPrediction: null
-  }
-];
+interface ProcessedMatch {
+  id: string;
+  tournament: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  time: string;
+  status: 'live' | 'upcoming' | 'finished';
+  homeLogo?: string;
+  awayLogo?: string;
+  predictions?: number;
+  popularPrediction?: string;
+  rank?: number;
+  myPrediction?: string | null;
+  myPredictionCorrect?: boolean | null;
+}
 
 const LiveScore = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [collapsedTournaments, setCollapsedTournaments] = useState<Record<string, boolean>>({});
   const [currentGameWeek, setCurrentGameWeek] = useState(1);
+  const [matches, setMatches] = useState<ProcessedMatch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Transform API match to our format
+  const transformMatch = (apiMatch: Match): ProcessedMatch => {
+    let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
+    let time = apiMatch.match_time;
+
+    if (apiMatch.match_status === 'Finished') {
+      status = 'finished';
+      time = 'FT';
+    } else if (apiMatch.match_live === '1') {
+      status = 'live';
+      time = apiMatch.match_status || 'Live';
+    }
+
+    return {
+      id: apiMatch.match_id,
+      tournament: `${apiMatch.country_name}: ${apiMatch.league_name}`,
+      homeTeam: apiMatch.match_hometeam_name,
+      awayTeam: apiMatch.match_awayteam_name,
+      homeScore: apiMatch.match_hometeam_score ? parseInt(apiMatch.match_hometeam_score) : null,
+      awayScore: apiMatch.match_awayteam_score ? parseInt(apiMatch.match_awayteam_score) : null,
+      time,
+      status,
+      homeLogo: apiMatch.team_home_badge,
+      awayLogo: apiMatch.team_away_badge,
+      predictions: Math.floor(Math.random() * 500) + 50, // Mock predictions for now
+      popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)], // Mock popular prediction
+      rank: Math.floor(Math.random() * 3) + 1, // Mock rank
+      myPrediction: null,
+      myPredictionCorrect: null
+    };
+  };
+
+  const loadMatches = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const today = footballApi.getTodayDate();
+      const tomorrow = footballApi.getTomorrowDate();
+      const yesterday = footballApi.getYesterdayDate();
+
+      // Load matches from yesterday, today and tomorrow
+      const [todayMatches, tomorrowMatches, yesterdayMatches] = await Promise.all([
+        footballApi.getMatches(today, today),
+        footballApi.getMatches(tomorrow, tomorrow),
+        footballApi.getMatches(yesterday, yesterday)
+      ]);
+
+      const allMatches = [
+        ...yesterdayMatches,
+        ...todayMatches, 
+        ...tomorrowMatches
+      ].map(transformMatch);
+
+      setMatches(allMatches);
+      
+      if (allMatches.length === 0) {
+        toast({
+          title: "Няма налични мачове",
+          description: "В момента няма мачове за показване за избрания период.",
+        });
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
+      setError(errorMessage);
+      toast({
+        title: "Грешка при зареждане",
+        description: `Неуспешно зареждане на мачовете: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMatches();
+  }, []);
+
+  // Filter matches based on active filter
+  const filteredMatches = matches.filter(match => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "live") return match.status === "live";
+    if (activeFilter === "upcoming") return match.status === "upcoming";
+    if (activeFilter === "finished") return match.status === "finished";
+    return true;
+  });
 
   const filters = ["All", "Live", "Upcoming", "Finished"];
 
-  // Group matches by tournament
-  const matchesByTournament = mockMatches.reduce((acc, match) => {
+  // Group filtered matches by tournament
+  const matchesByTournament = filteredMatches.reduce((acc, match) => {
     const tournament = match.tournament;
     if (!acc[tournament]) {
       acc[tournament] = [];
     }
     acc[tournament].push(match);
     return acc;
-  }, {} as Record<string, typeof mockMatches>);
+  }, {} as Record<string, ProcessedMatch[]>);
+
+  // Get live matches count
+  const liveMatchesCount = matches.filter(m => m.status === 'live').length;
+  const tournamentCount = Object.keys(matchesByTournament).length;
 
   const getStatusBadge = (status: string, time: string) => {
     switch (status) {
@@ -213,19 +255,24 @@ const LiveScore = () => {
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
-                <span className="text-live font-medium">3 Live Matches</span>
+                <span className="text-live font-medium">{liveMatchesCount} Live Matches</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-accent" />
-                <span className="text-muted-foreground">Active Tournaments: 3</span>
+                <span className="text-muted-foreground">Active Tournaments: {tournamentCount}</span>
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="gap-2 card-hover">
-              <Calendar className="w-4 h-4" />
-              Today
+            <Button 
+              variant="outline" 
+              className="gap-2 card-hover"
+              onClick={loadMatches}
+              disabled={loading}
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              {loading ? 'Loading...' : 'Refresh'}
             </Button>
             <Button className="gap-2 btn-glow">
               <Target className="w-4 h-4" />
@@ -240,11 +287,11 @@ const LiveScore = () => {
             {filters.map((filter) => (
               <Button
                 key={filter}
-                variant={activeFilter === filter ? "default" : "outline"}
+                variant={activeFilter === filter.toLowerCase() ? "default" : "outline"}
                 size="sm"
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => setActiveFilter(filter.toLowerCase())}
                 className={`transition-all duration-200 card-hover ${
-                  activeFilter === filter ? 'btn-glow' : ''
+                  activeFilter === filter.toLowerCase() ? 'btn-glow' : ''
                 }`}
               >
                 {filter}
@@ -252,6 +299,58 @@ const LiveScore = () => {
             ))}
           </div>
         </div>
+
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <span>Loading matches...</span>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-center justify-center py-12">
+            <Card className="p-6 max-w-md mx-auto">
+              <div className="flex items-center gap-3 text-destructive mb-4">
+                <AlertCircle className="w-5 h-5" />
+                <span className="font-semibold">Error loading matches</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <Button 
+                onClick={loadMatches} 
+                size="sm" 
+                className="w-full"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </Card>
+          </div>
+        )}
+
+        {!loading && !error && Object.keys(matchesByTournament).length === 0 && (
+          <div className="flex items-center justify-center py-12">
+            <Card className="p-6 max-w-md mx-auto text-center">
+              <div className="flex items-center justify-center gap-3 text-muted-foreground mb-4">
+                <Calendar className="w-5 h-5" />
+                <span className="font-semibold">No matches found</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                No matches available for the selected filter. Try refreshing or changing the filter.
+              </p>
+              <Button 
+                onClick={loadMatches} 
+                size="sm" 
+                className="w-full"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </Card>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
@@ -368,7 +467,7 @@ const LiveScore = () => {
 
           {/* Matches */}
           <div className="xl:col-span-3 space-y-8">
-            {Object.entries(matchesByTournament).map(([tournament, matches]) => (
+            {!loading && !error && Object.entries(matchesByTournament).map(([tournament, tournamentMatches]) => (
               <Card key={tournament} className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
                 <CardHeader className="pb-4 cursor-pointer" onClick={() => toggleTournament(tournament)}>
                   <CardTitle className="flex items-center gap-3">
@@ -407,7 +506,7 @@ const LiveScore = () => {
                         </div>
                       </div>
                       <Badge variant="secondary">
-                        {matches.length} matches
+                        {tournamentMatches.length} matches
                       </Badge>
                       {collapsedTournaments[tournament] ? (
                         <ChevronDown className="w-5 h-5 text-muted-foreground" />
@@ -427,7 +526,7 @@ const LiveScore = () => {
                       <div className="text-center">My Prediction</div>
                     </div>
                     <div className="space-y-3">
-                      {matches.map((match) => (
+                      {tournamentMatches.map((match) => (
                         <div
                           key={match.id}
                           className="grid grid-cols-6 gap-4 items-center p-3 bg-gradient-card rounded-xl border border-border/50 hover:shadow-elegant transition-all duration-300 group"
@@ -444,23 +543,47 @@ const LiveScore = () => {
 
                           {/* Teams & Score */}
                           <div className="col-span-2">
-                            <div className="flex items-center justify-center gap-3 text-center">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-sm">{match.homeTeam}</span>
-                                <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
-                                  {match.homeTeam.slice(0, 2).toUpperCase()}
+                              <div className="flex items-center justify-center gap-3 text-center">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm">{match.homeTeam}</span>
+                                  {match.homeLogo ? (
+                                    <img 
+                                      src={match.homeLogo} 
+                                      alt={match.homeTeam}
+                                      className="w-5 h-5 rounded-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        target.nextElementSibling?.classList.remove('hidden');
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div className={`w-5 h-5 bg-muted rounded-full flex items-center justify-center text-xs font-medium ${match.homeLogo ? 'hidden' : ''}`}>
+                                    {match.homeTeam.slice(0, 2).toUpperCase()}
+                                  </div>
+                                </div>
+                                <div className="font-bold text-gradient min-w-[60px]">
+                                  {match.homeScore !== null ? `${match.homeScore} - ${match.awayScore}` : "vs"}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {match.awayLogo ? (
+                                    <img 
+                                      src={match.awayLogo} 
+                                      alt={match.awayTeam}
+                                      className="w-5 h-5 rounded-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        target.nextElementSibling?.classList.remove('hidden');
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div className={`w-5 h-5 bg-muted rounded-full flex items-center justify-center text-xs font-medium ${match.awayLogo ? 'hidden' : ''}`}>
+                                    {match.awayTeam.slice(0, 2).toUpperCase()}
+                                  </div>
+                                  <span className="font-semibold text-sm">{match.awayTeam}</span>
                                 </div>
                               </div>
-                              <div className="font-bold text-gradient min-w-[60px]">
-                                {match.homeScore !== null ? `${match.homeScore} - ${match.awayScore}` : "vs"}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center text-xs font-medium">
-                                  {match.awayTeam.slice(0, 2).toUpperCase()}
-                                </div>
-                                <span className="font-semibold text-sm">{match.awayTeam}</span>
-                              </div>
-                            </div>
                           </div>
 
                           {/* Popular Prediction */}
