@@ -75,6 +75,18 @@ class FootballApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      
+      // Handle API error responses
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      // Ensure we always return an array for consistency
+      if (!Array.isArray(data)) {
+        console.warn('API returned non-array response:', data);
+        return [];
+      }
+      
       return data;
     } catch (error) {
       console.error('API request failed:', error);
