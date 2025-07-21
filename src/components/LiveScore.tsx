@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { footballApi, type Match } from "@/services/footballApi";
+import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi";
 import { useToast } from "@/hooks/use-toast";
 import League from "./League";
 
@@ -43,45 +43,41 @@ const LiveScore = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Transform API match to our format
+  // Transform Football-Data.org API match to our format
   const transformMatch = (apiMatch: Match): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
-    let time = apiMatch.match_time;
+    let time = new Date(apiMatch.utcDate).toLocaleTimeString('bg-BG', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
 
-    if (apiMatch.match_status === 'Finished') {
+    if (apiMatch.status === 'FINISHED') {
       status = 'finished';
       time = 'FT';
-    } else if (apiMatch.match_live === '1') {
+    } else if (apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
       status = 'live';
-      time = apiMatch.match_status || 'Live';
-    } else {
-      // Parse the date to show properly formatted time
-      const matchDate = new Date(`${apiMatch.match_date}T${apiMatch.match_time}`);
-      if (!isNaN(matchDate.getTime())) {
-        time = matchDate.toLocaleTimeString('bg-BG', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
-      }
+      time = 'Live';
+    } else if (apiMatch.status === 'SCHEDULED') {
+      status = 'upcoming';
     }
 
     return {
-      id: apiMatch.match_id,
-      tournament: `${apiMatch.country_name}: ${apiMatch.league_name}`,
-      homeTeam: apiMatch.match_hometeam_name,
-      awayTeam: apiMatch.match_awayteam_name,
-      homeScore: apiMatch.match_hometeam_score ? parseInt(apiMatch.match_hometeam_score) : null,
-      awayScore: apiMatch.match_awayteam_score ? parseInt(apiMatch.match_awayteam_score) : null,
+      id: apiMatch.id.toString(),
+      tournament: apiMatch.competition.name,
+      homeTeam: apiMatch.homeTeam.name,
+      awayTeam: apiMatch.awayTeam.name,
+      homeScore: apiMatch.score.fullTime.home,
+      awayScore: apiMatch.score.fullTime.away,
       time,
       status,
-      homeLogo: apiMatch.team_home_badge,
-      awayLogo: apiMatch.team_away_badge,
+      homeLogo: apiMatch.homeTeam.crest,
+      awayLogo: apiMatch.awayTeam.crest,
       predictions: Math.floor(Math.random() * 500) + 50,
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
       rank: Math.floor(Math.random() * 3) + 1,
       myPrediction: null,
       myPredictionCorrect: null,
-      round: apiMatch.match_round || '1'
+      round: apiMatch.matchday.toString()
     };
   };
 
@@ -90,52 +86,25 @@ const LiveScore = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Starting to load leagues and upcoming matches...');
+      console.log('🔍 Loading Football-Data.org matches...');
 
-      // First, get available leagues
-      const leagues = await footballApi.getLeagues();
-      console.log('📋 Available leagues:', leagues);
-      console.log('📊 Number of leagues found:', leagues.length);
-      
-      if (leagues.length > 0) {
-        leagues.forEach((league, index) => {
-          console.log(`${index + 1}. ${league.country_name}: ${league.league_name} (ID: ${league.league_id})`);
-        });
+      // Get upcoming matches from Football-Data.org
+      const upcomingMatches = await footballDataApi.getUpcomingMatches();
+      console.log(`📊 Found ${upcomingMatches.length} total matches`);
+
+      if (upcomingMatches.length === 0) {
+        console.log('⚠️ No upcoming matches found');
+        throw new Error('No upcoming matches available');
       }
 
-      if (leagues.length === 0) {
-        console.log('⚠️ No leagues available');
-        throw new Error('No leagues available');
-      }
-
-      // Get upcoming matches for all leagues
-      let allMatches: ProcessedMatch[] = [];
-
-      for (const league of leagues) {
-        try {
-          console.log(`🎯 Getting upcoming matches for: ${league.league_name} (ID: ${league.league_id})`);
-          
-          // Get upcoming matches for this league
-          const matches = await footballApi.getUpcomingMatches(league.league_id);
-          console.log(`📊 Found ${matches?.length || 0} upcoming matches for ${league.league_name}`);
-          
-          if (matches && matches.length > 0) {
-            const transformedMatches = matches.map(transformMatch);
-            allMatches.push(...transformedMatches);
-            console.log(`✅ Added ${transformedMatches.length} matches from ${league.league_name}`);
-          }
-        } catch (err) {
-          console.log(`❌ Error getting matches for ${league.league_name}:`, err);
-        }
-      }
-
-      console.log(`🏁 Final matches count: ${allMatches.length}`);
-      setMatches(allMatches);
+      const transformedMatches = upcomingMatches.map(transformMatch);
+      console.log(`🏁 Transformed ${transformedMatches.length} matches`);
+      setMatches(transformedMatches);
         
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);
-      console.error('❌ Error loading data:', err);
+      console.error('❌ Error loading Football-Data.org matches:', err);
       toast({
         title: "Грешка при зареждане",
         description: `Неуспешно зареждане на мачовете: ${errorMessage}`,
@@ -152,13 +121,9 @@ const LiveScore = () => {
 
   // Filter matches based on active tab
   const getFilteredMatches = (tabFilter: string) => {
-    const now = new Date();
-    const today = now.toDateString();
-    
     switch (tabFilter) {
       case "today":
         return matches.filter(match => {
-          // Check if match is today
           return match.status === 'upcoming' || match.status === 'live';
         });
       case "live":
@@ -195,7 +160,7 @@ const LiveScore = () => {
               Live Football Scores
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl">
-              Make predictions, earn points, and climb the rankings with every match
+              Football-Data.org API • 12 Free Leagues • Real-time Data
             </p>
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center gap-2 text-sm">
@@ -242,7 +207,7 @@ const LiveScore = () => {
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3 text-muted-foreground">
               <RefreshCw className="w-5 h-5 animate-spin" />
-              <span>Loading matches...</span>
+              <span>Loading Football-Data.org matches...</span>
             </div>
           </div>
         )}
@@ -275,7 +240,7 @@ const LiveScore = () => {
                 <span className="font-semibold">No matches found</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                No upcoming matches available. Try refreshing or check back later.
+                No upcoming matches available from Football-Data.org. Try refreshing.
               </p>
               <Button 
                 onClick={loadMatches} 
