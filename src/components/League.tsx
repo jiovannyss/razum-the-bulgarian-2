@@ -33,6 +33,8 @@ interface LeagueProps {
 const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
+  console.log(`🏆 League: ${leagueName}, Matches count: ${matches.length}`, matches);
+  
   // Group matches by round and get available rounds
   const matchesByRound = matches.reduce((acc, match) => {
     const round = match.round;
@@ -43,14 +45,20 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
     return acc;
   }, {} as Record<string, ProcessedMatch[]>);
   
+  console.log(`📊 Matches by round:`, matchesByRound);
+  
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
   const maxGameWeeks = Math.max(availableRounds.length, 1);
   
+  console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Max GW: ${maxGameWeeks}`);
+  
   const [currentGameWeek, setCurrentGameWeek] = useState(1);
   
-  // Get matches for current round - fix the logic
+  // If no matches, show all matches in a single "round"
   const currentRound = availableRounds.length > 0 ? availableRounds[currentGameWeek - 1] : '1';
   const currentMatches = availableRounds.length > 0 ? (matchesByRound[currentRound] || []) : matches;
+  
+  console.log(`⚽ Current GW: ${currentGameWeek}, Round: ${currentRound}, Matches: ${currentMatches.length}`);
 
   const formatMatchTime = (timeString: string) => {
     try {
@@ -129,14 +137,20 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   };
 
   const handlePreviousGameWeek = () => {
+    console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}, Max: ${maxGameWeeks}`);
     if (currentGameWeek > 1) {
-      setCurrentGameWeek(prev => prev - 1);
+      const newGW = currentGameWeek - 1;
+      console.log(`⬅️ Setting GW to: ${newGW}`);
+      setCurrentGameWeek(newGW);
     }
   };
 
   const handleNextGameWeek = () => {
+    console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}, Max: ${maxGameWeeks}`);
     if (currentGameWeek < maxGameWeeks) {
-      setCurrentGameWeek(prev => prev + 1);
+      const newGW = currentGameWeek + 1;
+      console.log(`➡️ Setting GW to: ${newGW}`);
+      setCurrentGameWeek(newGW);
     }
   };
 
