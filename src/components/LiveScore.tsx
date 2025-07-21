@@ -108,10 +108,10 @@ const LiveScore = () => {
         const today = footballApi.getTodayDate();
         console.log('📅 Today date:', today);
         
-        // Try different date ranges - only new season 2025-2026
+        // Try different date ranges - current season 2024/2025 (API free plan only covers this)
         const dates = [
-          { from: '2025-08-01', to: '2025-12-31', name: 'New season 2025-2026 first half' },
-          { from: '2026-01-01', to: '2026-05-31', name: 'New season 2025-2026 second half' }, 
+          { from: today, to: '2025-05-31', name: 'Upcoming matches this season' },
+          { from: '2024-08-01', to: '2025-05-31', name: 'Full season 2024/2025' },
           { from: today, to: today, name: 'Today only' },
         ];
 
