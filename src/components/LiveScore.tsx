@@ -80,45 +80,69 @@ const LiveScore = () => {
       setLoading(true);
       setError(null);
 
+      console.log('🔍 Starting to load leagues and matches...');
+
       // First, try to get available leagues for free plan
-      const leagues = await footballApi.getLeagues();
-      console.log('Available leagues:', leagues);
-
-      if (leagues.length === 0) {
-        throw new Error('No leagues available in current plan');
-      }
-
-      // Try to get matches for the first available league
-      const leagueId = leagues[0]?.league_id;
-      const today = footballApi.getTodayDate();
-      
-      // Try different date ranges - current season usually runs from August
-      const dates = [
-        { from: '2024-08-01', to: '2024-12-31' }, // Current season
-        { from: '2025-01-01', to: '2025-05-31' }, // Second half
-        { from: today, to: today }, // Today only
-      ];
-
-      let allMatches: any[] = [];
-
-      for (const dateRange of dates) {
-        try {
-          const matches = await footballApi.getMatches(
-            dateRange.from, 
-            dateRange.to, 
-            leagueId
-          );
-          if (matches && matches.length > 0) {
-            allMatches = matches;
-            break;
-          }
-        } catch (err) {
-          console.log(`No matches for ${dateRange.from} to ${dateRange.to}:`, err);
+      try {
+        const leagues = await footballApi.getLeagues();
+        console.log('📋 Available leagues in free plan:', leagues);
+        console.log('📊 Number of leagues found:', leagues.length);
+        
+        if (leagues.length > 0) {
+          leagues.forEach((league, index) => {
+            console.log(`${index + 1}. ${league.country_name}: ${league.league_name} (ID: ${league.league_id})`);
+          });
         }
-      }
 
-      const transformedMatches = allMatches.map(transformMatch);
-      setMatches(transformedMatches);
+        if (leagues.length === 0) {
+          console.log('⚠️ No leagues available in current plan');
+          throw new Error('No leagues available in current plan');
+        }
+
+        // Try to get matches for the first available league
+        const leagueId = leagues[0]?.league_id;
+        console.log(`🎯 Trying to get matches for league: ${leagues[0]?.league_name} (ID: ${leagueId})`);
+        
+        const today = footballApi.getTodayDate();
+        console.log('📅 Today date:', today);
+        
+        // Try different date ranges - current season usually runs from August
+        const dates = [
+          { from: '2024-08-01', to: '2024-12-31', name: 'Current season first half' }, 
+          { from: '2025-01-01', to: '2025-05-31', name: 'Current season second half' }, 
+          { from: today, to: today, name: 'Today only' },
+        ];
+
+        let allMatches: any[] = [];
+
+        for (const dateRange of dates) {
+          try {
+            console.log(`🔄 Trying ${dateRange.name}: ${dateRange.from} to ${dateRange.to}`);
+            const matches = await footballApi.getMatches(
+              dateRange.from, 
+              dateRange.to, 
+              leagueId
+            );
+            console.log(`📊 Found ${matches?.length || 0} matches for ${dateRange.name}`);
+            
+            if (matches && matches.length > 0) {
+              allMatches = matches;
+              console.log('✅ Successfully found matches!');
+              break;
+            }
+          } catch (err) {
+            console.log(`❌ No matches for ${dateRange.name}:`, err);
+          }
+        }
+
+        const transformedMatches = allMatches.map(transformMatch);
+        console.log(`🏁 Final transformed matches count: ${transformedMatches.length}`);
+        setMatches(transformedMatches);
+        
+      } catch (leagueError) {
+        console.error('❌ Error getting leagues:', leagueError);
+        throw leagueError;
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);
