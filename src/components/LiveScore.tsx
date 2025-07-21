@@ -51,6 +51,73 @@ const LiveScore = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Generate demo matches for fallback
+  const generateDemoMatches = (): ProcessedMatch[] => {
+    const demoMatches = [
+      {
+        id: 'demo1',
+        tournament: 'England: Premier League',
+        homeTeam: 'Manchester City',
+        awayTeam: 'Arsenal',
+        homeScore: 2,
+        awayScore: 1,
+        time: 'FT',
+        status: 'finished' as const,
+        homeLogo: '',
+        awayLogo: '',
+        predictions: 1247,
+        popularPrediction: '1',
+        rank: 1
+      },
+      {
+        id: 'demo2',
+        tournament: 'Spain: La Liga',
+        homeTeam: 'Real Madrid',
+        awayTeam: 'Barcelona',
+        homeScore: 1,
+        awayScore: 1,
+        time: '78\'',
+        status: 'live' as const,
+        homeLogo: '',
+        awayLogo: '',
+        predictions: 2156,
+        popularPrediction: 'X',
+        rank: 2
+      },
+      {
+        id: 'demo3',
+        tournament: 'Germany: Bundesliga',
+        homeTeam: 'Bayern Munich',
+        awayTeam: 'Borussia Dortmund',
+        homeScore: null,
+        awayScore: null,
+        time: '20:30',
+        status: 'upcoming' as const,
+        homeLogo: '',
+        awayLogo: '',
+        predictions: 987,
+        popularPrediction: '1',
+        rank: 3
+      },
+      {
+        id: 'demo4',
+        tournament: 'Italy: Serie A',
+        homeTeam: 'Juventus',
+        awayTeam: 'AC Milan',
+        homeScore: null,
+        awayScore: null,
+        time: '21:45',
+        status: 'upcoming' as const,
+        homeLogo: '',
+        awayLogo: '',
+        predictions: 743,
+        popularPrediction: '2',
+        rank: 1
+      }
+    ];
+    return demoMatches;
+  };
+
   // Transform API match to our format
   const transformMatch = (apiMatch: Match): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
@@ -92,27 +159,36 @@ const LiveScore = () => {
       const tomorrow = footballApi.getTomorrowDate();
       const yesterday = footballApi.getYesterdayDate();
 
-      // Load matches from yesterday, today and tomorrow
-      const [todayMatches, tomorrowMatches, yesterdayMatches] = await Promise.all([
-        footballApi.getMatches(today, today),
-        footballApi.getMatches(tomorrow, tomorrow),
-        footballApi.getMatches(yesterday, yesterday)
-      ]);
+      // Try to load matches from API first
+      try {
+        const [todayMatches, tomorrowMatches, yesterdayMatches] = await Promise.all([
+          footballApi.getMatches(today, today),
+          footballApi.getMatches(tomorrow, tomorrow),
+          footballApi.getMatches(yesterday, yesterday)
+        ]);
 
-      const allMatches = [
-        ...yesterdayMatches,
-        ...todayMatches, 
-        ...tomorrowMatches
-      ].map(transformMatch);
+        const allMatches = [
+          ...yesterdayMatches,
+          ...todayMatches, 
+          ...tomorrowMatches
+        ].map(transformMatch);
 
-      setMatches(allMatches);
-      
-      if (allMatches.length === 0) {
-        toast({
-          title: "Няма налични мачове",
-          description: "В момента няма мачове за показване за избрания период.",
-        });
+        if (allMatches.length > 0) {
+          setMatches(allMatches);
+          return;
+        }
+      } catch (apiError) {
+        console.log('API error, using demo data:', apiError);
       }
+
+      // Fallback to demo data when API fails or returns no data
+      const demoMatches = generateDemoMatches();
+      setMatches(demoMatches);
+      
+      toast({
+        title: "Demo режим",
+        description: "Показват се демо данни поради ограничения в Free плана на API.",
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);
