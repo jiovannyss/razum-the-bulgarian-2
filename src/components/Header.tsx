@@ -94,12 +94,12 @@ const Header = () => {
         {/* Navigation Tabs */}
         <div className="border-t border-border/30">
           <div className="container mx-auto px-4">
-            <nav className="flex overflow-x-auto scrollbar-hide">
+            <nav className="flex w-full">
               {[
                 { id: "home", label: "Home", icon: Home },
-                { id: "rooms", label: "My Rooms", icon: Users },
-                { id: "predictions", label: "My Predictions", icon: Target },
-                { id: "special", label: "Special Games", icon: Trophy },
+                { id: "rooms", label: "Rooms", icon: Users },
+                { id: "predictions", label: "Predictions", icon: Target },
+                { id: "special", label: "Special", icon: Trophy },
                 { id: "chat", label: "Chat", icon: () => <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-xs">💬</div> }
               ].map((tab) => {
                 const Icon = tab.icon;
@@ -111,14 +111,14 @@ const Header = () => {
                       setActiveTab(tab.id);
                       if (tab.id === "home") navigate('/');
                     }}
-                    className={`flex-shrink-0 flex items-center justify-center gap-1 md:gap-2 py-4 px-3 md:px-6 text-xs md:text-sm font-medium transition-all relative min-w-0
+                    className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-medium transition-all relative
                       ${isActive 
                         ? 'text-secondary border-b-2 border-secondary glow-secondary' 
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/10'
                       }`}
                   >
-                    <Icon className="w-4 h-4 md:mr-0" />
-                    <span className="hidden sm:inline truncate">{tab.label}</span>
+                    <Icon className="w-4 h-4" />
+                    <span className="text-xs opacity-80">{tab.label}</span>
                     {isActive && (
                       <div className="absolute inset-0 bg-secondary/5 pointer-events-none" />
                     )}

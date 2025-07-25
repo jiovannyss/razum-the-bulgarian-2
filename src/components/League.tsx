@@ -157,20 +157,20 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   return (
     <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
       {/* League Header */}
-      <div className="flex items-center justify-between p-4 bg-gradient-card border-b border-border/50">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between p-3 lg:p-4 bg-gradient-card border-b border-border/50">
+        <div className="flex items-center gap-2 lg:gap-3">
           {leagueLogo ? (
-            <img src={leagueLogo} alt={leagueName} className="w-8 h-8 rounded-md" />
+            <img src={leagueLogo} alt={leagueName} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
           ) : (
-            <Trophy className="w-8 h-8 text-primary" />
+            <Trophy className="w-6 h-6 lg:w-8 lg:h-8 text-primary" />
           )}
           <div>
-            <h3 className="font-semibold text-lg">{leagueName}</h3>
-            <p className="text-sm text-muted-foreground">{matches.length} мача</p>
+            <h3 className="font-semibold text-sm lg:text-lg">{leagueName}</h3>
+            <p className="text-xs lg:text-sm text-muted-foreground">{matches.length} мача</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 lg:gap-2">
           {/* Game Week Navigation */}
           <div className="flex items-center gap-1">
             <Button
@@ -178,11 +178,11 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
               size="sm"
               onClick={handlePreviousGameWeek}
               disabled={currentGameWeek <= 1}
-              className="h-8 w-8 p-0"
+              className="h-6 w-6 lg:h-8 lg:w-8 p-0"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
             </Button>
-            <span className="text-sm font-medium px-2">
+            <span className="text-xs lg:text-sm font-medium px-1 lg:px-2">
               GW {currentGameWeek}
             </span>
             <Button
@@ -190,9 +190,9 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
               size="sm"
               onClick={handleNextGameWeek}
               disabled={currentGameWeek >= maxGameWeeks}
-              className="h-8 w-8 p-0"
+              className="h-6 w-6 lg:h-8 lg:w-8 p-0"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4" />
             </Button>
           </div>
 
@@ -201,12 +201,12 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
             variant="ghost"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8 p-0"
+            className="h-6 w-6 lg:h-8 lg:w-8 p-0"
           >
             {isCollapsed ? (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4" />
             ) : (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-3 w-3 lg:h-4 lg:w-4" />
             )}
           </Button>
         </div>
@@ -224,23 +224,23 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
             currentMatches.map((match) => (
               <div
                 key={match.id}
-                className="p-4 hover:bg-accent/5 transition-colors"
+                className="p-3 lg:p-4 hover:bg-accent/5 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   {/* Teams and Score */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1 lg:mb-2">
+                      <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
                         {match.homeLogo && (
                           <img 
                             src={match.homeLogo} 
                             alt={match.homeTeam}
-                            className="w-6 h-6 rounded-sm"
+                            className="w-4 h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
                           />
                         )}
-                        <span className="font-medium">{match.homeTeam}</span>
+                        <span className="font-medium text-sm lg:text-base truncate">{match.homeTeam}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-lg font-bold">
+                      <div className="flex items-center gap-1 lg:gap-2 text-base lg:text-lg font-bold flex-shrink-0">
                         {match.homeScore !== null ? match.homeScore : '-'}
                         <span className="text-muted-foreground">:</span>
                         {match.awayScore !== null ? match.awayScore : '-'}
@@ -248,37 +248,39 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
                         {match.awayLogo && (
                           <img 
                             src={match.awayLogo} 
                             alt={match.awayTeam}
-                            className="w-6 h-6 rounded-sm"
+                            className="w-4 h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
                           />
                         )}
-                        <span className="font-medium">{match.awayTeam}</span>
+                        <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Status and Predictions */}
-                  <div className="flex items-center gap-3 ml-4">
+                  <div className="flex flex-col lg:flex-row items-end lg:items-center gap-1 lg:gap-3 ml-2 lg:ml-4 flex-shrink-0">
                     {getStatusBadge(match.status, match.time)}
                     
-                    {match.predictions && (
-                      <div className="text-sm text-muted-foreground">
-                        {match.predictions} predictions
-                      </div>
-                    )}
-                    
-                    {match.popularPrediction && (
-                      <Badge
-                        variant="outline"
-                        className={cn("text-xs", getPredictionColor(match.popularPrediction))}
-                      >
-                        {match.popularPrediction}
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-1 lg:gap-2">
+                      {match.predictions && (
+                        <div className="text-xs lg:text-sm text-muted-foreground">
+                          {match.predictions}
+                        </div>
+                      )}
+                      
+                      {match.popularPrediction && (
+                        <Badge
+                          variant="outline"
+                          className={cn("text-xs", getPredictionColor(match.popularPrediction))}
+                        >
+                          {match.popularPrediction}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
