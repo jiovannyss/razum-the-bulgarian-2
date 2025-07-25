@@ -239,9 +239,10 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            </span>
                            <div className="w-12 text-center">
                              {match.status === "live" ? (
-                               <span className="text-sm font-bold text-live">
-                                 {Math.floor(Math.random() * 90) + 1}'
-                               </span>
+                               <div className="text-sm font-bold text-live flex items-baseline justify-center">
+                                 <span>{Math.floor(Math.random() * 90) + 1}</span>
+                                 <span className="animate-pulse">'</span>
+                               </div>
                              ) : (
                                !timeInfo.isToday && timeInfo.date && (
                                  <span className="text-xs text-muted-foreground">
