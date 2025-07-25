@@ -46,7 +46,7 @@ const Header = () => {
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
-                <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[12px] min-h-[12px] bg-accent rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] min-text-[8px] flex items-center justify-center text-black font-bold">
+                <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[1.5vw] min-h-[1.5vw] bg-accent rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] flex items-center justify-center text-black font-bold">
                   3
                 </div>
               </Button>
@@ -55,7 +55,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-1">
-                    <div className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw] min-w-[20px] min-h-[20px] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[2vw] md:text-[1.5vw] lg:text-[1vw] min-text-[10px] font-semibold">
+                    <div className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw] min-w-[2.5vw] min-h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[2vw] md:text-[1.5vw] lg:text-[1vw] font-semibold">
                       JP
                     </div>
                   </Button>
