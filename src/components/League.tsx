@@ -223,7 +223,7 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                      <div className="flex-1 min-w-0">
                        {/* Home Team Row */}
                        <div className="flex items-center justify-between mb-1 lg:mb-2">
-                         <div className="flex items-center gap-2 lg:gap-3 min-w-0">
+                         <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
                            {match.homeLogo && (
                              <img 
                                src={match.homeLogo} 
@@ -232,22 +232,24 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                              />
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.homeTeam}</span>
-                           <span className="text-base lg:text-lg font-bold ml-2">
+                         </div>
+                         <div className="flex items-center gap-3 flex-shrink-0">
+                           <span className="text-base lg:text-lg font-bold w-6 text-center">
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
-                         </div>
-                         <div className="flex-shrink-0">
-                           {!timeInfo.isToday && timeInfo.date && (
-                             <span className="text-xs text-muted-foreground">
-                               {timeInfo.date}
-                             </span>
-                           )}
+                           <div className="w-12 text-right">
+                             {!timeInfo.isToday && timeInfo.date && (
+                               <span className="text-xs text-muted-foreground">
+                                 {timeInfo.date}
+                               </span>
+                             )}
+                           </div>
                          </div>
                        </div>
                        
                        {/* Away Team Row */}
                        <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-2 lg:gap-3 min-w-0">
+                         <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
                            {match.awayLogo && (
                              <img 
                                src={match.awayLogo} 
@@ -256,14 +258,16 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                              />
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
-                           <span className="text-base lg:text-lg font-bold ml-2">
+                         </div>
+                         <div className="flex items-center gap-3 flex-shrink-0">
+                           <span className="text-base lg:text-lg font-bold w-6 text-center">
                              {match.awayScore !== null ? match.awayScore : '-'}
                            </span>
-                         </div>
-                         <div className="flex-shrink-0">
-                           <span className="text-xs text-muted-foreground">
-                             {timeInfo.timeStr}
-                           </span>
+                           <div className="w-12 text-right">
+                             <span className="text-xs text-muted-foreground">
+                               {timeInfo.timeStr}
+                             </span>
+                           </div>
                          </div>
                        </div>
                      </div>
