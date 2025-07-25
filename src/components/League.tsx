@@ -247,6 +247,8 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                                  <span>{Math.floor(Math.random() * 90) + 1}</span>
                                  <span className="animate-pulse">'</span>
                                </div>
+                             ) : match.status === "finished" ? (
+                               <span className="text-xs font-bold text-white">FT</span>
                              ) : (
                                !timeInfo.isToday && timeInfo.date && (
                                  <span className="text-xs text-muted-foreground">
@@ -278,13 +280,13 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                               )}>
                                 {match.awayScore !== null ? match.awayScore : '-'}
                               </span>
-                             <div className="w-12 text-center">
-                               {match.status !== "live" && (
-                                 <span className="text-xs text-muted-foreground">
-                                   {timeInfo.timeStr}
-                                 </span>
-                               )}
-                             </div>
+                              <div className="w-12 text-center">
+                                {match.status === "upcoming" && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {timeInfo.timeStr}
+                                  </span>
+                                )}
+                              </div>
                            </div>
                          </div>
                        </div>
