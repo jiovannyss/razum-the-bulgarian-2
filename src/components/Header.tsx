@@ -36,8 +36,8 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-[4vw] md:text-[3vw] lg:text-[2.5vw] font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
-                Glowter - <span className="text-[3vw] md:text-[2.5vw] lg:text-[2vw]">Live Prediction</span>
+              <h1 className="text-[5vw] md:text-[4vw] lg:text-[3vw] font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
+                Glowter - <span className="text-[4vw] md:text-[3vw] lg:text-[2.5vw]">Live Prediction</span>
               </h1>
             </div>
             
@@ -55,7 +55,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-1">
-                    <div className="w-[6vw] h-[6vw] md:w-[5vw] md:h-[5vw] lg:w-[3vw] lg:h-[3vw] min-w-[24px] min-h-[24px] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[2.5vw] md:text-[2vw] lg:text-[1.2vw] min-text-[10px] font-semibold">
+                    <div className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw] min-w-[16px] min-h-[16px] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[2vw] md:text-[1.5vw] lg:text-[1vw] min-text-[8px] font-semibold">
                       JP
                     </div>
                   </Button>
@@ -78,15 +78,6 @@ const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              
-              {/* Hamburger Menu - Always Visible */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                <Menu className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
-              </Button>
             </div>
           </div>
         </div>
