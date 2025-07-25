@@ -36,17 +36,17 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-base md:text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
-                Glowter - <span className="text-sm md:text-3xl">Live Prediction</span>
+              <h1 className="text-[4vw] md:text-[3vw] lg:text-[2.5vw] font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
+                Glowter - <span className="text-[3vw] md:text-[2.5vw] lg:text-[2vw]">Live Prediction</span>
               </h1>
             </div>
             
             {/* Right Section: User Area */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-[1vw]">
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-3 h-3 md:w-4 md:h-4" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-accent rounded-full text-xs flex items-center justify-center text-black font-bold">
+                <Bell className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
+                <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[12px] min-h-[12px] bg-accent rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] min-text-[8px] flex items-center justify-center text-black font-bold">
                   3
                 </div>
               </Button>
@@ -54,8 +54,8 @@ const Header = () => {
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-1 md:gap-2">
-                    <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-xs md:text-sm font-semibold">
+                  <Button variant="ghost" size="sm" className="gap-1">
+                    <div className="w-[6vw] h-[6vw] md:w-[5vw] md:h-[5vw] lg:w-[3vw] lg:h-[3vw] min-w-[24px] min-h-[24px] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[2.5vw] md:text-[2vw] lg:text-[1.2vw] min-text-[10px] font-semibold">
                       JP
                     </div>
                   </Button>
@@ -81,12 +81,11 @@ const Header = () => {
               
               {/* Hamburger Menu - Always Visible */}
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="border-border bg-background hover:bg-accent"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
               </Button>
             </div>
           </div>
