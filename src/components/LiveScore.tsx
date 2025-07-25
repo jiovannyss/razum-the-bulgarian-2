@@ -212,7 +212,7 @@ const LiveScore = () => {
         {/* Tabs */}
         <div className="mb-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-3 w-fit">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="matches">Matches</TabsTrigger>
               <TabsTrigger value="today">Today</TabsTrigger>
               <TabsTrigger value="live">Live</TabsTrigger>

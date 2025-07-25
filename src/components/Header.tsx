@@ -84,7 +84,6 @@ const Header = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="lg:hidden"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 <Menu className="w-5 h-5" />
@@ -133,7 +132,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-border/30">
+          <div className="md:hidden border-t border-border/30">
             <div className="container mx-auto px-4 py-4">
               <nav className="flex flex-col gap-3">
                 {[
@@ -168,7 +167,7 @@ const Header = () => {
             </div>
           </div>
         )}
-      </header>
+        </header>
       </div>
       
       {/* Ad Space - Non-sticky */}
