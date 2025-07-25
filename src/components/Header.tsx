@@ -79,14 +79,14 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {/* Mobile Menu */}
+              {/* Hamburger Menu - Always Visible */}
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="border-border"
+                className="border-border bg-background hover:bg-accent"
               >
-                <Menu className="w-4 h-4 md:w-5 md:h-5" />
+                <Menu className="w-5 h-5" />
               </Button>
             </div>
           </div>
