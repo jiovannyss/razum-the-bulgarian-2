@@ -55,7 +55,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-1">
-                    <div className="w-[6vw] h-[6vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[3vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
+                    <div className="w-[7vw] h-[7vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[3.5vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
                       JP
                     </div>
                   </Button>
