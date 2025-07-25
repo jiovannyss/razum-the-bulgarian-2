@@ -214,7 +214,7 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
 
       {/* Matches List */}
       {!isCollapsed && (
-        <div className="divide-y divide-border/50">
+        <div className="divide-y-[3px] divide-muted/60">
           {currentMatches.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
               <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
