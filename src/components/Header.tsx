@@ -28,11 +28,9 @@ const Header = () => {
   const [activeTab, setActiveTab] = useState("home");
   
   return (
-    <div>
+    <>
       {/* Sticky Header with Title and Navigation */}
-      <div className="sticky top-0 z-50">
-        {/* Main Header */}
-        <header className="bg-card/80 backdrop-blur-lg border-b border-border/50">
+      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
@@ -167,14 +165,13 @@ const Header = () => {
             </div>
           </div>
         )}
-        </header>
-      </div>
+      </header>
       
       {/* Ad Space - Non-sticky */}
       <div className="h-24 bg-muted/20 border-b border-border/30 flex items-center justify-center">
         <div className="text-muted-foreground text-sm">Advertisement Space</div>
       </div>
-    </div>
+    </>
   );
 };
 
