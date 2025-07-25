@@ -157,7 +157,7 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   return (
     <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
       {/* League Header */}
-      <div className="flex items-center justify-between p-3 lg:p-4 bg-muted/20 border-b border-border/50">
+      <div className="flex items-center justify-between p-3 lg:p-4 bg-muted/40 border-b border-border/50">
         <div className="flex items-center gap-2 lg:gap-3">
           {leagueLogo ? (
             <img src={leagueLogo} alt={leagueName} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
