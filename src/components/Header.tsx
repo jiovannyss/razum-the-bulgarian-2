@@ -36,8 +36,8 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
-                Glowter - Live Prediction
+              <h1 className="text-lg md:text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
+                Glowter - <span className="text-base md:text-3xl">Live Prediction</span>
               </h1>
             </div>
             
@@ -79,12 +79,12 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {/* Mobile Menu - Hidden since tabs are now always visible */}
+              {/* Mobile Menu */}
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="hidden"
+                className="md:hidden"
               >
                 <Menu className="w-5 h-5" />
               </Button>

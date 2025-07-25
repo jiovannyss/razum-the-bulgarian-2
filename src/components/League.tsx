@@ -266,12 +266,6 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                     {getStatusBadge(match.status, match.time)}
                     
                     <div className="flex items-center gap-1 lg:gap-2">
-                      {match.predictions && (
-                        <div className="text-xs lg:text-sm text-muted-foreground">
-                          {match.predictions}
-                        </div>
-                      )}
-                      
                       {match.popularPrediction && (
                         <Badge
                           variant="outline"
