@@ -35,7 +35,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
+              <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
                 Glowter - Live Prediction
               </h1>
             </div>
@@ -78,11 +78,12 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {/* Mobile Menu */}
+              {/* Mobile Menu - Hidden since tabs are now always visible */}
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="hidden"
               >
                 <Menu className="w-5 h-5" />
               </Button>
@@ -93,7 +94,7 @@ const Header = () => {
         {/* Navigation Tabs */}
         <div className="border-t border-border/30">
           <div className="container mx-auto px-4">
-            <nav className="hidden md:flex">
+            <nav className="flex overflow-x-auto scrollbar-hide">
               {[
                 { id: "home", label: "Home", icon: Home },
                 { id: "rooms", label: "My Rooms", icon: Users },
@@ -110,14 +111,14 @@ const Header = () => {
                       setActiveTab(tab.id);
                       if (tab.id === "home") navigate('/');
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 text-sm font-medium transition-all relative
+                    className={`flex-shrink-0 flex items-center justify-center gap-1 md:gap-2 py-4 px-3 md:px-6 text-xs md:text-sm font-medium transition-all relative min-w-0
                       ${isActive 
                         ? 'text-secondary border-b-2 border-secondary glow-secondary' 
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/10'
                       }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    {tab.label}
+                    <Icon className="w-4 h-4 md:mr-0" />
+                    <span className="hidden sm:inline truncate">{tab.label}</span>
                     {isActive && (
                       <div className="absolute inset-0 bg-secondary/5 pointer-events-none" />
                     )}

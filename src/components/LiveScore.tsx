@@ -178,33 +178,34 @@ const LiveScore = () => {
     <main className="min-h-screen bg-gradient-subtle p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
-          <div className="space-y-2">
-            <div className="flex items-center gap-4 pt-2">
-              <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <div className="space-y-2 w-full lg:w-auto">
+            <div className="flex flex-wrap items-center gap-2 lg:gap-4 pt-2">
+              <div className="flex items-center gap-2 text-xs lg:text-sm">
                 <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
                 <span className="text-live font-medium">{liveMatchesCount} Live Matches</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-xs lg:text-sm">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
                 <span className="text-muted-foreground">{matches.filter(m => m.status === 'upcoming').length} Matches Today</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Trophy className="w-4 h-4 text-accent" />
+              <div className="flex items-center gap-2 text-xs lg:text-sm">
+                <Trophy className="w-3 h-3 lg:w-4 lg:h-4 text-accent" />
                 <span className="text-muted-foreground">Active Leagues: {leagueCount}</span>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mt-2 lg:mt-0">
             <Button 
               variant="outline" 
-              className="gap-2 card-hover"
+              className="gap-2 card-hover text-xs lg:text-sm px-3 lg:px-4 h-8 lg:h-10"
               onClick={loadMatches}
               disabled={loading}
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              {loading ? 'Loading...' : 'Refresh'}
+              <RefreshCw className={`w-3 h-3 lg:w-4 lg:h-4 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{loading ? 'Loading...' : 'Refresh'}</span>
+              <span className="sm:hidden">↻</span>
             </Button>
           </div>
         </div>
