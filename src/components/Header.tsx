@@ -1,17 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   Trophy, 
   Target, 
-  Users, 
   Zap, 
   Menu,
   User,
   Settings,
   LogOut,
-  Crown,
   Bell,
-  TrendingUp
+  Home
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -28,75 +25,53 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const userPoints = 1247;
-  const userRank = "Gold";
   
   return (
     <header className="bg-card/80 backdrop-blur-lg border-b border-border/50 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <div 
-              className="cursor-pointer"
-              onClick={() => navigate('/')}
-            >
-              <span className="text-2xl font-bold text-gradient">
-                Glowter
-              </span>
-              <div className="text-sm text-muted-foreground">Live Prediction</div>
-            </div>
+          {/* Left Section: Navigation */}
+          <div className="flex items-center gap-6">
+            {/* Navigation */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Button
+                variant="hero"
+                size="sm"
+                onClick={() => navigate('/')} 
+                className="gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Button>
+              <Button 
+                variant="hero"
+                size="sm"
+                className="gap-2"
+              >
+                <Target className="w-4 h-4" />
+                My Predictions
+              </Button>
+              <Button 
+                variant="hero"
+                size="sm"
+                className="gap-2"
+              >
+                <Trophy className="w-4 h-4" />
+                Special Games
+              </Button>
+              <Button 
+                variant="hero"
+                size="sm"
+                className="gap-2"
+              >
+                <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-xs">💬</div>
+                Chat
+              </Button>
+            </nav>
           </div>
           
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <button 
-              onClick={() => navigate('/')} 
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 font-medium"
-            >
-              <Zap className="w-4 h-4" />
-              Live Scores
-            </button>
-            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
-              <Target className="w-4 h-4" />
-              My Predictions
-            </a>
-            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
-              <Trophy className="w-4 h-4" />
-              Special Games
-            </a>
-            <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200">
-              <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-xs">💬</div>
-              Chat
-            </a>
-          </nav>
-          
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <Button 
-              variant="hero" 
-              size="lg"
-              className="px-8 py-3 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
-              onClick={() => navigate('/')}
-            >
-              <TrendingUp className="w-6 h-6 mr-2" />
-              Make Prediction
-            </Button>
-          </div>
-          
-          {/* User Section */}
+          {/* Right Section: User Area */}
           <div className="flex items-center gap-4">
-            {/* User Stats */}
-            <div className="hidden md:flex items-center gap-3">
-              <Badge variant="secondary" className="gap-1">
-                <Crown className="w-3 h-3" />
-                {userRank}
-              </Badge>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-foreground">{userPoints.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">points</div>
-              </div>
-            </div>
             
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
@@ -113,7 +88,6 @@ const Header = () => {
                   <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
                     JP
                   </div>
-                  <span className="hidden sm:inline">John Player</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -151,25 +125,39 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden mt-4 pt-4 border-t border-border/50">
             <nav className="flex flex-col gap-3">
-              <button 
+              <Button
+                variant="hero"
+                size="sm"
                 onClick={() => navigate('/')} 
-                className="flex items-center gap-2 text-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50 w-full text-left"
+                className="gap-2 justify-start"
               >
-                <Zap className="w-4 h-4" />
-                Live Scores
-              </button>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+                <Home className="w-4 h-4" />
+                Home
+              </Button>
+              <Button 
+                variant="hero"
+                size="sm"
+                className="gap-2 justify-start"
+              >
                 <Target className="w-4 h-4" />
                 My Predictions
-              </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+              </Button>
+              <Button 
+                variant="hero"
+                size="sm"
+                className="gap-2 justify-start"
+              >
                 <Trophy className="w-4 h-4" />
                 Special Games
-              </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-200 p-2 rounded-lg hover:bg-muted/50">
+              </Button>
+              <Button 
+                variant="hero"
+                size="sm"
+                className="gap-2 justify-start"
+              >
                 <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-xs">💬</div>
                 Chat
-              </a>
+              </Button>
             </nav>
           </div>
         )}
