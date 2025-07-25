@@ -233,7 +233,7 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.homeTeam}</span>
                          </div>
-                         <div className="flex items-center gap-3 flex-shrink-0">
+                         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
                            <span className="text-base lg:text-lg font-bold w-6 text-center">
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
@@ -259,7 +259,7 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
                          </div>
-                         <div className="flex items-center gap-3 flex-shrink-0">
+                         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
                            <span className="text-base lg:text-lg font-bold w-6 text-center">
                              {match.awayScore !== null ? match.awayScore : '-'}
                            </span>
