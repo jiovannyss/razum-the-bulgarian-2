@@ -42,11 +42,11 @@ const Header = () => {
             </div>
             
             {/* Right Section: User Area */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-4 h-4" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full text-xs flex items-center justify-center text-black font-bold">
+                <Bell className="w-3 h-3 md:w-4 md:h-4" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-accent rounded-full text-xs flex items-center justify-center text-black font-bold">
                   3
                 </div>
               </Button>
@@ -54,8 +54,8 @@ const Header = () => {
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                  <Button variant="ghost" size="sm" className="gap-1 md:gap-2">
+                    <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-xs md:text-sm font-semibold">
                       JP
                     </div>
                   </Button>
@@ -84,9 +84,8 @@ const Header = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="sm:hidden"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
             </div>
           </div>
