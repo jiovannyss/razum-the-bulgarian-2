@@ -186,6 +186,10 @@ const LiveScore = () => {
                 <span className="text-live font-medium">{liveMatchesCount} Live Matches</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <span className="text-muted-foreground">{matches.filter(m => m.status === 'upcoming').length} Matches Today</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-accent" />
                 <span className="text-muted-foreground">Active Leagues: {leagueCount}</span>
               </div>
@@ -202,17 +206,13 @@ const LiveScore = () => {
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Loading...' : 'Refresh'}
             </Button>
-            <Button className="gap-2 btn-glow">
-              <Target className="w-4 h-4" />
-              Make Prediction
-            </Button>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="mb-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:w-fit">
+            <TabsList className="grid grid-cols-3 w-fit">
               <TabsTrigger value="matches">Matches</TabsTrigger>
               <TabsTrigger value="today">Today</TabsTrigger>
               <TabsTrigger value="live">Live</TabsTrigger>

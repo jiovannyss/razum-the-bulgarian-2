@@ -28,19 +28,16 @@ const Header = () => {
   const [activeTab, setActiveTab] = useState("home");
   
   return (
-    <div className="sticky top-0 z-50">
-      {/* Ad Space */}
-      <div className="h-24 bg-muted/20 border-b border-border/30 flex items-center justify-center">
-        <div className="text-muted-foreground text-sm">Advertisement Space</div>
-      </div>
-      
-      {/* Main Header */}
-      <header className="bg-card/80 backdrop-blur-lg border-b border-border/50">
+    <div>
+      {/* Sticky Header with Title and Navigation */}
+      <div className="sticky top-0 z-50">
+        {/* Main Header */}
+        <header className="bg-card/80 backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gradient">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
                 Glowter - Live Prediction
               </h1>
             </div>
@@ -118,14 +115,14 @@ const Header = () => {
                     }}
                     className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 text-sm font-medium transition-all relative
                       ${isActive 
-                        ? 'text-accent border-b-2 border-accent glow-accent' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                        ? 'text-secondary border-b-2 border-secondary glow-secondary' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/10'
                       }`}
                   >
                     <Icon className="w-4 h-4" />
                     {tab.label}
                     {isActive && (
-                      <div className="absolute inset-0 bg-accent/5 pointer-events-none" />
+                      <div className="absolute inset-0 bg-secondary/5 pointer-events-none" />
                     )}
                   </button>
                 );
@@ -158,8 +155,8 @@ const Header = () => {
                       }}
                       className={`flex items-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all
                         ${isActive 
-                          ? 'text-accent bg-accent/10 glow-accent' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
+                          ? 'text-secondary bg-secondary/10 glow-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/5'
                         }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -172,6 +169,12 @@ const Header = () => {
           </div>
         )}
       </header>
+      </div>
+      
+      {/* Ad Space - Non-sticky */}
+      <div className="h-24 bg-muted/20 border-b border-border/30 flex items-center justify-center">
+        <div className="text-muted-foreground text-sm">Advertisement Space</div>
+      </div>
     </div>
   );
 };
