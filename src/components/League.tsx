@@ -234,7 +234,11 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            <span className="font-medium text-sm lg:text-base truncate">{match.homeTeam}</span>
                          </div>
                          <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-                           <span className="text-base lg:text-lg font-bold w-6 text-center">
+                           <span className={cn(
+                             "text-base lg:text-lg font-bold w-6 text-center",
+                             match.status === "live" ? "text-live" : 
+                             match.status === "finished" ? "text-white" : ""
+                           )}>
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
                            <div className="w-12 text-center">
@@ -266,10 +270,14 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
                          </div>
-                           <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-                             <span className="text-base lg:text-lg font-bold w-6 text-center">
-                               {match.awayScore !== null ? match.awayScore : '-'}
-                             </span>
+                            <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                              <span className={cn(
+                                "text-base lg:text-lg font-bold w-6 text-center",
+                                match.status === "live" ? "text-live" : 
+                                match.status === "finished" ? "text-white" : ""
+                              )}>
+                                {match.awayScore !== null ? match.awayScore : '-'}
+                              </span>
                              <div className="w-12 text-center">
                                {match.status !== "live" && (
                                  <span className="text-xs text-muted-foreground">
