@@ -36,8 +36,8 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-lg md:text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
-                Glowter - <span className="text-base md:text-3xl">Live Prediction</span>
+              <h1 className="text-base md:text-3xl font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
+                Glowter - <span className="text-sm md:text-3xl">Live Prediction</span>
               </h1>
             </div>
             
@@ -84,7 +84,7 @@ const Header = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden"
+                className="sm:hidden"
               >
                 <Menu className="w-5 h-5" />
               </Button>
