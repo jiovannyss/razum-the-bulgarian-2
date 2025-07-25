@@ -64,13 +64,13 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
     try {
       // If it's already in HH:mm format, try to add date
       if (timeString.match(/^\d{2}:\d{2}$/)) {
-        return timeString;
+        return { isToday: false, time: timeString, date: null };
       }
       
       // Parse ISO date string
       const date = new Date(timeString);
       if (isNaN(date.getTime())) {
-        return timeString; // Return original if can't parse
+        return { isToday: false, time: timeString, date: null }; // Return original if can't parse
       }
       
       const now = new Date();
@@ -85,45 +85,61 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
       });
       
       if (diffDays === 0) {
-        return `днес ${timeStr}`;
-      } else if (diffDays === 1) {
-        return `утре ${timeStr}`;
-      } else if (diffDays === -1) {
-        return `вчера ${timeStr}`;
+        return { isToday: true, time: timeStr, date: null };
       } else {
         const dateStr = date.toLocaleDateString('bg-BG', { 
           day: '2-digit', 
           month: '2-digit',
           timeZone: 'Europe/Sofia'
         });
-        return `${dateStr} ${timeStr}`;
+        return { isToday: false, time: timeStr, date: dateStr };
       }
     } catch (error) {
-      return timeString; // Return original if any error
+      return { isToday: false, time: timeString, date: null }; // Return original if any error
     }
   };
 
   const getStatusBadge = (status: string, time: string) => {
-    const formattedTime = formatMatchTime(time);
+    const { isToday, time: timeStr, date } = formatMatchTime(time);
     
     switch (status) {
       case "live":
         return (
           <Badge className="bg-live text-white animate-pulse gap-1">
             <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            {formattedTime}
+            <div className="flex flex-col text-center leading-tight">
+              {!isToday && date && <div className="text-[10px]">{date}</div>}
+              <div className="text-xs">{timeStr}</div>
+            </div>
           </Badge>
         );
       case "upcoming":
         return (
           <Badge variant="outline" className="text-muted-foreground gap-1">
-            {formattedTime}
+            <div className="flex flex-col text-center leading-tight">
+              {!isToday && date && <div className="text-[10px]">{date}</div>}
+              <div className="text-xs">{timeStr}</div>
+            </div>
           </Badge>
         );
       case "finished":
-        return <Badge variant="secondary">{formattedTime}</Badge>;
+        return (
+          <Badge variant="secondary">
+            <div className="flex flex-col text-center leading-tight">
+              {!isToday && date && <div className="text-[10px]">{date}</div>}
+              <div className="text-xs">{timeStr}</div>
+            </div>
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{formattedTime}</Badge>;
+        return (
+          <Badge variant="outline">
+            <div className="flex flex-col text-center leading-tight">
+              {!isToday && date && <div className="text-[10px]">{date}</div>}
+              <div className="text-xs">{timeStr}</div>
+            </div>
+          </Badge>
+        );
     }
   };
 
