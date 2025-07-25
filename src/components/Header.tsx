@@ -84,7 +84,6 @@ const Header = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden"
               >
                 <Menu className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
