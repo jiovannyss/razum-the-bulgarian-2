@@ -81,9 +81,10 @@ const Header = () => {
               
               {/* Mobile Menu */}
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="border-border"
               >
                 <Menu className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
