@@ -249,6 +249,10 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                                </div>
                              ) : match.status === "finished" ? (
                                <span className="text-xs font-bold text-white">FT</span>
+                             ) : match.status === "upcoming" && timeInfo.isToday ? (
+                               <span className="text-xs text-muted-foreground">
+                                 {timeInfo.timeStr}
+                               </span>
                              ) : (
                                !timeInfo.isToday && timeInfo.date && (
                                  <span className="text-xs text-muted-foreground">
@@ -280,13 +284,13 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                               )}>
                                 {match.awayScore !== null ? match.awayScore : '-'}
                               </span>
-                              <div className="w-12 text-center">
-                                {match.status === "upcoming" && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {timeInfo.timeStr}
-                                  </span>
-                                )}
-                              </div>
+                               <div className="w-12 text-center">
+                                 {match.status === "upcoming" && !timeInfo.isToday && (
+                                   <span className="text-xs text-muted-foreground">
+                                     {timeInfo.timeStr}
+                                   </span>
+                                 )}
+                               </div>
                            </div>
                          </div>
                        </div>
