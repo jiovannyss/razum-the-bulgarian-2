@@ -237,13 +237,15 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            <span className="text-base lg:text-lg font-bold w-6 text-center">
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
-                           <div className="w-12 text-right">
-                             {!timeInfo.isToday && timeInfo.date && (
-                               <span className="text-xs text-muted-foreground">
-                                 {timeInfo.date}
-                               </span>
-                             )}
-                           </div>
+                           {match.status !== "live" && (
+                             <div className="w-12 text-right">
+                               {!timeInfo.isToday && timeInfo.date && (
+                                 <span className="text-xs text-muted-foreground">
+                                   {timeInfo.date}
+                                 </span>
+                               )}
+                             </div>
+                           )}
                          </div>
                        </div>
                        
@@ -259,39 +261,46 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
                          </div>
-                         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-                           <span className="text-base lg:text-lg font-bold w-6 text-center">
-                             {match.awayScore !== null ? match.awayScore : '-'}
-                           </span>
-                           <div className="w-12 text-right">
-                             <span className="text-xs text-muted-foreground">
-                               {timeInfo.timeStr}
-                             </span>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
+                          <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                            <span className="text-base lg:text-lg font-bold w-6 text-center">
+                              {match.awayScore !== null ? match.awayScore : '-'}
+                            </span>
+                            {match.status !== "live" && (
+                              <div className="w-12 text-right">
+                                <span className="text-xs text-muted-foreground">
+                                  {timeInfo.timeStr}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
 
-                     {/* Live Status + Prediction - right side */}
-                     <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                       {/* Live Status */}
-                       {match.status === "live" && (
-                         <div className="flex items-center gap-1">
-                           <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
-                           <span className="text-xs text-live">LIVE</span>
-                         </div>
-                       )}
-                       
-                       {/* Prediction */}
-                       {match.popularPrediction && (
-                         <Badge
-                           variant="outline"
-                           className={cn("text-xs", getPredictionColor(match.popularPrediction))}
-                         >
-                           {match.popularPrediction}
-                         </Badge>
-                       )}
-                     </div>
+                      {/* Live Status + Prediction - right side */}
+                      <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                        {/* Live minute or status */}
+                        {match.status === "live" ? (
+                          <div className="flex flex-col items-center">
+                            <div className="flex items-center gap-1 mb-1">
+                              <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
+                              <span className="text-xs text-live">LIVE</span>
+                            </div>
+                            <span className="text-sm font-bold text-live">
+                              {Math.floor(Math.random() * 90) + 1}'
+                            </span>
+                          </div>
+                        ) : null}
+                        
+                        {/* Prediction */}
+                        {match.popularPrediction && (
+                          <Badge
+                            variant="outline"
+                            className={cn("text-xs", getPredictionColor(match.popularPrediction))}
+                          >
+                            {match.popularPrediction}
+                          </Badge>
+                        )}
+                      </div>
                    </div>
                  </div>
                );
