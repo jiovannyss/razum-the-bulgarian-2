@@ -180,12 +180,6 @@ const LiveScore = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
           <div className="space-y-2">
-            <h1 className="text-4xl lg:text-5xl font-bold text-gradient leading-tight">
-              Live Football Scores
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl">
-              Football-Data.org API • 12 Free Leagues • Real-time Data
-            </p>
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
