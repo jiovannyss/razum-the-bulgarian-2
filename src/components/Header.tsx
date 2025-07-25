@@ -8,7 +8,8 @@ import {
   LogOut,
   Bell,
   Home,
-  Users
+  Users,
+  MessageCircle
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -100,7 +101,7 @@ const Header = () => {
                 { id: "rooms", label: "Rooms", icon: Users },
                 { id: "predictions", label: "Predictions", icon: Target },
                 { id: "special", label: "Special", icon: Trophy },
-                { id: "chat", label: "Chat", icon: () => <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-xs">💬</div> }
+                { id: "chat", label: "Chat", icon: MessageCircle }
               ].map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -139,7 +140,7 @@ const Header = () => {
                   { id: "rooms", label: "My Rooms", icon: Users },
                   { id: "predictions", label: "My Predictions", icon: Target },
                   { id: "special", label: "Special Games", icon: Trophy },
-                  { id: "chat", label: "Chat", icon: () => <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-xs">💬</div> }
+                  { id: "chat", label: "Chat", icon: MessageCircle }
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
