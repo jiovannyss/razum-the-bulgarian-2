@@ -232,11 +232,11 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                              />
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.homeTeam}</span>
-                         </div>
-                         <div className="flex items-center gap-2 flex-shrink-0">
-                           <span className="text-base lg:text-lg font-bold">
+                           <span className="text-base lg:text-lg font-bold ml-2">
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
+                         </div>
+                         <div className="flex-shrink-0">
                            {!timeInfo.isToday && timeInfo.date && (
                              <span className="text-xs text-muted-foreground">
                                {timeInfo.date}
@@ -256,11 +256,11 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
                              />
                            )}
                            <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
-                         </div>
-                         <div className="flex items-center gap-2 flex-shrink-0">
-                           <span className="text-base lg:text-lg font-bold">
+                           <span className="text-base lg:text-lg font-bold ml-2">
                              {match.awayScore !== null ? match.awayScore : '-'}
                            </span>
+                         </div>
+                         <div className="flex-shrink-0">
                            <span className="text-xs text-muted-foreground">
                              {timeInfo.timeStr}
                            </span>
