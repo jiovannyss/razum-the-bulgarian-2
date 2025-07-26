@@ -41,6 +41,7 @@ const LiveScore = () => {
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [competitionsWithCurrentMatchday, setCompetitionsWithCurrentMatchday] = useState<Array<Competition & { currentMatchday: number }>>([]);
   const { toast } = useToast();
 
   // Transform Football-Data.org API match to our format
@@ -86,6 +87,20 @@ const LiveScore = () => {
 
       console.log('🔍 Loading Football-Data.org matches...');
 
+      // Get competitions and their current matchdays
+      const competitions = await footballDataApi.getCompetitions();
+      const competitionsWithCurrentMatchday = await Promise.all(
+        competitions.slice(0, 3).map(async (comp) => {
+          try {
+            const currentMatchday = await footballDataApi.getCurrentMatchday(comp.id);
+            return { ...comp, currentMatchday };
+          } catch (error) {
+            console.log(`❌ Error getting current matchday for ${comp.name}:`, error);
+            return { ...comp, currentMatchday: 1 };
+          }
+        })
+      );
+
       // Get upcoming matches from Football-Data.org
       const upcomingMatches = await footballDataApi.getUpcomingMatches();
       console.log(`📊 Found ${upcomingMatches.length} total matches`);
@@ -124,6 +139,7 @@ const LiveScore = () => {
       const transformedMatches = upcomingMatches.map(transformMatch);
       console.log(`🏁 Transformed ${transformedMatches.length} matches`);
       setMatches(transformedMatches);
+      setCompetitionsWithCurrentMatchday(competitionsWithCurrentMatchday);
         
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
@@ -281,13 +297,20 @@ const LiveScore = () => {
 
         {/* Leagues */}
         <div className="space-y-6 mb-8">
-          {!loading && !error && Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => (
-            <League
-              key={leagueName}
-              leagueName={leagueName}
-              matches={leagueMatches}
-            />
-          ))}
+          {!loading && !error && Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => {
+            // Find current matchday for this league
+            const competitionInfo = competitionsWithCurrentMatchday.find(comp => comp.name === leagueName);
+            const currentMatchday = competitionInfo?.currentMatchday || 1;
+            
+            return (
+              <League
+                key={leagueName}
+                leagueName={leagueName}
+                matches={leagueMatches}
+                currentMatchday={currentMatchday}
+              />
+            );
+          })}
         </div>
 
         {/* Bottom Content */}

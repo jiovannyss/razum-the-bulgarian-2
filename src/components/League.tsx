@@ -28,9 +28,10 @@ interface LeagueProps {
   leagueName: string;
   matches: ProcessedMatch[];
   leagueLogo?: string;
+  currentMatchday?: number;
 }
 
-const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
+const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   console.log(`🏆 League: ${leagueName}, Matches count: ${matches.length}`, matches);
@@ -49,12 +50,15 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
   
-  // Initialize with the first available round (current round)
+  // Initialize with the current matchday if available, otherwise first round
   const [currentGameWeek, setCurrentGameWeek] = useState(() => {
+    if (currentMatchday && availableRounds.includes(currentMatchday.toString())) {
+      return currentMatchday;
+    }
     return availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1;
   });
   
-  console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Current GW: ${currentGameWeek}`);
+  console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Current GW: ${currentGameWeek}, API Current: ${currentMatchday}`);
   
   // Get current round's matches
   const currentRound = currentGameWeek.toString();
