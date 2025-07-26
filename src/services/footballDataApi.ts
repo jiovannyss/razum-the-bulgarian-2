@@ -162,12 +162,14 @@ class FootballDataApiService {
         try {
           console.log(`🎯 Getting matches for: ${competition.name}`);
           
-          // Get all available matchdays for this competition
-          const availableMatchdays = await this.getMatchdays(competition.id);
-          console.log(`📅 Available matchdays for ${competition.name}: [${availableMatchdays.join(', ')}]`);
+          // Get current matchday first
+          const currentMatchday = await this.getCurrentMatchday(competition.id);
+          console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
           
-          // Fetch matches from all available matchdays
-          for (const matchday of availableMatchdays) {
+          // Only fetch current matchday and next few matchdays to avoid rate limits
+          const matchdaysToFetch = [currentMatchday, currentMatchday + 1, currentMatchday + 2];
+          
+          for (const matchday of matchdaysToFetch) {
             try {
               const matches = await this.getMatches(competition.id, matchday);
               if (matches && matches.length > 0) {
@@ -175,8 +177,8 @@ class FootballDataApiService {
                 console.log(`✅ Added ${matches.length} matches from ${competition.name} GW${matchday}`);
               }
               
-              // Add small delay to avoid hitting rate limits too hard
-              await new Promise(resolve => setTimeout(resolve, 100));
+              // Add delay to avoid hitting rate limits
+              await new Promise(resolve => setTimeout(resolve, 300));
             } catch (error) {
               console.log(`❌ Error getting GW${matchday} for ${competition.name}:`, error);
             }
