@@ -379,7 +379,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                             if (match.status === 'upcoming' && !match.myPrediction) {
                               return (
                                 <TriangleAlert 
-                                  className="w-6 h-6 text-yellow-500 fill-yellow-500" 
+                                  className="w-6 h-6 text-black fill-yellow-500" 
                                 />
                               );
                             }
