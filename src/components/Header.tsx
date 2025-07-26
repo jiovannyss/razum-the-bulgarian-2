@@ -11,6 +11,7 @@ import {
   Users,
   MessageCircle
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
@@ -71,6 +72,7 @@ const Header = () => {
                     <Settings className="w-4 h-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
+                  <ThemeToggle />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="gap-2 text-red-600">
                     <LogOut className="w-4 h-4" />

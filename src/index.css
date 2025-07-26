@@ -7,18 +7,99 @@
 @layer base {
   :root {
     /* Primary - Deep Football Blue */
+    --primary: 230 82% 55%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 230 82% 50%;
+    --primary-glow: 230 82% 60%;
+
+    /* Secondary - Electric Football Green */
+    --secondary: 160 84% 39%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-hover: 160 84% 44%;
+    --secondary-glow: 160 84% 49%;
+
+    /* Background - Light theme */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* Card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --card-hover: 210 40% 98%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Muted elements */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* Accent - Gold for winners */
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    /* Success - Prediction correct */
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 98%;
+
+    /* Warning - Risky predictions */
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 8%;
+
+    /* Destructive - Wrong predictions */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* Borders and inputs */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 230 82% 55%;
+
+    /* Live indicator color */
+    --live: 22 93% 58%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--card-hover)) 100%);
+
+    /* Shadows with glow effects */
+    --shadow-glow: 0 0 20px hsl(var(--primary-glow) / 0.3);
+    --shadow-secondary-glow: 0 0 20px hsl(var(--secondary-glow) / 0.3);
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Primary - Deep Football Blue for dark */
     --primary: 230 82% 15%;
     --primary-foreground: 0 0% 98%;
     --primary-hover: 230 82% 20%;
     --primary-glow: 230 82% 25%;
 
-    /* Secondary - Electric Football Green */
+    /* Secondary - Electric Football Green for dark */
     --secondary: 160 84% 39%;
     --secondary-foreground: 160 84% 5%;
     --secondary-hover: 160 84% 44%;
     --secondary-glow: 160 84% 49%;
 
-    /* Background - Dark theme for sports feel */
+    /* Background - Dark theme */
     --background: 222 84% 4%;
     --foreground: 210 40% 98%;
 
@@ -43,10 +124,6 @@
     --success: 160 84% 39%;
     --success-foreground: 160 84% 5%;
 
-    /* Warning - Risky predictions */
-    --warning: 38 92% 50%;
-    --warning-foreground: 38 92% 8%;
-
     /* Destructive - Wrong predictions */
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
@@ -56,71 +133,12 @@
     --input: 217 32% 17%;
     --ring: 230 82% 25%;
 
-    /* Live indicator color */
-    --live: 22 93% 58%;
-
-    /* Gradients */
+    /* Update gradients for dark theme */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
     --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--card-hover)) 100%);
 
-    /* Shadows with glow effects */
-    --shadow-glow: 0 0 20px hsl(var(--primary-glow) / 0.3);
-    --shadow-secondary-glow: 0 0 20px hsl(var(--secondary-glow) / 0.3);
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.4);
-
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
