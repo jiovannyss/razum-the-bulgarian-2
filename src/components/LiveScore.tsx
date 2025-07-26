@@ -43,39 +43,41 @@ const LiveScore = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Transform Football-Data.org API match to our format
+  // Transform API-Football.com API match to our format
   const transformMatch = (apiMatch: Match): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
-    let time = apiMatch.utcDate; // Keep the full ISO date string
+    let time = apiMatch.fixture.date; // Keep the full ISO date string
 
-    if (apiMatch.status === 'FINISHED') {
+    // Map API-Football status to our format
+    const apiStatus = apiMatch.fixture.status.short;
+    if (apiStatus === 'FT' || apiStatus === 'AET' || apiStatus === 'PEN') {
       status = 'finished';
       time = 'FT';
-    } else if (apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
+    } else if (['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(apiStatus)) {
       status = 'live';
-      time = 'Live';
-    } else if (apiMatch.status === 'SCHEDULED' || apiMatch.status === 'TIMED') {
+      time = `${apiMatch.fixture.status.elapsed || 0}'`;
+    } else if (['NS', 'TBD'].includes(apiStatus)) {
       status = 'upcoming';
       // Keep the full ISO date string for upcoming matches
     }
 
     return {
-      id: apiMatch.id.toString(),
-      tournament: apiMatch.competition.name,
-      homeTeam: apiMatch.homeTeam.name,
-      awayTeam: apiMatch.awayTeam.name,
-      homeScore: apiMatch.score.fullTime.home,
-      awayScore: apiMatch.score.fullTime.away,
+      id: apiMatch.fixture.id.toString(),
+      tournament: apiMatch.league.name,
+      homeTeam: apiMatch.teams.home.name,
+      awayTeam: apiMatch.teams.away.name,
+      homeScore: apiMatch.goals.home,
+      awayScore: apiMatch.goals.away,
       time,
       status,
-      homeLogo: apiMatch.homeTeam.crest,
-      awayLogo: apiMatch.awayTeam.crest,
+      homeLogo: apiMatch.teams.home.logo,
+      awayLogo: apiMatch.teams.away.logo,
       predictions: Math.floor(Math.random() * 500) + 50,
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
       rank: Math.floor(Math.random() * 3) + 1,
       myPrediction: null,
       myPredictionCorrect: null,
-      round: apiMatch.matchday.toString()
+      round: apiMatch.league.round
     };
   };
 
@@ -84,9 +86,9 @@ const LiveScore = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Loading Football-Data.org matches...');
+      console.log('🔍 Loading API-Football.com matches...');
 
-      // Get upcoming matches from Football-Data.org
+      // Get upcoming matches from API-Football.com
       const upcomingMatches = await footballDataApi.getUpcomingMatches();
       console.log(`📊 Found ${upcomingMatches.length} total matches`);
 
@@ -128,7 +130,7 @@ const LiveScore = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
       setError(errorMessage);
-      console.error('❌ Error loading Football-Data.org matches:', err);
+      console.error('❌ Error loading API-Football.com matches:', err);
       toast({
         title: "Грешка при зареждане",
         description: `Неуспешно зареждане на мачовете: ${errorMessage}`,
@@ -226,7 +228,7 @@ const LiveScore = () => {
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3 text-muted-foreground">
               <RefreshCw className="w-5 h-5 animate-spin" />
-              <span>Loading Football-Data.org matches...</span>
+              <span>Loading API-Football.com matches...</span>
             </div>
           </div>
         )}

@@ -1,85 +1,100 @@
-// Football-Data.org API Service with CORS proxy
-// Documentation: https://www.football-data.org/documentation/api
+// API-Football.com API Service
+// Documentation: https://www.api-football.com/documentation-v3
 
 export interface Competition {
-  id: number;
-  area: {
+  league: {
     id: number;
     name: string;
-    code: string;
-    flag?: string;
-  };
-  name: string;
-  code: string;
-  plan: string;
-  currentSeason: {
-    id: number;
-    startDate: string;
-    endDate: string;
-    currentMatchday: number;
+    country: string;
+    logo: string;
+    flag: string;
+    season: number;
   };
 }
 
 export interface Team {
   id: number;
   name: string;
-  shortName: string;
-  tla: string;
-  crest: string;
+  logo: string;
 }
 
 export interface Match {
-  id: number;
-  competition: {
+  fixture: {
+    id: number;
+    referee: string;
+    timezone: string;
+    date: string;
+    timestamp: number;
+    periods: {
+      first: number;
+      second: number;
+    };
+    venue: {
+      id: number;
+      name: string;
+      city: string;
+    };
+    status: {
+      long: string;
+      short: string;
+      elapsed: number;
+    };
+  };
+  league: {
     id: number;
     name: string;
+    country: string;
+    logo: string;
+    flag: string;
+    season: number;
+    round: string;
   };
-  season: {
-    id: number;
+  teams: {
+    home: Team;
+    away: Team;
   };
-  utcDate: string;
-  status: string;
-  matchday: number;
-  homeTeam: Team;
-  awayTeam: Team;
+  goals: {
+    home: number;
+    away: number;
+  };
   score: {
-    winner?: string;
-    fullTime: {
-      home?: number;
-      away?: number;
+    halftime: {
+      home: number;
+      away: number;
     };
-    halfTime: {
-      home?: number;
-      away?: number;
+    fulltime: {
+      home: number;
+      away: number;
+    };
+    extratime: {
+      home: number;
+      away: number;
+    };
+    penalty: {
+      home: number;
+      away: number;
     };
   };
 }
 
-export interface CompetitionsResponse {
-  count: number;
-  competitions: Competition[];
+export interface LeaguesResponse {
+  response: Competition[];
 }
 
-export interface MatchesResponse {
-  count: number;
-  matches: Match[];
+export interface FixturesResponse {
+  response: Match[];
 }
 
 class FootballDataApiService {
-  private baseUrl = 'https://api.football-data.org/v4';
-  private corsProxy = 'https://corsproxy.io/?';
-  private apiKey = '4c0b967130864749a36fb552c0755910';
+  private baseUrl = 'https://v3.football.api-sports.io';
+  private apiKey = 'your-api-key-here'; // Free API key needed
 
   private async makeRequest<T>(endpoint: string): Promise<T> {
     console.log(`🌐 Making request to: ${this.baseUrl}${endpoint}`);
     
-    // Use CORS proxy to bypass CORS restrictions
-    const url = `${this.corsProxy}${encodeURIComponent(this.baseUrl + endpoint)}`;
-    
-    const response = await fetch(url, {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
       headers: {
-        'X-Auth-Token': this.apiKey,
-        'Content-Type': 'application/json',
+        'x-apisports-key': this.apiKey,
       },
     });
 
@@ -95,81 +110,115 @@ class FootballDataApiService {
 
   // Get available competitions (free tier only)
   async getCompetitions(): Promise<Competition[]> {
-    const response = await this.makeRequest<CompetitionsResponse>('/competitions');
-    // Filter only free tier competitions
-    return response.competitions.filter(comp => comp.plan === 'TIER_ONE');
+    const response = await this.makeRequest<LeaguesResponse>('/leagues');
+    return response.response;
   }
 
-  // Get matches for a specific competition
-  async getMatches(competitionId: number, matchday?: number): Promise<Match[]> {
-    let endpoint = `/competitions/${competitionId}/matches`;
+  // Get matches for a specific league
+  async getMatches(leagueId: number, season?: number): Promise<Match[]> {
+    let endpoint = `/fixtures?league=${leagueId}`;
     
-    const params = new URLSearchParams();
-    if (matchday) {
-      params.append('matchday', matchday.toString());
-    }
-    
-    if (params.toString()) {
-      endpoint += `?${params.toString()}`;
+    if (season) {
+      endpoint += `&season=${season}`;
+    } else {
+      endpoint += `&season=2024`; // Default to current season
     }
 
-    const response = await this.makeRequest<MatchesResponse>(endpoint);
-    return response.matches;
+    const response = await this.makeRequest<FixturesResponse>(endpoint);
+    return response.response;
   }
 
-  // Get current matchday for competition
-  async getCurrentMatchday(competitionId: number): Promise<number> {
+  // Get current round for league
+  async getCurrentRound(leagueId: number, season: number = 2024): Promise<string> {
     try {
-      const competitions = await this.getCompetitions();
-      const competition = competitions.find(c => c.id === competitionId);
-      return competition?.currentSeason.currentMatchday || 1;
+      const endpoint = `/fixtures/rounds?league=${leagueId}&season=${season}&current=true`;
+      const response = await this.makeRequest<{ response: string[] }>(endpoint);
+      return response.response[0] || 'Regular Season - 1';
     } catch (error) {
-      console.log('Error getting current matchday, using default');
-      return 18; // Default to matchday 18
+      console.log('Error getting current round, using default');
+      return 'Regular Season - 1';
     }
   }
 
-  // Get all matchdays for a competition
-  async getMatchdays(competitionId: number): Promise<number[]> {
+  // Get all rounds for a league
+  async getRounds(leagueId: number, season: number = 2024): Promise<string[]> {
     try {
-      const allMatches = await this.getMatches(competitionId);
-      const matchdays = [...new Set(allMatches.map(m => m.matchday))].sort((a, b) => a - b);
-      return matchdays;
+      const endpoint = `/fixtures/rounds?league=${leagueId}&season=${season}`;
+      const response = await this.makeRequest<{ response: string[] }>(endpoint);
+      return response.response;
     } catch (error) {
-      console.log('Error getting matchdays, using defaults');
-      return [16, 17, 18, 19, 20]; // Default matchdays
+      console.log('Error getting rounds, using defaults');
+      return ['Regular Season - 1', 'Regular Season - 2', 'Regular Season - 3'];
     }
   }
 
-  // Get upcoming matches across all competitions
+  // Get upcoming and live matches
   async getUpcomingMatches(): Promise<Match[]> {
     try {
-      const competitions = await this.getCompetitions();
-      console.log(`📋 Found ${competitions.length} free competitions`);
+      // Get today's matches and next 7 days
+      const today = new Date().toISOString().split('T')[0];
+      const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       
-      let allMatches: Match[] = [];
+      const endpoint = `/fixtures?from=${today}&to=${nextWeek}`;
+      const response = await this.makeRequest<FixturesResponse>(endpoint);
       
-      // Get matches from first 3 competitions to avoid rate limits
-      for (const competition of competitions.slice(0, 3)) {
-        try {
-          console.log(`🎯 Getting matches for: ${competition.name}`);
-          const currentMatchday = await this.getCurrentMatchday(competition.id);
-          const matches = await this.getMatches(competition.id, currentMatchday);
-          
-          if (matches && matches.length > 0) {
-            allMatches.push(...matches);
-            console.log(`✅ Added ${matches.length} matches from ${competition.name}`);
-          }
-        } catch (error) {
-          console.log(`❌ Error getting matches for ${competition.name}:`, error);
-        }
-      }
-      
-      return allMatches;
+      // Return first 20 matches to avoid rate limits
+      return response.response.slice(0, 20);
     } catch (error) {
       console.error('Error getting upcoming matches:', error);
-      throw error;
+      
+      // Return demo data if API fails
+      return this.getDemoMatches();
     }
+  }
+
+  // Get live matches
+  async getLiveMatches(): Promise<Match[]> {
+    try {
+      const endpoint = '/fixtures?live=all';
+      const response = await this.makeRequest<FixturesResponse>(endpoint);
+      return response.response;
+    } catch (error) {
+      console.error('Error getting live matches:', error);
+      return [];
+    }
+  }
+
+  private getDemoMatches(): Match[] {
+    return [
+      {
+        fixture: {
+          id: 1,
+          referee: 'Demo Referee',
+          timezone: 'UTC',
+          date: new Date().toISOString(),
+          timestamp: Date.now() / 1000,
+          periods: { first: 0, second: 0 },
+          venue: { id: 1, name: 'Demo Stadium', city: 'Demo City' },
+          status: { long: 'Not Started', short: 'NS', elapsed: 0 }
+        },
+        league: {
+          id: 39,
+          name: 'Premier League',
+          country: 'England',
+          logo: 'https://media.api-sports.io/football/leagues/39.png',
+          flag: 'https://media.api-sports.io/flags/gb.svg',
+          season: 2024,
+          round: 'Regular Season - 1'
+        },
+        teams: {
+          home: { id: 1, name: 'Arsenal', logo: 'https://media.api-sports.io/football/teams/42.png' },
+          away: { id: 2, name: 'Chelsea', logo: 'https://media.api-sports.io/football/teams/49.png' }
+        },
+        goals: { home: 0, away: 0 },
+        score: {
+          halftime: { home: 0, away: 0 },
+          fulltime: { home: 0, away: 0 },
+          extratime: { home: 0, away: 0 },
+          penalty: { home: 0, away: 0 }
+        }
+      }
+    ];
   }
 }
 
