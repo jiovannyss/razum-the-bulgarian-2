@@ -146,13 +146,61 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
     return { isToday, timeStr, date };
   };
 
-  const getPredictionColor = (prediction: string) => {
-    switch (prediction) {
-      case "1": return "bg-primary text-primary-foreground";
-      case "X": return "bg-accent text-accent-foreground";
-      case "2": return "bg-secondary text-secondary-foreground";
-      default: return "bg-muted text-muted-foreground";
+  const getMatchResult = (homeScore: number | null, awayScore: number | null): string | null => {
+    if (homeScore === null || awayScore === null) return null;
+    if (homeScore > awayScore) return "1";
+    if (homeScore < awayScore) return "2";
+    return "X";
+  };
+
+  const getPredictionDisplay = (match: ProcessedMatch) => {
+    const myPrediction = match.myPrediction;
+    const actualResult = getMatchResult(match.homeScore, match.awayScore);
+    
+    // За завършили мачове
+    if (match.status === 'finished') {
+      if (!myPrediction) {
+        return { text: '-', bgColor: 'bg-destructive', textColor: 'text-destructive-foreground' };
+      }
+      
+      const isCorrect = actualResult === myPrediction;
+      return {
+        text: myPrediction,
+        bgColor: isCorrect ? 'bg-green-600' : 'bg-destructive',
+        textColor: 'text-white'
+      };
     }
+    
+    // За лайв мачове
+    if (match.status === 'live') {
+      if (!myPrediction) {
+        return { text: '-', bgColor: 'bg-destructive', textColor: 'text-destructive-foreground' };
+      }
+      
+      const currentResult = getMatchResult(match.homeScore, match.awayScore);
+      const isCurrentlyCorrect = currentResult === myPrediction;
+      return {
+        text: myPrediction,
+        bgColor: isCurrentlyCorrect ? 'bg-green-600' : 'bg-destructive',
+        textColor: 'text-white'
+      };
+    }
+    
+    // За предстоящи мачове
+    if (match.status === 'upcoming') {
+      if (!myPrediction) {
+        return { text: '!', bgColor: 'bg-yellow-500', textColor: 'text-black' };
+      }
+      
+      return {
+        text: myPrediction,
+        bgColor: 'bg-muted',
+        textColor: 'text-muted-foreground'
+      };
+    }
+    
+    // Fallback
+    return { text: '-', bgColor: 'bg-muted', textColor: 'text-muted-foreground' };
   };
 
   const handleGameWeekChange = async (newGameWeek: number) => {
@@ -321,18 +369,25 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                          </div>
                        </div>
 
-                       {/* Prediction - right side */}
-                       <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                         {/* Prediction */}
-                         {match.popularPrediction && (
-                           <Badge
-                             variant="outline"
-                             className={cn("text-xs", getPredictionColor(match.popularPrediction))}
-                           >
-                             {match.popularPrediction}
-                           </Badge>
-                         )}
-                      </div>
+                        {/* Prediction - right side */}
+                        <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                          {/* My Prediction */}
+                          {(() => {
+                            const predictionDisplay = getPredictionDisplay(match);
+                            return (
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "text-xs border-0 font-bold min-w-[24px] h-6 flex items-center justify-center",
+                                  predictionDisplay.bgColor,
+                                  predictionDisplay.textColor
+                                )}
+                              >
+                                {predictionDisplay.text}
+                              </Badge>
+                            );
+                          })()}
+                        </div>
                    </div>
                  </div>
                );
