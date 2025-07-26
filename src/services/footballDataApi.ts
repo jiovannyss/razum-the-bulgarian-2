@@ -87,7 +87,7 @@ export interface FixturesResponse {
 
 class FootballDataApiService {
   private baseUrl = 'https://v3.football.api-sports.io';
-  private apiKey = 'your-api-key-here'; // Free API key needed
+  private apiKey = '31a9963dc17461814f5a4d2933da8b9784e53bca30abee4ad1478e5c64b6f466';
 
   private async makeRequest<T>(endpoint: string): Promise<T> {
     console.log(`🌐 Making request to: ${this.baseUrl}${endpoint}`);
