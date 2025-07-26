@@ -92,12 +92,22 @@ const LiveScore = () => {
         return;
       }
       
-      // Get matches for the specific matchday
+      // Check if we already have matches for this matchday to avoid duplicates
+      const existingMatchesForRound = matches.filter(m => 
+        m.tournament === leagueName && m.round === matchday.toString()
+      );
+      
+      if (existingMatchesForRound.length > 0) {
+        console.log(`✅ Already have ${existingMatchesForRound.length} matches for ${leagueName} GW${matchday}`);
+        return;
+      }
+      
+      // Get matches for the specific matchday with error handling for rate limits
       const newMatches = await footballDataApi.getMatches(competition.id, matchday);
       if (newMatches && newMatches.length > 0) {
         const transformedMatches = newMatches.map(transformMatch);
         
-        // Add new matches to existing matches, avoiding duplicates
+        // Add new matches to existing matches
         setMatches(prevMatches => {
           const existingIds = new Set(prevMatches.map(m => m.id));
           const uniqueNewMatches = transformedMatches.filter(m => !existingIds.has(m.id));
@@ -105,9 +115,36 @@ const LiveScore = () => {
         });
         
         console.log(`✅ Loaded ${newMatches.length} matches for ${leagueName} GW${matchday}`);
+        
+        toast({
+          title: "Matches loaded",
+          description: `Loaded ${newMatches.length} matches for ${leagueName} GW${matchday}`,
+        });
+      } else {
+        console.log(`⚠️ No matches found for ${leagueName} GW${matchday}`);
+        toast({
+          title: "No matches",
+          description: `No matches found for ${leagueName} Round ${matchday}`,
+          variant: "destructive",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(`❌ Error loading matchday ${matchday} for ${leagueName}:`, error);
+      
+      // Handle rate limiting specifically
+      if (error.message.includes('429')) {
+        toast({
+          title: "Rate limit reached",
+          description: "Too many requests. Please wait before navigating to another round.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Loading error",
+          description: `Failed to load matches for Round ${matchday}`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
