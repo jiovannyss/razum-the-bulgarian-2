@@ -154,11 +154,26 @@ class FootballDataApiService {
         try {
           console.log(`🎯 Getting matches for: ${competition.name}`);
           const currentMatchday = await this.getCurrentMatchday(competition.id);
-          const matches = await this.getMatches(competition.id, currentMatchday);
           
-          if (matches && matches.length > 0) {
-            allMatches.push(...matches);
-            console.log(`✅ Added ${matches.length} matches from ${competition.name}`);
+          // Get matches from current matchday and surrounding ones (±2 matchdays)
+          const matchdaysToFetch = [
+            currentMatchday - 2,
+            currentMatchday - 1, 
+            currentMatchday,
+            currentMatchday + 1,
+            currentMatchday + 2
+          ].filter(md => md > 0 && md <= 38); // Filter valid matchdays
+          
+          for (const matchday of matchdaysToFetch) {
+            try {
+              const matches = await this.getMatches(competition.id, matchday);
+              if (matches && matches.length > 0) {
+                allMatches.push(...matches);
+                console.log(`✅ Added ${matches.length} matches from ${competition.name} GW${matchday}`);
+              }
+            } catch (error) {
+              console.log(`❌ Error getting GW${matchday} for ${competition.name}:`, error);
+            }
           }
         } catch (error) {
           console.log(`❌ Error getting matches for ${competition.name}:`, error);
