@@ -29,9 +29,10 @@ interface LeagueProps {
   matches: ProcessedMatch[];
   leagueLogo?: string;
   currentMatchday?: number;
+  onLoadMatchday?: (leagueName: string, matchday: number) => Promise<void>;
 }
 
-const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProps) => {
+const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchday }: LeagueProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   console.log(`🏆 League: ${leagueName}, Matches count: ${matches.length}`, matches);
@@ -155,23 +156,33 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
     }
   };
 
-  const handlePreviousGameWeek = () => {
+  const handlePreviousGameWeek = async () => {
     console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}`);
     if (currentGameWeek > 1) {
       const newGW = currentGameWeek - 1;
       console.log(`⬅️ Setting GW to: ${newGW}`);
       setCurrentGameWeek(newGW);
-      // TODO: Load matches for this gameweek if not available
+      
+      // Load matches for this gameweek if not available and callback provided
+      if (onLoadMatchday && !matchesByRound[newGW.toString()]) {
+        console.log(`📥 Loading matches for GW ${newGW}...`);
+        await onLoadMatchday(leagueName, newGW);
+      }
     }
   };
 
-  const handleNextGameWeek = () => {
+  const handleNextGameWeek = async () => {
     console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}`);
     if (currentGameWeek < totalRounds) {
       const newGW = currentGameWeek + 1;
       console.log(`➡️ Setting GW to: ${newGW}`);
       setCurrentGameWeek(newGW);
-      // TODO: Load matches for this gameweek if not available
+      
+      // Load matches for this gameweek if not available and callback provided
+      if (onLoadMatchday && !matchesByRound[newGW.toString()]) {
+        console.log(`📥 Loading matches for GW ${newGW}...`);
+        await onLoadMatchday(leagueName, newGW);
+      }
     }
   };
 

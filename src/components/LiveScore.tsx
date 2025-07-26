@@ -80,6 +80,37 @@ const LiveScore = () => {
     };
   };
 
+  // Function to load matches for a specific league and matchday
+  const loadMatchdayForLeague = async (leagueName: string, matchday: number) => {
+    try {
+      console.log(`📥 Loading matchday ${matchday} for ${leagueName}...`);
+      
+      // Find the competition by name
+      const competition = competitionsWithCurrentMatchday.find(comp => comp.name === leagueName);
+      if (!competition) {
+        console.log(`❌ Competition not found: ${leagueName}`);
+        return;
+      }
+      
+      // Get matches for the specific matchday
+      const newMatches = await footballDataApi.getMatches(competition.id, matchday);
+      if (newMatches && newMatches.length > 0) {
+        const transformedMatches = newMatches.map(transformMatch);
+        
+        // Add new matches to existing matches, avoiding duplicates
+        setMatches(prevMatches => {
+          const existingIds = new Set(prevMatches.map(m => m.id));
+          const uniqueNewMatches = transformedMatches.filter(m => !existingIds.has(m.id));
+          return [...prevMatches, ...uniqueNewMatches];
+        });
+        
+        console.log(`✅ Loaded ${newMatches.length} matches for ${leagueName} GW${matchday}`);
+      }
+    } catch (error) {
+      console.log(`❌ Error loading matchday ${matchday} for ${leagueName}:`, error);
+    }
+  };
+
   const loadMatches = async () => {
     try {
       setLoading(true);
@@ -315,6 +346,7 @@ const LiveScore = () => {
                 leagueName={leagueName}
                 matches={leagueMatches}
                 currentMatchday={currentMatchday}
+                onLoadMatchday={loadMatchdayForLeague}
               />
             );
           })}
