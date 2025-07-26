@@ -158,10 +158,10 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
 
   const handleGameWeekChange = async (newGameWeek: number) => {
     console.log(`🎯 Changing from GW ${currentGameWeek} to GW ${newGameWeek}`);
+    setCurrentGameWeek(newGameWeek);
     
-    // Load matches for this gameweek if not available and callback provided
-    const newRound = newGameWeek.toString();
-    if (onLoadMatchday && !matchesByRound[newRound]) {
+    // Always load matches for this gameweek if callback provided
+    if (onLoadMatchday) {
       console.log(`📥 Loading matches for GW ${newGameWeek}...`);
       try {
         await onLoadMatchday(leagueName, newGameWeek);
@@ -169,8 +169,6 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
         console.error(`❌ Failed to load GW ${newGameWeek}:`, error);
       }
     }
-    
-    setCurrentGameWeek(newGameWeek);
   };
 
   return (
