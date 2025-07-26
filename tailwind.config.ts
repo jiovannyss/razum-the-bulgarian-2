@@ -66,6 +66,7 @@ export default {
 					foreground: 'hsl(var(--warning-foreground))'
 				},
 				live: 'hsl(var(--live))',
+				'section-background': 'hsl(var(--section-background))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
