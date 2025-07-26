@@ -131,6 +131,9 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
+    /* Custom header/footer/sections background for dark theme */
+    --section-background: 180 5% 79%;
+
     /* Borders and inputs */
     --border: 217 32% 17%;
     --input: 217 32% 17%;
