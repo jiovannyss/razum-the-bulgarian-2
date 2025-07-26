@@ -138,6 +138,7 @@ const LiveScore = () => {
 
       const transformedMatches = upcomingMatches.map(transformMatch);
       console.log(`🏁 Transformed ${transformedMatches.length} matches`);
+      console.log(`📅 Competitions with current matchday:`, competitionsWithCurrentMatchday);
       setMatches(transformedMatches);
       setCompetitionsWithCurrentMatchday(competitionsWithCurrentMatchday);
         
@@ -301,6 +302,8 @@ const LiveScore = () => {
             // Find current matchday for this league
             const competitionInfo = competitionsWithCurrentMatchday.find(comp => comp.name === leagueName);
             const currentMatchday = competitionInfo?.currentMatchday || 1;
+            
+            console.log(`🎯 League: ${leagueName}, Found competition:`, competitionInfo, `Current matchday: ${currentMatchday}`);
             
             return (
               <League
