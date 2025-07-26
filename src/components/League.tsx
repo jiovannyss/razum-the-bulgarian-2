@@ -70,18 +70,17 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
     return fallback;
   });
   
-  // Update currentGameWeek when currentMatchday prop changes
+  // Update currentGameWeek when currentMatchday prop changes (but not when user navigates)
   useEffect(() => {
     console.log(`🔄 useEffect triggered for ${leagueName}:`);
     console.log(`   - currentMatchday: ${currentMatchday}`);
-    console.log(`   - availableRounds: [${availableRounds.join(', ')}]`);
     
-    // Use API current matchday regardless of available rounds
-    if (currentMatchday) {
-      console.log(`🔄 Updating GW to API current: ${currentMatchday}`);
+    // Only update if this is initial load and we don't have a manually set game week
+    if (currentMatchday && currentGameWeek === (availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1)) {
+      console.log(`🔄 Initial load: Updating GW to API current: ${currentMatchday}`);
       setCurrentGameWeek(currentMatchday);
     }
-  }, [currentMatchday, availableRounds, leagueName]);
+  }, [currentMatchday, leagueName]); // Removed availableRounds from dependencies
   
   console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Current GW: ${currentGameWeek}, API Current: ${currentMatchday}`);
   
