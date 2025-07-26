@@ -57,7 +57,8 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
     console.log(`   - availableRounds: [${availableRounds.join(', ')}]`);
     console.log(`   - availableRounds includes ${currentMatchday}: ${availableRounds.includes(currentMatchday?.toString())}`);
     
-    if (currentMatchday && availableRounds.includes(currentMatchday.toString())) {
+    // If we have a current matchday from API, use it regardless of available rounds
+    if (currentMatchday) {
       console.log(`🎯 Using API current matchday: ${currentMatchday}`);
       return currentMatchday;
     }
@@ -72,7 +73,8 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
     console.log(`   - currentMatchday: ${currentMatchday}`);
     console.log(`   - availableRounds: [${availableRounds.join(', ')}]`);
     
-    if (currentMatchday && availableRounds.includes(currentMatchday.toString())) {
+    // Use API current matchday regardless of available rounds
+    if (currentMatchday) {
       console.log(`🔄 Updating GW to API current: ${currentMatchday}`);
       setCurrentGameWeek(currentMatchday);
     }
