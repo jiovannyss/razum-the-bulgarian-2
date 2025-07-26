@@ -50,12 +50,14 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
   
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
   
+  // Use a fixed range of 1-38 for navigation, regardless of loaded matches
+  const totalRounds = 38; // Standard for most leagues
+  
   // Initialize with the current matchday if available, otherwise first round
   const [currentGameWeek, setCurrentGameWeek] = useState(() => {
     console.log(`🏗️ Initializing League ${leagueName}:`);
     console.log(`   - currentMatchday prop: ${currentMatchday}`);
     console.log(`   - availableRounds: [${availableRounds.join(', ')}]`);
-    console.log(`   - availableRounds includes ${currentMatchday}: ${availableRounds.includes(currentMatchday?.toString())}`);
     
     // If we have a current matchday from API, use it regardless of available rounds
     if (currentMatchday) {
@@ -154,22 +156,22 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
   };
 
   const handlePreviousGameWeek = () => {
-    const currentIndex = availableRounds.indexOf(currentGameWeek.toString());
-    console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}, Index: ${currentIndex}`);
-    if (currentIndex > 0) {
-      const newGW = parseInt(availableRounds[currentIndex - 1]);
+    console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}`);
+    if (currentGameWeek > 1) {
+      const newGW = currentGameWeek - 1;
       console.log(`⬅️ Setting GW to: ${newGW}`);
       setCurrentGameWeek(newGW);
+      // TODO: Load matches for this gameweek if not available
     }
   };
 
   const handleNextGameWeek = () => {
-    const currentIndex = availableRounds.indexOf(currentGameWeek.toString());
-    console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}, Index: ${currentIndex}`);
-    if (currentIndex < availableRounds.length - 1) {
-      const newGW = parseInt(availableRounds[currentIndex + 1]);
+    console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}`);
+    if (currentGameWeek < totalRounds) {
+      const newGW = currentGameWeek + 1;
       console.log(`➡️ Setting GW to: ${newGW}`);
       setCurrentGameWeek(newGW);
+      // TODO: Load matches for this gameweek if not available
     }
   };
 
@@ -195,7 +197,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
               variant="ghost"
               size="sm"
               onClick={handlePreviousGameWeek}
-              disabled={availableRounds.indexOf(currentGameWeek.toString()) <= 0}
+              disabled={currentGameWeek <= 1}
               className="h-6 w-6 lg:h-8 lg:w-8 p-0"
             >
               <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
@@ -207,7 +209,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
               variant="ghost"
               size="sm"
               onClick={handleNextGameWeek}
-              disabled={availableRounds.indexOf(currentGameWeek.toString()) >= availableRounds.length - 1}
+              disabled={currentGameWeek >= totalRounds}
               className="h-6 w-6 lg:h-8 lg:w-8 p-0"
             >
               <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4" />
