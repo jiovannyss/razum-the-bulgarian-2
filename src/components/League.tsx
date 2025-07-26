@@ -48,15 +48,17 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   console.log(`📊 Matches by round:`, matchesByRound);
   
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
-  const maxGameWeeks = Math.max(availableRounds.length, 1);
   
-  console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Max GW: ${maxGameWeeks}`);
+  // Initialize with the first available round (current round)
+  const [currentGameWeek, setCurrentGameWeek] = useState(() => {
+    return availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1;
+  });
   
-  const [currentGameWeek, setCurrentGameWeek] = useState(1);
+  console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Current GW: ${currentGameWeek}`);
   
-  // If no matches, show all matches in a single "round"
-  const currentRound = availableRounds.length > 0 ? availableRounds[currentGameWeek - 1] : '1';
-  const currentMatches = availableRounds.length > 0 ? (matchesByRound[currentRound] || []) : matches;
+  // Get current round's matches
+  const currentRound = currentGameWeek.toString();
+  const currentMatches = matchesByRound[currentRound] || [];
   
   console.log(`⚽ Current GW: ${currentGameWeek}, Round: ${currentRound}, Matches: ${currentMatches.length}`);
 
@@ -126,18 +128,20 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
   };
 
   const handlePreviousGameWeek = () => {
-    console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}, Max: ${maxGameWeeks}`);
-    if (currentGameWeek > 1) {
-      const newGW = currentGameWeek - 1;
+    const currentIndex = availableRounds.indexOf(currentGameWeek.toString());
+    console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}, Index: ${currentIndex}`);
+    if (currentIndex > 0) {
+      const newGW = parseInt(availableRounds[currentIndex - 1]);
       console.log(`⬅️ Setting GW to: ${newGW}`);
       setCurrentGameWeek(newGW);
     }
   };
 
   const handleNextGameWeek = () => {
-    console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}, Max: ${maxGameWeeks}`);
-    if (currentGameWeek < maxGameWeeks) {
-      const newGW = currentGameWeek + 1;
+    const currentIndex = availableRounds.indexOf(currentGameWeek.toString());
+    console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}, Index: ${currentIndex}`);
+    if (currentIndex < availableRounds.length - 1) {
+      const newGW = parseInt(availableRounds[currentIndex + 1]);
       console.log(`➡️ Setting GW to: ${newGW}`);
       setCurrentGameWeek(newGW);
     }
@@ -166,19 +170,19 @@ const League = ({ leagueName, matches, leagueLogo }: LeagueProps) => {
               variant="ghost"
               size="sm"
               onClick={handlePreviousGameWeek}
-              disabled={currentGameWeek <= 1}
+              disabled={availableRounds.indexOf(currentGameWeek.toString()) <= 0}
               className="h-6 w-6 lg:h-8 lg:w-8 p-0"
             >
               <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
             </Button>
-            <span className="text-xs lg:text-sm font-medium px-1 lg:px-2">
-              GW {currentGameWeek}
+            <span className="text-xs lg:text-sm font-medium px-1 lg:px-2 whitespace-nowrap">
+              GW{currentGameWeek}
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleNextGameWeek}
-              disabled={currentGameWeek >= maxGameWeeks}
+              disabled={availableRounds.indexOf(currentGameWeek.toString()) >= availableRounds.length - 1}
               className="h-6 w-6 lg:h-8 lg:w-8 p-0"
             >
               <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4" />
