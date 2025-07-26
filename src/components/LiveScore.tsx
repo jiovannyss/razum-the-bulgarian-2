@@ -104,6 +104,10 @@ const LiveScore = () => {
       // Get upcoming matches from Football-Data.org
       const upcomingMatches = await footballDataApi.getUpcomingMatches();
       console.log(`📊 Found ${upcomingMatches.length} total matches`);
+      
+      // Log rounds from the matches
+      const roundsInMatches = [...new Set(upcomingMatches.map(m => m.matchday))];
+      console.log(`📋 Rounds in API matches: [${roundsInMatches.sort((a, b) => a - b).join(', ')}]`);
 
       if (upcomingMatches.length === 0) {
         console.log('⚠️ No upcoming matches found - creating demo data');
