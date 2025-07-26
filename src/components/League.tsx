@@ -316,11 +316,19 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
                            <div className="w-12 text-center">
-                             {match.status === "live" ? (
-                               <div className="text-sm font-bold text-live flex items-baseline justify-center">
-                                 <span>{Math.floor(Math.random() * 90) + 1}</span>
-                                 <span className="animate-pulse">'</span>
-                               </div>
+                              {match.status === "live" ? (
+                                <div className="text-sm font-bold text-live flex items-baseline justify-center">
+                                  <span>{(() => {
+                                    const now = new Date();
+                                    const minutesSinceHour = now.getMinutes();
+                                    const secondsSinceMinute = now.getSeconds();
+                                    // Simulate match progression based on real time
+                                    return (minutesSinceHour + Math.floor(secondsSinceMinute / 2)) % 90 + 1;
+                                  })()}</span>
+                                  <span className={cn("transition-opacity duration-500", 
+                                    new Date().getSeconds() % 2 === 0 ? "opacity-100" : "opacity-0"
+                                  )}>'</span>
+                                </div>
                              ) : match.status === "finished" ? (
                                <span className="text-xs font-bold text-white">FT</span>
                              ) : match.status === "upcoming" && timeInfo.isToday ? (

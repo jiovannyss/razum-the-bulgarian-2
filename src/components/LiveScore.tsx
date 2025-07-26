@@ -236,6 +236,12 @@ const LiveScore = () => {
 
   // Helper function to check if a match is today
   const isMatchToday = (match: ProcessedMatch) => {
+    // Live matches are always "today"
+    if (match.status === 'live') {
+      return true;
+    }
+    
+    // For other matches, check the date
     const today = new Date();
     const matchDate = new Date(match.time);
     return matchDate.toDateString() === today.toDateString();
