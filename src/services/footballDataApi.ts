@@ -132,12 +132,20 @@ class FootballDataApiService {
   // Get all matchdays for a competition
   async getMatchdays(competitionId: number): Promise<number[]> {
     try {
-      const allMatches = await this.getMatches(competitionId);
-      const matchdays = [...new Set(allMatches.map(m => m.matchday))].sort((a, b) => a - b);
-      return matchdays;
+      console.log(`📅 Getting all matchdays for competition: ${competitionId}`);
+      
+      // Get current matchday first
+      const currentMatchday = await this.getCurrentMatchday(competitionId);
+      console.log(`📅 Current matchday: ${currentMatchday}`);
+      
+      // For most leagues, return all typical matchdays (1-38)
+      const maxMatchdays = 38;
+      const allMatchdays = Array.from({ length: maxMatchdays }, (_, i) => i + 1);
+      console.log(`📅 Returning all ${maxMatchdays} matchdays for competition ${competitionId}`);
+      return allMatchdays;
     } catch (error) {
       console.log('Error getting matchdays, using defaults');
-      return [16, 17, 18, 19, 20]; // Default matchdays
+      return Array.from({ length: 38 }, (_, i) => i + 1); // Return 1-38 as fallback
     }
   }
 
