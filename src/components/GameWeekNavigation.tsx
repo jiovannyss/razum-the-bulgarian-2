@@ -51,16 +51,11 @@ export const GameWeekNavigation = ({
       </Button>
       
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            disabled={disabled}
-            className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center hover:bg-secondary/10 disabled:opacity-40 cursor-pointer"
-            onClick={() => console.log("🎯 GW Button clicked!")}
-          >
-            GW {currentGameWeek}
-          </Button>
+        <DropdownMenuTrigger 
+          disabled={disabled}
+          className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center hover:bg-secondary/10 disabled:opacity-40 cursor-pointer bg-transparent border-0 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          GW {currentGameWeek}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="max-h-60 overflow-y-auto z-50 bg-popover border">
           {Array.from({ length: maxGameWeek }, (_, i) => i + 1).map((gw) => (
