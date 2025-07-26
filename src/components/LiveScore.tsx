@@ -143,13 +143,18 @@ const LiveScore = () => {
     loadMatches();
   }, []);
 
+  // Helper function to check if a match is today
+  const isMatchToday = (match: ProcessedMatch) => {
+    const today = new Date();
+    const matchDate = new Date(match.time);
+    return matchDate.toDateString() === today.toDateString();
+  };
+
   // Filter matches based on active tab
   const getFilteredMatches = (tabFilter: string) => {
     switch (tabFilter) {
       case "today":
-        return matches.filter(match => {
-          return match.status === 'upcoming' || match.status === 'live';
-        });
+        return matches.filter(match => isMatchToday(match));
       case "live":
         return matches.filter(match => match.status === "live");
       case "matches":
@@ -170,9 +175,10 @@ const LiveScore = () => {
     return acc;
   }, {} as Record<string, ProcessedMatch[]>);
 
-  // Get live matches count
+  // Calculate real statistics
   const liveMatchesCount = matches.filter(m => m.status === 'live').length;
-  const leagueCount = Object.keys(matchesByLeague).length;
+  const todayMatchesCount = matches.filter(m => isMatchToday(m)).length;
+  const activeLeaguesCount = Object.keys(matchesByLeague).length;
 
   return (
     <main className="min-h-screen bg-gradient-subtle p-4 lg:p-6">
@@ -187,11 +193,11 @@ const LiveScore = () => {
               </div>
               <div className="flex items-center gap-2 text-xs lg:text-sm">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
-                <span className="text-muted-foreground">{matches.filter(m => m.status === 'upcoming').length} Matches Today</span>
+                <span className="text-muted-foreground">{todayMatchesCount} Matches Today</span>
               </div>
               <div className="flex items-center gap-2 text-xs lg:text-sm">
                 <Trophy className="w-3 h-3 lg:w-4 lg:h-4 text-accent" />
-                <span className="text-muted-foreground">Active Leagues: {leagueCount}</span>
+                <span className="text-muted-foreground">Active Leagues: {activeLeaguesCount}</span>
               </div>
             </div>
           </div>
