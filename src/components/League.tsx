@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -53,10 +53,21 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
   // Initialize with the current matchday if available, otherwise first round
   const [currentGameWeek, setCurrentGameWeek] = useState(() => {
     if (currentMatchday && availableRounds.includes(currentMatchday.toString())) {
+      console.log(`🎯 Using API current matchday: ${currentMatchday}`);
       return currentMatchday;
     }
-    return availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1;
+    const fallback = availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1;
+    console.log(`🎯 Using fallback matchday: ${fallback}`);
+    return fallback;
   });
+  
+  // Update currentGameWeek when currentMatchday prop changes
+  useEffect(() => {
+    if (currentMatchday && availableRounds.includes(currentMatchday.toString())) {
+      console.log(`🔄 Updating GW to API current: ${currentMatchday}`);
+      setCurrentGameWeek(currentMatchday);
+    }
+  }, [currentMatchday, availableRounds]);
   
   console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Current GW: ${currentGameWeek}, API Current: ${currentMatchday}`);
   
@@ -163,7 +174,6 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday }: LeagueProp
           )}
           <div>
             <h3 className="font-semibold text-sm lg:text-lg">{leagueName}</h3>
-            <p className="text-xs lg:text-sm text-muted-foreground">{matches.length} мача</p>
           </div>
         </div>
 
