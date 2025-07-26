@@ -88,10 +88,10 @@
 
   .dark {
     /* Primary - Deep Football Blue for dark */
-    --primary: 230 82% 15%;
+    --primary: 230 82% 55%;
     --primary-foreground: 0 0% 98%;
-    --primary-hover: 230 82% 20%;
-    --primary-glow: 230 82% 25%;
+    --primary-hover: 230 82% 50%;
+    --primary-glow: 230 82% 60%;
 
     /* Secondary - Electric Football Green for dark */
     --secondary: 160 84% 39%;

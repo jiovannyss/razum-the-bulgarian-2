@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Trophy } from "lucide-react";
+import { ChevronDown, ChevronUp, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { GameWeekNavigation } from "@/components/GameWeekNavigation";
 import { cn } from "@/lib/utils";
 
 interface ProcessedMatch {
@@ -156,34 +157,21 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
     }
   };
 
-  const handlePreviousGameWeek = async () => {
-    console.log(`⬅️ Previous GW clicked. Current: ${currentGameWeek}`);
-    if (currentGameWeek > 1) {
-      const newGW = currentGameWeek - 1;
-      console.log(`⬅️ Setting GW to: ${newGW}`);
-      setCurrentGameWeek(newGW);
-      
-      // Load matches for this gameweek if not available and callback provided
-      if (onLoadMatchday && !matchesByRound[newGW.toString()]) {
-        console.log(`📥 Loading matches for GW ${newGW}...`);
-        await onLoadMatchday(leagueName, newGW);
+  const handleGameWeekChange = async (newGameWeek: number) => {
+    console.log(`🎯 Changing from GW ${currentGameWeek} to GW ${newGameWeek}`);
+    
+    // Load matches for this gameweek if not available and callback provided
+    const newRound = newGameWeek.toString();
+    if (onLoadMatchday && !matchesByRound[newRound]) {
+      console.log(`📥 Loading matches for GW ${newGameWeek}...`);
+      try {
+        await onLoadMatchday(leagueName, newGameWeek);
+      } catch (error) {
+        console.error(`❌ Failed to load GW ${newGameWeek}:`, error);
       }
     }
-  };
-
-  const handleNextGameWeek = async () => {
-    console.log(`➡️ Next GW clicked. Current: ${currentGameWeek}`);
-    if (currentGameWeek < totalRounds) {
-      const newGW = currentGameWeek + 1;
-      console.log(`➡️ Setting GW to: ${newGW}`);
-      setCurrentGameWeek(newGW);
-      
-      // Load matches for this gameweek if not available and callback provided
-      if (onLoadMatchday && !matchesByRound[newGW.toString()]) {
-        console.log(`📥 Loading matches for GW ${newGW}...`);
-        await onLoadMatchday(leagueName, newGW);
-      }
-    }
+    
+    setCurrentGameWeek(newGameWeek);
   };
 
   return (
@@ -203,29 +191,11 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
 
         <div className="flex items-center gap-1 lg:gap-2">
           {/* Game Week Navigation */}
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handlePreviousGameWeek}
-              disabled={currentGameWeek <= 1}
-              className="h-6 w-6 lg:h-8 lg:w-8 p-0"
-            >
-              <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
-            </Button>
-            <span className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center">
-              GW {currentGameWeek}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleNextGameWeek}
-              disabled={currentGameWeek >= totalRounds}
-              className="h-6 w-6 lg:h-8 lg:w-8 p-0"
-            >
-              <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4" />
-            </Button>
-          </div>
+          <GameWeekNavigation
+            currentGameWeek={currentGameWeek}
+            onGameWeekChange={handleGameWeekChange}
+            maxGameWeek={totalRounds}
+          />
 
           {/* Collapse/Expand Button */}
           <Button
