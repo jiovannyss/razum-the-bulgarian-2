@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trophy } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trophy, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -374,6 +374,16 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                           {/* My Prediction */}
                           {(() => {
                             const predictionDisplay = getPredictionDisplay(match);
+                            
+                            // За предстоящи мачове без прогноза - показвай триъгълник
+                            if (match.status === 'upcoming' && !match.myPrediction) {
+                              return (
+                                <TriangleAlert 
+                                  className="w-6 h-6 text-yellow-500 fill-yellow-500" 
+                                />
+                              );
+                            }
+                            
                             return (
                               <Badge
                                 variant="outline"
