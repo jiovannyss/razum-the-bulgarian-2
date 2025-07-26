@@ -37,7 +37,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left Section: Logo */}
             <div className="flex items-center">
-              <h1 className="text-[5vw] md:text-[4vw] lg:text-[3vw] font-bold bg-gradient-to-r from-secondary-glow to-secondary bg-clip-text text-transparent">
+              <h1 className="text-[5vw] md:text-[4vw] lg:text-[3vw] font-bold bg-gradient-to-r from-secondary to-secondary-glow bg-clip-text text-transparent">
                 Glowter - <span className="text-[4vw] md:text-[3vw] lg:text-[2.5vw]">Live Prediction</span>
               </h1>
             </div>
@@ -47,7 +47,7 @@ const Header = () => {
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
-                <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[1.5vw] min-h-[1.5vw] bg-accent rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] flex items-center justify-center text-black font-bold">
+                <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[1.5vw] min-h-[1.5vw] bg-destructive rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] flex items-center justify-center text-white font-bold">
                   3
                 </div>
               </Button>
@@ -56,7 +56,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-1">
-                    <div className="w-[7vw] h-[7vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-white text-[3.5vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
+                    <div className="w-[7vw] h-[7vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground text-[3.5vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
                       JP
                     </div>
                   </Button>
