@@ -1,5 +1,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface GameWeekNavigationProps {
   currentGameWeek: number;
@@ -44,9 +50,29 @@ export const GameWeekNavigation = ({
         <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
       </Button>
       
-      <span className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center">
-        GW {currentGameWeek}
-      </span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            disabled={disabled}
+            className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center hover:bg-secondary/10 disabled:opacity-40"
+          >
+            GW {currentGameWeek}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="max-h-60 overflow-y-auto">
+          {Array.from({ length: maxGameWeek }, (_, i) => i + 1).map((gw) => (
+            <DropdownMenuItem
+              key={gw}
+              onClick={() => onGameWeekChange(gw)}
+              className={gw === currentGameWeek ? "bg-accent" : ""}
+            >
+              GW {gw}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       
       <Button
         variant="ghost"
