@@ -230,6 +230,8 @@ const LiveScore = () => {
 
   useEffect(() => {
     loadMatches();
+    // Test Brazilian League API
+    footballDataApi.testBrazilianLeague21();
   }, []);
 
   // Helper function to check if a match is today

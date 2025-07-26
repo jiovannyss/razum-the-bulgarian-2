@@ -194,6 +194,47 @@ class FootballDataApiService {
       throw error;
     }
   }
+
+  // Test function to check Brazilian league matches for round 21
+  async testBrazilianLeague21(): Promise<void> {
+    try {
+      console.log('🇧🇷 Testing Brazilian League API for Round 21...');
+      
+      // Get all competitions first
+      const competitions = await this.getCompetitions();
+      console.log('🏆 Available competitions:', competitions.map(c => ({
+        id: c.id,
+        name: c.name,
+        code: c.code,
+        plan: c.plan
+      })));
+      
+      // Find Brazilian championship
+      const brasileirao = competitions.find(c => 
+        c.name.includes('Brasileiro') || c.code === 'BSA' || c.name.includes('Brazil')
+      );
+      
+      if (!brasileirao) {
+        console.log('❌ Brazilian championship not found in free competitions');
+        console.log('🔍 Available competitions:', competitions.map(c => c.name));
+        return;
+      }
+      
+      console.log('🇧🇷 Found Brazilian championship:', brasileirao);
+      
+      // Get matches for round 21
+      const matches = await this.getMatches(brasileirao.id, 21);
+      console.log('⚽ Matches from Round 21:');
+      matches.forEach(m => {
+        console.log(`${m.homeTeam.name} vs ${m.awayTeam.name} - Matchday: ${m.matchday} - Date: ${m.utcDate} - Status: ${m.status}`);
+      });
+      
+      return;
+      
+    } catch (error) {
+      console.error('❌ Brazilian League API Test failed:', error);
+    }
+  }
 }
 
 export const footballDataApi = new FootballDataApiService();
