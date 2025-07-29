@@ -417,7 +417,7 @@ const LiveScore = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
                   <div className="font-bold text-2xl text-gradient">{accuracy}%</div>
                   <div className="text-xs text-muted-foreground">Accuracy</div>
@@ -426,8 +426,6 @@ const LiveScore = () => {
                   <div className="font-bold text-2xl text-gradient">{correctPredictions}</div>
                   <div className="text-xs text-muted-foreground">Correct</div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
                   <div className="font-bold text-2xl text-gradient">{wrongPredictions}</div>
                   <div className="text-xs text-muted-foreground">Wrong</div>
