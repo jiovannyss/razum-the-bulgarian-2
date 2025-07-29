@@ -316,8 +316,7 @@ const LiveScore = () => {
               disabled={loading}
             >
               <RefreshCw className={`w-3 h-3 lg:w-4 lg:h-4 ${loading ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{loading ? 'Loading...' : 'Refresh'}</span>
-              <span className="sm:hidden">↻</span>
+              <span>{loading ? 'Loading...' : 'Refresh'}</span>
             </Button>
           </div>
         </div>
@@ -417,21 +416,21 @@ const LiveScore = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div className="font-bold text-2xl text-gradient">{accuracy}%</div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-lg sm:text-2xl text-gradient">{accuracy}%</div>
                   <div className="text-xs text-muted-foreground">Accuracy</div>
                 </div>
-                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div className="font-bold text-2xl text-gradient">{correctPredictions}</div>
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-lg sm:text-2xl text-gradient">{correctPredictions}</div>
                   <div className="text-xs text-muted-foreground">Correct</div>
                 </div>
-                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div className="font-bold text-2xl text-gradient">{wrongPredictions}</div>
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-lg sm:text-2xl text-gradient">{wrongPredictions}</div>
                   <div className="text-xs text-muted-foreground">Wrong</div>
                 </div>
-                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div className="font-bold text-2xl text-gradient">{unpredictedMatches}</div>
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-lg sm:text-2xl text-gradient">{unpredictedMatches}</div>
                   <div className="text-xs text-muted-foreground">Unpredicted</div>
                 </div>
               </div>
