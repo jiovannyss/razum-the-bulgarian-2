@@ -71,7 +71,7 @@ export const GameWeekNavigation = ({
                 console.log(`🔄 Selected GW ${gw}`);
                 onGameWeekChange(gw);
               }}
-              className={gw === currentGameWeek ? "bg-muted/80 dark:bg-accent/30" : ""}
+              className={gw === currentGameWeek ? "bg-muted/80 dark:bg-accent" : "hover:bg-muted/50 dark:hover:bg-accent"}
             >
               GW {gw}
             </DropdownMenuItem>
