@@ -277,12 +277,12 @@ const LiveScore = () => {
   const todayMatchesCount = matches.filter(m => isMatchToday(m)).length;
   const activeLeaguesCount = Object.keys(matchesByLeague).length;
 
-  // Calculate prediction statistics (lifetime)
-  const finishedMatches = matches.filter(m => m.status === 'finished');
-  const matchesWithPredictions = finishedMatches.filter(m => m.myPrediction !== null);
+  // Calculate prediction statistics (lifetime) - включва завършени + лайв мачове
+  const relevantMatches = matches.filter(m => m.status === 'finished' || m.status === 'live');
+  const matchesWithPredictions = relevantMatches.filter(m => m.myPrediction !== null);
   const correctPredictions = matchesWithPredictions.filter(m => m.myPredictionCorrect === true).length;
   const wrongPredictions = matchesWithPredictions.filter(m => m.myPredictionCorrect === false).length;
-  const unpredictedMatches = finishedMatches.filter(m => m.myPrediction === null).length;
+  const unpredictedMatches = relevantMatches.filter(m => m.myPrediction === null).length;
   const totalPredictions = correctPredictions + wrongPredictions;
   const accuracy = totalPredictions > 0 ? Math.round((correctPredictions / totalPredictions) * 100) : 0;
 
