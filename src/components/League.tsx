@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trophy, TriangleAlert } from "lucide-react";
+import { ChevronDown, ChevronUp, Trophy, TriangleAlert } from "lucide-react";
+import { GameWeekNavigation } from "./GameWeekNavigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -234,30 +235,11 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
         </div>
 
         <div className="flex items-center gap-1 lg:gap-2">
-          {/* Game Week Navigation */}
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleGameWeekChange(currentGameWeek - 1)}
-              disabled={currentGameWeek <= 1}
-              className="h-6 w-6 lg:h-8 lg:w-8 p-0"
-            >
-              <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
-            </Button>
-            <span className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center">
-              GW {currentGameWeek}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleGameWeekChange(currentGameWeek + 1)}
-              disabled={currentGameWeek >= totalRounds}
-              className="h-6 w-6 lg:h-8 lg:w-8 p-0"
-            >
-              <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4" />
-            </Button>
-          </div>
+          <GameWeekNavigation
+            currentGameWeek={currentGameWeek}
+            onGameWeekChange={handleGameWeekChange}
+            maxGameWeek={totalRounds}
+          />
 
           {/* Collapse/Expand Button */}
           <Button
