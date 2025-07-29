@@ -61,7 +61,10 @@ export const GameWeekNavigation = ({
             GW {currentGameWeek}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="max-h-60 overflow-y-auto z-50 bg-popover/95 backdrop-blur-sm border border-border shadow-lg">
+        <DropdownMenuContent 
+          className="max-h-60 overflow-y-auto z-[60] bg-popover border border-border shadow-lg"
+          sideOffset={5}
+        >
           {Array.from({ length: maxGameWeek }, (_, i) => i + 1).map((gw) => (
             <DropdownMenuItem
               key={gw}
