@@ -277,6 +277,15 @@ const LiveScore = () => {
   const todayMatchesCount = matches.filter(m => isMatchToday(m)).length;
   const activeLeaguesCount = Object.keys(matchesByLeague).length;
 
+  // Calculate prediction statistics (lifetime)
+  const finishedMatches = matches.filter(m => m.status === 'finished');
+  const matchesWithPredictions = finishedMatches.filter(m => m.myPrediction !== null);
+  const correctPredictions = matchesWithPredictions.filter(m => m.myPredictionCorrect === true).length;
+  const wrongPredictions = matchesWithPredictions.filter(m => m.myPredictionCorrect === false).length;
+  const unpredictedMatches = finishedMatches.filter(m => m.myPrediction === null).length;
+  const totalPredictions = correctPredictions + wrongPredictions;
+  const accuracy = totalPredictions > 0 ? Math.round((correctPredictions / totalPredictions) * 100) : 0;
+
   return (
     <main className="min-h-screen bg-gradient-subtle p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
@@ -407,38 +416,25 @@ const LiveScore = () => {
                 Quick Stats
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div className="font-bold text-2xl text-gradient">87%</div>
+                  <div className="font-bold text-2xl text-gradient">{accuracy}%</div>
                   <div className="text-xs text-muted-foreground">Accuracy</div>
                 </div>
                 <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
-                  <div className="font-bold text-2xl text-gradient">1,247</div>
-                  <div className="text-xs text-muted-foreground">Points</div>
+                  <div className="font-bold text-2xl text-gradient">{correctPredictions}</div>
+                  <div className="text-xs text-muted-foreground">Correct</div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">This Week</span>
-                  <span className="font-semibold text-success">+156 pts</span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-2xl text-gradient">{wrongPredictions}</div>
+                  <div className="text-xs text-muted-foreground">Wrong</div>
                 </div>
-                <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
-                  <div className="bg-gradient-primary h-3 rounded-full transition-all duration-1000 animate-fade-in-up" style={{ width: "78%" }}></div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                  <div className="text-center">
-                    <div className="font-medium text-foreground">12</div>
-                    <div>Correct</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-foreground">3</div>
-                    <div>Wrong</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-foreground">5</div>
-                    <div>Pending</div>
-                  </div>
+                <div className="text-center p-4 bg-gradient-card rounded-xl border border-border/50">
+                  <div className="font-bold text-2xl text-gradient">{unpredictedMatches}</div>
+                  <div className="text-xs text-muted-foreground">Unpredicted</div>
                 </div>
               </div>
             </CardContent>
