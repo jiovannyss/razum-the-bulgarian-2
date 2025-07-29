@@ -9,9 +9,11 @@ import {
   Bell,
   Home,
   Users,
-  MessageCircle
+  MessageCircle,
+  Sun,
+  Moon,
+  Monitor
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
@@ -20,14 +22,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { useTheme } from "@/contexts/ThemeProvider";
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
+  const { setTheme, theme } = useTheme();
   
   return (
     <>
@@ -72,9 +79,30 @@ const Header = () => {
                     <Settings className="w-4 h-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <ThemeToggle />
-                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="gap-2">
+                      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span>Theme</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
+                        <Sun className="h-4 w-4" />
+                        <span>Light</span>
+                        {theme === "light" && <span className="ml-auto text-xs">✓</span>}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
+                        <Moon className="h-4 w-4" />
+                        <span>Dark</span>
+                        {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme("system")} className="gap-2">
+                        <Monitor className="h-4 w-4" />
+                        <span>System</span>
+                        {theme === "system" && <span className="ml-auto text-xs">✓</span>}
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="gap-2 text-red-600">
                     <LogOut className="w-4 h-4" />
