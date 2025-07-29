@@ -55,8 +55,7 @@ export const GameWeekNavigation = ({
           <Button
             variant="ghost"
             size="sm"
-            disabled={disabled}
-            className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center hover:bg-secondary/10 disabled:opacity-40 h-6 lg:h-8 bg-transparent border-0 rounded-md transition-colors"
+            className="text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center h-6 lg:h-8 hover:bg-secondary/10 cursor-pointer transition-colors"
           >
             GW {currentGameWeek}
           </Button>
