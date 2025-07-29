@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { PredictionDialog } from "./PredictionDialog";
 
 interface ProcessedMatch {
   id: string;
@@ -35,6 +36,8 @@ interface LeagueProps {
 
 const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchday }: LeagueProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<ProcessedMatch | null>(null);
+  const [isPredictionDialogOpen, setIsPredictionDialogOpen] = useState(false);
   
   console.log(`🏆 League: ${leagueName}, Matches count: ${matches.length}`, matches);
   
@@ -219,6 +222,57 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
     }
   };
 
+  const handleMatchClick = (match: ProcessedMatch) => {
+    // Only allow predictions for upcoming matches
+    if (match.status === 'upcoming') {
+      setSelectedMatch(match);
+      setIsPredictionDialogOpen(true);
+    }
+  };
+
+  const handleSavePrediction = (matchId: number, prediction: string | null) => {
+    // Here you would normally save to backend/state
+    console.log(`Saving prediction for match ${matchId}: ${prediction}`);
+    
+    // For now, just update local state (in real app, this would update your matches state)
+    // You'd typically call an API here and then update the matches state
+  };
+
+  const handleClosePredictionDialog = () => {
+    setIsPredictionDialogOpen(false);
+    setSelectedMatch(null);
+  };
+
+  // Convert ProcessedMatch to the format expected by PredictionDialog
+  const convertMatchForDialog = (match: ProcessedMatch) => {
+    return {
+      id: parseInt(match.id),
+      homeTeam: {
+        id: 1, // Would come from API
+        name: match.homeTeam,
+        shortName: match.homeTeam,
+        tla: match.homeTeam.substring(0, 3).toUpperCase(),
+        crest: match.homeLogo || '/placeholder.svg'
+      },
+      awayTeam: {
+        id: 2, // Would come from API
+        name: match.awayTeam,
+        shortName: match.awayTeam,
+        tla: match.awayTeam.substring(0, 3).toUpperCase(),
+        crest: match.awayLogo || '/placeholder.svg'
+      },
+      utcDate: match.time,
+      status: match.status,
+      venue: 'Stadium TBD', // Would come from API
+      score: {
+        fullTime: {
+          home: match.homeScore,
+          away: match.awayScore
+        }
+      }
+    };
+  };
+
   return (
     <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
       {/* League Header */}
@@ -269,11 +323,17 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
              currentMatches.map((match) => {
                const timeInfo = getTimeInfo(match.time);
                
-               return (
-                 <div
-                   key={match.id}
-                   className="p-3 lg:p-4 hover:bg-accent/5 transition-colors"
-                 >
+                return (
+                  <div
+                    key={match.id}
+                    className={cn(
+                      "p-3 lg:p-4 transition-colors",
+                      match.status === 'upcoming' 
+                        ? "hover:bg-accent/10 cursor-pointer" 
+                        : "hover:bg-accent/5"
+                    )}
+                    onClick={() => handleMatchClick(match)}
+                  >
                    <div className="flex items-center justify-between gap-4">
                      {/* Teams, Scores, Date/Time - takes most space */}
                      <div className="flex-1 min-w-0">
@@ -395,6 +455,15 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
           )}
         </div>
       )}
+      
+      {/* Prediction Dialog */}
+      <PredictionDialog
+        match={selectedMatch ? convertMatchForDialog(selectedMatch) : null}
+        isOpen={isPredictionDialogOpen}
+        onClose={handleClosePredictionDialog}
+        onSavePrediction={handleSavePrediction}
+        currentPrediction={selectedMatch?.myPrediction}
+      />
     </Card>
   );
 };
