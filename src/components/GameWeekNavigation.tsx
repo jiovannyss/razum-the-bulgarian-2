@@ -45,7 +45,7 @@ export const GameWeekNavigation = ({
           size="sm"
           onClick={handlePrevious}
           disabled={isPreviousDisabled}
-          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-secondary/10 dark:hover:bg-yellow-500/20 disabled:opacity-40"
+          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-muted/50 dark:hover:bg-accent/20 disabled:opacity-40"
         >
         <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4" />
       </Button>
@@ -55,7 +55,7 @@ export const GameWeekNavigation = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-secondary/10 dark:hover:bg-yellow-500/20 disabled:opacity-40 text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center"
+            className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-muted/50 dark:hover:bg-accent/20 disabled:opacity-40 text-xs lg:text-sm font-medium px-2 lg:px-3 whitespace-nowrap min-w-[3rem] lg:min-w-[3.5rem] text-center"
           >
             GW {currentGameWeek}
           </Button>
@@ -71,7 +71,7 @@ export const GameWeekNavigation = ({
                 console.log(`🔄 Selected GW ${gw}`);
                 onGameWeekChange(gw);
               }}
-              className={gw === currentGameWeek ? "bg-muted dark:bg-accent" : ""}
+              className={gw === currentGameWeek ? "bg-muted/80 dark:bg-accent/30" : ""}
             >
               GW {gw}
             </DropdownMenuItem>
@@ -84,7 +84,7 @@ export const GameWeekNavigation = ({
           size="sm"
           onClick={handleNext}
           disabled={isNextDisabled}
-          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-secondary/10 dark:hover:bg-yellow-500/20 disabled:opacity-40"
+          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-muted/50 dark:hover:bg-accent/20 disabled:opacity-40"
         >
         <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4" />
       </Button>
