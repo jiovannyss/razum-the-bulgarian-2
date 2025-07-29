@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/contexts/ThemeProvider"
 
-export function ThemeToggle() {
+export function ThemeToggle({ onThemeChange }: { onThemeChange?: () => void }) {
   const { setTheme, theme } = useTheme()
 
   return (
@@ -24,6 +24,7 @@ export function ThemeToggle() {
         <DropdownMenuItem 
           onClick={() => {
             setTheme("light");
+            onThemeChange?.();
           }} 
           className="gap-2"
         >
@@ -34,6 +35,7 @@ export function ThemeToggle() {
         <DropdownMenuItem 
           onClick={() => {
             setTheme("dark");
+            onThemeChange?.();
           }} 
           className="gap-2"
         >
@@ -44,6 +46,7 @@ export function ThemeToggle() {
         <DropdownMenuItem 
           onClick={() => {
             setTheme("system");
+            onThemeChange?.();
           }} 
           className="gap-2"
         >

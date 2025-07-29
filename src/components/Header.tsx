@@ -72,7 +72,12 @@ const Header = () => {
                     <Settings className="w-4 h-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
-                  <ThemeToggle />
+                  <ThemeToggle onThemeChange={() => {
+                    // Force close the parent dropdown by triggering a re-render
+                    setTimeout(() => {
+                      document.body.click();
+                    }, 100);
+                  }} />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="gap-2 text-red-600">
                     <LogOut className="w-4 h-4" />
