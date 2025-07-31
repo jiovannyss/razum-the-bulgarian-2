@@ -59,7 +59,7 @@ const Header = () => {
   return (
     <>
       {/* Sticky Header with Title and Navigation */}
-      <header className="sticky top-0 z-50 bg-section-background backdrop-blur-lg border-b border-border/50">
+      <header className="sticky top-0 z-50 bg-section-background backdrop-blur-lg border-b border-purple-700/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Left Section: User avatar and name */}
@@ -179,7 +179,7 @@ const Header = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="border-t border-border/30">
+        <div className="border-t border-purple-700/30">
           <div className="container mx-auto px-4">
             <nav className="flex w-full">
               {[
@@ -218,7 +218,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-border/30">
+          <div className="md:hidden border-t border-purple-700/30">
             <div className="container mx-auto px-4 py-4">
               <nav className="flex flex-col gap-3">
                 {[
@@ -256,7 +256,7 @@ const Header = () => {
       </header>
       
       {/* Ad Space - Non-sticky */}
-      <div className="h-24 bg-muted/20 border-b border-border/30 flex items-center justify-center">
+      <div className="h-24 bg-muted/20 border-b border-purple-700/30 flex items-center justify-center">
         <div className="text-muted-foreground text-sm">Advertisement Space</div>
       </div>
     </>
