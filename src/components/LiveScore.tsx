@@ -195,11 +195,7 @@ const LiveScore = () => {
     }
   };
 
-  useEffect(() => {
-    loadMatches();
-    // Test Brazilian League API
-    footballDataApi.testBrazilianLeague21();
-  }, []);
+  // Removed automatic loading - only manual refresh now
 
   // Helper function to check if a match is today
   const isMatchToday = (match: ProcessedMatch) => {
