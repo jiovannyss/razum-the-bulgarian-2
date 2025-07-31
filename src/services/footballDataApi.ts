@@ -117,15 +117,87 @@ class FootballDataApiService {
     return response.matches;
   }
 
-  // Get current matchday for competition
+  // Get current matchday for competition with smart logic
   async getCurrentMatchday(competitionId: number): Promise<number> {
     try {
       const competitions = await this.getCompetitions();
       const competition = competitions.find(c => c.id === competitionId);
-      return competition?.currentSeason.currentMatchday || 1;
+      const officialCurrentMatchday = competition?.currentSeason.currentMatchday || 1;
+      
+      // Get smart matchday based on match times
+      const smartMatchday = await this.getSmartCurrentMatchday(competitionId, officialCurrentMatchday);
+      return smartMatchday;
     } catch (error) {
       console.log('Error getting current matchday, using default');
       return 18; // Default to matchday 18
+    }
+  }
+
+  // Smart logic to determine which matchday to show based on match times
+  async getSmartCurrentMatchday(competitionId: number, officialCurrentMatchday: number): Promise<number> {
+    try {
+      console.log(`🧠 Getting smart matchday for competition ${competitionId}, official: ${officialCurrentMatchday}`);
+      
+      const now = new Date();
+      
+      // Get matches from current matchday
+      const currentMatches = await this.getMatches(competitionId, officialCurrentMatchday);
+      
+      if (!currentMatches || currentMatches.length === 0) {
+        console.log('📅 No matches in current matchday, using official');
+        return officialCurrentMatchday;
+      }
+      
+      // Find the last match from current matchday
+      const currentMatchdayDates = currentMatches.map(m => new Date(m.utcDate));
+      const lastMatchOfCurrentRound = new Date(Math.max(...currentMatchdayDates.map(d => d.getTime())));
+      
+      console.log(`📅 Last match of GW${officialCurrentMatchday}: ${lastMatchOfCurrentRound.toISOString()}`);
+      
+      // Check if 24 hours have passed since the last match of current round
+      const hoursSinceLastMatch = (now.getTime() - lastMatchOfCurrentRound.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursSinceLastMatch >= 24) {
+        console.log(`📅 24+ hours since last match (${hoursSinceLastMatch.toFixed(1)}h), loading next round`);
+        return officialCurrentMatchday + 1;
+      }
+      
+      // Get matches from next matchday to check gap
+      const nextMatches = await this.getMatches(competitionId, officialCurrentMatchday + 1);
+      
+      if (!nextMatches || nextMatches.length === 0) {
+        console.log('📅 No matches in next matchday, staying with current');
+        return officialCurrentMatchday;
+      }
+      
+      // Find the first match from next matchday
+      const nextMatchdayDates = nextMatches.map(m => new Date(m.utcDate));
+      const firstMatchOfNextRound = new Date(Math.min(...nextMatchdayDates.map(d => d.getTime())));
+      
+      console.log(`📅 First match of GW${officialCurrentMatchday + 1}: ${firstMatchOfNextRound.toISOString()}`);
+      
+      // Check the gap between last match of current round and first match of next round
+      const gapBetweenRounds = (firstMatchOfNextRound.getTime() - lastMatchOfCurrentRound.getTime()) / (1000 * 60 * 60);
+      
+      if (gapBetweenRounds < 24) {
+        // If gap is less than 24 hours, check if 8 hours have passed since the last match started
+        const hoursSinceLastMatchStarted = (now.getTime() - lastMatchOfCurrentRound.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursSinceLastMatchStarted >= 8) {
+          console.log(`📅 Gap between rounds is ${gapBetweenRounds.toFixed(1)}h, 8+ hours since last match (${hoursSinceLastMatchStarted.toFixed(1)}h), loading next round`);
+          return officialCurrentMatchday + 1;
+        } else {
+          console.log(`📅 Gap between rounds is ${gapBetweenRounds.toFixed(1)}h, but only ${hoursSinceLastMatchStarted.toFixed(1)}h since last match, staying with current`);
+          return officialCurrentMatchday;
+        }
+      }
+      
+      console.log(`📅 Using current matchday ${officialCurrentMatchday}`);
+      return officialCurrentMatchday;
+      
+    } catch (error) {
+      console.log('Error in smart matchday calculation, using official:', error);
+      return officialCurrentMatchday;
     }
   }
 
