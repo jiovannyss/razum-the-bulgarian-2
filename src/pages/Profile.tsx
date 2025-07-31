@@ -320,13 +320,13 @@ export default function Profile() {
 
       const updateData = {
         ...profileData,
-        birth_date,
-        user_id: user?.id
+        birth_date
       };
 
       const { error } = await supabase
         .from('profiles')
-        .upsert(updateData, { onConflict: 'user_id' });
+        .update(updateData)
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
