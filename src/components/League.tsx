@@ -275,8 +275,11 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
 
   return (
     <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-purple-700">
-      {/* League Header */}
-      <div className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-purple-700/50">
+      {/* League Header - Clickable */}
+      <div 
+        className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-purple-700/50 cursor-pointer hover:bg-accent/10 transition-colors"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
         <div className="flex items-center gap-2 lg:gap-3">
           {leagueLogo ? (
             <img src={leagueLogo} alt={leagueName} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
@@ -301,8 +304,11 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-6 w-6 lg:h-8 lg:w-8 p-0"
+            className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-accent/20"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering parent click
+              setIsCollapsed(!isCollapsed);
+            }}
           >
             {isCollapsed ? (
               <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4" />
