@@ -35,7 +35,7 @@ interface LeagueProps {
 }
 
 const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchday }: LeagueProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState<ProcessedMatch | null>(null);
   const [isPredictionDialogOpen, setIsPredictionDialogOpen] = useState(false);
   
