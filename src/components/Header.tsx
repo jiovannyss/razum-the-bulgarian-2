@@ -29,14 +29,33 @@ import {
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { useAuth } from "@/contexts/AuthProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
+  const [profile, setProfile] = useState<any>(null);
   const { setTheme, theme } = useTheme();
   const { user, userRole, signOut, loading } = useAuth();
+
+  // Load user profile data
+  useEffect(() => {
+    if (user) {
+      const loadProfile = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('username, full_name, avatar_url')
+          .eq('user_id', user.id)
+          .single();
+        setProfile(data);
+      };
+      loadProfile();
+    }
+  }, [user]);
   
   return (
     <>
@@ -68,9 +87,20 @@ const Header = () => {
                       {/* User Menu */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="gap-1">
-                            <div className="w-[7vw] h-[7vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground text-[3.5vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
-                              {user.email?.charAt(0).toUpperCase() || 'U'}
+                          <Button variant="ghost" size="sm" className="gap-2 flex items-center">
+                            <Avatar className="w-8 h-8">
+                              <AvatarImage src={profile?.avatar_url} />
+                              <AvatarFallback className="text-xs">
+                                {profile?.full_name ? 
+                                  profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
+                                  user.email?.charAt(0).toUpperCase() || 'U'
+                                }
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="hidden md:block text-left">
+                              <div className="text-sm font-medium max-w-24 truncate">
+                                {profile?.username || user.email?.split('@')[0]}
+                              </div>
                             </div>
                           </Button>
                         </DropdownMenuTrigger>
@@ -82,7 +112,7 @@ const Header = () => {
                             </div>
                           </DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem className="gap-2" onClick={() => navigate('/profile')}>
                             <User className="w-4 h-4" />
                             <span>Profile</span>
                           </DropdownMenuItem>

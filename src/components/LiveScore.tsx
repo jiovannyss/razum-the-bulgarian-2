@@ -195,7 +195,10 @@ const LiveScore = () => {
     }
   };
 
-  // Removed automatic loading - only manual refresh now
+  // Load matches on component mount
+  useEffect(() => {
+    loadMatches();
+  }, []);
 
   // Helper function to check if a match is today
   const isMatchToday = (match: ProcessedMatch) => {

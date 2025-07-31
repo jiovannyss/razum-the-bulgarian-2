@@ -294,6 +294,19 @@ export default function Auth() {
   });
   const [error, setError] = useState<string | null>(null);
 
+  // Scroll to error when it appears
+  useEffect(() => {
+    if (error) {
+      // Small delay to ensure error is rendered
+      setTimeout(() => {
+        const errorElement = document.querySelector('[data-error-alert]');
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, [error]);
+
   // Password validation
   const validatePassword = (password: string): string[] => {
     const errors: string[] = [];
@@ -547,7 +560,7 @@ export default function Auth() {
               </TabsList>
 
               {error && (
-                <Alert variant="destructive" className="mt-4">
+                <Alert variant="destructive" className="mt-4" data-error-alert>
                   <AlertDescription className="whitespace-pre-line">{error}</AlertDescription>
                 </Alert>
               )}
