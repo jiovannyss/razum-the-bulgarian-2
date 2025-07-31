@@ -274,9 +274,9 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
   };
 
   return (
-    <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
+    <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-purple-700">
       {/* League Header */}
-      <div className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-border/50">
+      <div className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-purple-700/50">
         <div className="flex items-center gap-2 lg:gap-3">
           {leagueLogo ? (
             <img src={leagueLogo} alt={leagueName} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
@@ -313,7 +313,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
 
       {/* Matches List */}
       {!isCollapsed && (
-        <div className="divide-y-[3px] divide-section-background">
+        <div className="divide-y-[3px] divide-purple-700/30">
           {currentMatches.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
               <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />

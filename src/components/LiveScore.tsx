@@ -326,7 +326,7 @@ const LiveScore = () => {
 
         {error && (
           <div className="flex items-center justify-center py-12">
-            <Card className="p-6 max-w-md mx-auto">
+            <Card className="p-6 max-w-md mx-auto border-purple-700">
               <div className="flex items-center gap-3 text-destructive mb-4">
                 <AlertCircle className="w-5 h-5" />
                 <span className="font-semibold">Error loading matches</span>
@@ -346,7 +346,7 @@ const LiveScore = () => {
 
         {!loading && !error && Object.keys(matchesByLeague).length === 0 && (
           <div className="flex items-center justify-center py-12">
-            <Card className="p-6 max-w-md mx-auto text-center">
+            <Card className="p-6 max-w-md mx-auto text-center border-purple-700">
               <div className="flex items-center justify-center gap-3 text-muted-foreground mb-4">
                 <Calendar className="w-5 h-5" />
                 <span className="font-semibold">No matches found</span>
@@ -390,7 +390,7 @@ const LiveScore = () => {
         {/* Bottom Content */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Quick Stats */}
-          <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700/50">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <BarChart3 className="w-5 h-5 text-primary" />
@@ -399,19 +399,19 @@ const LiveScore = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-purple-700/30">
                   <div className="font-bold text-lg sm:text-2xl text-gradient">{accuracy}%</div>
                   <div className="text-xs text-muted-foreground">Accuracy</div>
                 </div>
-                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-purple-700/30">
                   <div className="font-bold text-lg sm:text-2xl text-gradient">{correctPredictions}</div>
                   <div className="text-xs text-muted-foreground">Correct</div>
                 </div>
-                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-purple-700/30">
                   <div className="font-bold text-lg sm:text-2xl text-gradient">{wrongPredictions}</div>
                   <div className="text-xs text-muted-foreground">Wrong</div>
                 </div>
-                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-border/50">
+                <div className="text-center p-3 sm:p-4 bg-gradient-card rounded-xl border border-purple-700/30">
                   <div className="font-bold text-lg sm:text-2xl text-gradient">{unpredictedMatches}</div>
                   <div className="text-xs text-muted-foreground">Unpredicted</div>
                 </div>
@@ -420,7 +420,7 @@ const LiveScore = () => {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="card-hover bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700/50">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>

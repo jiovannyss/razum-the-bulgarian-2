@@ -10,10 +10,17 @@ import { Search, Star, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react
 import { useToast } from '@/hooks/use-toast';
 import { footballDataApi, type Match as ApiMatch } from '@/services/footballDataApi';
 import { format } from 'date-fns';
+import { GameWeekNavigation } from '../GameWeekNavigation';
 
 interface ApiMatchDisplay extends ApiMatch {
   admin_rating: number;
   db_id?: string;
+}
+
+interface CompetitionWithMatches {
+  competition: string;
+  matches: ApiMatchDisplay[];
+  currentMatchday: number;
 }
 
 export function AdminMatches() {
@@ -22,6 +29,7 @@ export function AdminMatches() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [collapsedCompetitions, setCollapsedCompetitions] = useState<Set<string>>(new Set());
+  const [competitionGameWeeks, setCompetitionGameWeeks] = useState<Record<string, number>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -142,15 +150,38 @@ export function AdminMatches() {
     return matchesSearch && matchesStatus;
   });
 
-  // Group matches by competition
+  // Group matches by competition and round
   const groupedMatches = filteredApiMatches.reduce((acc, match) => {
     const competition = match.competition.name;
     if (!acc[competition]) {
-      acc[competition] = [];
+      acc[competition] = {
+        competition,
+        matches: [],
+        currentMatchday: match.matchday || 1
+      };
     }
-    acc[competition].push(match);
+    acc[competition].matches.push(match);
     return acc;
-  }, {} as Record<string, ApiMatchDisplay[]>);
+  }, {} as Record<string, CompetitionWithMatches>);
+
+  // Handle game week navigation for each competition
+  const handleGameWeekChange = (competition: string, newGameWeek: number) => {
+    setCompetitionGameWeeks(prev => ({
+      ...prev,
+      [competition]: newGameWeek
+    }));
+  };
+
+  // Get current game week for a competition
+  const getCurrentGameWeek = (competition: string, defaultMatchday: number) => {
+    return competitionGameWeeks[competition] || defaultMatchday;
+  };
+
+  // Filter matches by current game week for each competition
+  const getMatchesForGameWeek = (competitionData: CompetitionWithMatches) => {
+    const currentGameWeek = getCurrentGameWeek(competitionData.competition, competitionData.currentMatchday);
+    return competitionData.matches.filter(match => match.matchday === currentGameWeek);
+  };
 
   const toggleCompetition = (competition: string) => {
     const newCollapsed = new Set(collapsedCompetitions);
@@ -243,79 +274,97 @@ export function AdminMatches() {
 
       {/* Мачове групирани по първенства */}
       <div className="space-y-4">
-        {Object.entries(groupedMatches).map(([competition, matches]) => (
-          <Card key={competition} className="bg-slate-800/50 border-purple-700">
-            <Collapsible open={!collapsedCompetitions.has(competition)} onOpenChange={() => toggleCompetition(competition)}>
-              <CollapsibleTrigger asChild>
-                <div className="p-4 cursor-pointer hover:bg-slate-700/50 transition-colors flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {collapsedCompetitions.has(competition) ? (
-                      <ChevronRight className="h-5 w-5 text-purple-400" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5 text-purple-400" />
-                    )}
-                    <h3 className="text-lg font-semibold text-white">{competition}</h3>
+        {Object.entries(groupedMatches).map(([competitionName, competitionData]) => {
+          const currentGameWeek = getCurrentGameWeek(competitionName, competitionData.currentMatchday);
+          const currentMatches = getMatchesForGameWeek(competitionData);
+          
+          return (
+            <Card key={competitionName} className="bg-slate-800/50 border-purple-700">
+              <Collapsible open={!collapsedCompetitions.has(competitionName)} onOpenChange={() => toggleCompetition(competitionName)}>
+                <CollapsibleTrigger asChild>
+                  <div className="p-4 cursor-pointer hover:bg-slate-700/50 transition-colors flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {collapsedCompetitions.has(competitionName) ? (
+                        <ChevronRight className="h-5 w-5 text-purple-400" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-purple-400" />
+                      )}
+                      <h3 className="text-lg font-semibold text-white">{competitionName}</h3>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <GameWeekNavigation
+                        currentGameWeek={currentGameWeek}
+                        onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
+                        maxGameWeek={38}
+                      />
+                      <Badge variant="outline" className="border-purple-600 text-purple-200">
+                        {currentMatches.length} мача
+                      </Badge>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="border-purple-600 text-purple-200">
-                    {matches.length} мача
-                  </Badge>
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent className="p-0">
-                  <div className="grid gap-3 p-4">
-                    {matches.map((match) => (
-                      <div key={match.id} className="bg-slate-700/30 rounded-lg p-4 border border-purple-700/30">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                          <div className="flex-1">
-                            <div className="text-white font-medium text-lg">
-                              {match.homeTeam.name} vs {match.awayTeam.name}
-                            </div>
-                            <div className="text-purple-200 text-sm mt-1">
-                              {format(new Date(match.utcDate), 'dd.MM.yyyy HH:mm')}
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-                            <div className="text-white font-medium">
-                              {match.score.fullTime.home !== null && match.score.fullTime.away !== null 
-                                ? `${match.score.fullTime.home} - ${match.score.fullTime.away}` 
-                                : 'Предстои'}
-                            </div>
-                            
-                            <Badge className={`${getStatusBadgeColor(match.status.toLowerCase())} text-white`}>
-                              {getStatusLabel(match.status.toLowerCase())}
-                            </Badge>
-                            
-                            <div className="flex items-center gap-2">
-                              <span className="text-purple-200 text-sm">Рейтинг:</span>
-                              <Select 
-                                value={match.admin_rating.toString()} 
-                                onValueChange={(value) => updateApiMatchRating(match, parseInt(value))}
-                              >
-                                <SelectTrigger className="w-20 h-8 bg-slate-700 border-purple-600 text-white">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1">1</SelectItem>
-                                  <SelectItem value="2">2</SelectItem>
-                                  <SelectItem value="3">3</SelectItem>
-                                  <SelectItem value="4">4</SelectItem>
-                                  <SelectItem value="5">5</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                            </div>
-                          </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="p-0">
+                    <div className="grid gap-3 p-4">
+                      {currentMatches.length === 0 ? (
+                        <div className="text-center text-purple-200 py-8">
+                          Няма мачове за кръг {currentGameWeek}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Collapsible>
-          </Card>
-        ))}
+                      ) : (
+                        currentMatches.map((match) => (
+                          <div key={match.id} className="bg-slate-700/30 rounded-lg p-4 border border-purple-700/30">
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="text-white font-medium text-lg">
+                                  {match.homeTeam.name} vs {match.awayTeam.name}
+                                </div>
+                                <div className="text-purple-200 text-sm mt-1">
+                                  {format(new Date(match.utcDate), 'dd.MM.yyyy HH:mm')}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-3">
+                                <div className="text-white font-medium">
+                                  {match.score.fullTime.home !== null && match.score.fullTime.away !== null 
+                                    ? `${match.score.fullTime.home} - ${match.score.fullTime.away}` 
+                                    : 'Предстои'}
+                                </div>
+                                
+                                <Badge className={`${getStatusBadgeColor(match.status.toLowerCase())} text-white`}>
+                                  {getStatusLabel(match.status.toLowerCase())}
+                                </Badge>
+                                
+                                <div className="flex items-center gap-2">
+                                  <span className="text-purple-200 text-sm">Рейтинг:</span>
+                                  <Select 
+                                    value={match.admin_rating.toString()} 
+                                    onValueChange={(value) => updateApiMatchRating(match, parseInt(value))}
+                                  >
+                                    <SelectTrigger className="w-20 h-8 bg-slate-700 border-purple-600 text-white">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="1">1</SelectItem>
+                                      <SelectItem value="2">2</SelectItem>
+                                      <SelectItem value="3">3</SelectItem>
+                                      <SelectItem value="4">4</SelectItem>
+                                      <SelectItem value="5">5</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
