@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Search, Plus, Edit, Star } from 'lucide-react';
+import { Search, Plus, Edit, Star, Download, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { footballDataApi, type Match as ApiMatch } from '@/services/footballDataApi';
 
 interface Match {
   id: string;
@@ -21,14 +22,23 @@ interface Match {
   away_score: number | null;
   status: string;
   admin_rating: number | null;
+  external_id: string | null;
   created_at: string;
+}
+
+interface ApiMatchDisplay extends ApiMatch {
+  admin_rating: number;
+  db_id?: string;
 }
 
 export function AdminMatches() {
   const [matches, setMatches] = useState<Match[]>([]);
+  const [apiMatches, setApiMatches] = useState<ApiMatchDisplay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingApi, setLoadingApi] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedSource, setSelectedSource] = useState('all'); // 'all', 'database', 'api'
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [formData, setFormData] = useState({
     home_team: '',
@@ -44,6 +54,7 @@ export function AdminMatches() {
 
   useEffect(() => {
     fetchMatches();
+    loadApiMatches();
   }, []);
 
   const fetchMatches = async () => {
@@ -64,6 +75,107 @@ export function AdminMatches() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadApiMatches = async () => {
+    setLoadingApi(true);
+    try {
+      const apiMatchesData = await footballDataApi.getUpcomingMatches();
+      
+      // Map API matches to display format with default rating of 1
+      const mappedMatches: ApiMatchDisplay[] = apiMatchesData.map(match => ({
+        ...match,
+        admin_rating: 1, // Default rating
+      }));
+
+      // Check which matches already exist in database
+      const existingMatches = await supabase
+        .from('matches')
+        .select('external_id, admin_rating, id')
+        .in('external_id', mappedMatches.map(m => m.id.toString()));
+
+      if (existingMatches.data) {
+        // Update ratings from database
+        mappedMatches.forEach(apiMatch => {
+          const existing = existingMatches.data.find(db => db.external_id === apiMatch.id.toString());
+          if (existing) {
+            apiMatch.admin_rating = existing.admin_rating || 1;
+            apiMatch.db_id = existing.id;
+          }
+        });
+      }
+
+      setApiMatches(mappedMatches);
+      
+      toast({
+        title: "Успех",
+        description: `Заредени ${mappedMatches.length} мача от API`,
+      });
+    } catch (error) {
+      console.error('Error loading API matches:', error);
+      toast({
+        title: "Грешка",
+        description: "Неуспешно зареждане на мачовете от API",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingApi(false);
+    }
+  };
+
+  const updateApiMatchRating = async (apiMatch: ApiMatchDisplay, newRating: number) => {
+    try {
+      const matchData = {
+        home_team: apiMatch.homeTeam.name,
+        away_team: apiMatch.awayTeam.name,
+        competition: apiMatch.competition.name,
+        match_date: apiMatch.utcDate,
+        home_score: apiMatch.score.fullTime.home,
+        away_score: apiMatch.score.fullTime.away,
+        status: apiMatch.status.toLowerCase(),
+        admin_rating: newRating,
+        external_id: apiMatch.id.toString(),
+      };
+
+      if (apiMatch.db_id) {
+        // Update existing match
+        const { error } = await supabase
+          .from('matches')
+          .update({ admin_rating: newRating })
+          .eq('id', apiMatch.db_id);
+        if (error) throw error;
+      } else {
+        // Insert new match
+        const { data, error } = await supabase
+          .from('matches')
+          .insert(matchData)
+          .select()
+          .single();
+        if (error) throw error;
+        
+        // Update local state with db_id
+        apiMatch.db_id = data.id;
+      }
+
+      // Update local state
+      setApiMatches(prev => prev.map(match => 
+        match.id === apiMatch.id 
+          ? { ...match, admin_rating: newRating }
+          : match
+      ));
+
+      toast({
+        title: "Успех",
+        description: "Рейтингът е обновен успешно",
+      });
+    } catch (error) {
+      console.error('Error updating rating:', error);
+      toast({
+        title: "Грешка",
+        description: "Неуспешно обновяване на рейтинга",
+        variant: "destructive",
+      });
     }
   };
 
@@ -129,11 +241,26 @@ export function AdminMatches() {
     return matchesSearch && matchesStatus;
   });
 
+  const filteredApiMatches = apiMatches.filter(match => {
+    const matchesSearch = match.homeTeam.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         match.awayTeam.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         match.competition.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === 'all' || match.status.toLowerCase() === selectedStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const displayMatches = selectedSource === 'database' ? filteredMatches : 
+                        selectedSource === 'api' ? [] : filteredMatches;
+  const displayApiMatches = selectedSource === 'database' ? [] : 
+                           selectedSource === 'api' ? filteredApiMatches : filteredApiMatches;
+
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'live': return 'bg-green-600';
       case 'finished': return 'bg-blue-600';
       case 'postponed': return 'bg-yellow-600';
+      case 'timed': return 'bg-gray-600';
       default: return 'bg-gray-600';
     }
   };
@@ -141,6 +268,7 @@ export function AdminMatches() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'scheduled': return 'Планиран';
+      case 'timed': return 'Планиран';
       case 'live': return 'На живо';
       case 'finished': return 'Завършен';
       case 'postponed': return 'Отложен';
@@ -157,127 +285,144 @@ export function AdminMatches() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Управление на мачове</h2>
-          <p className="text-purple-200">Общо мачове: {matches.length}</p>
+          <p className="text-purple-200">
+            База данни: {matches.length} мача | API: {apiMatches.length} мача
+          </p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button 
-              className="bg-purple-600 hover:bg-purple-700"
-              onClick={() => {
-                setEditingMatch(null);
-                setFormData({
-                  home_team: '',
-                  away_team: '',
-                  competition: '',
-                  match_date: '',
-                  home_score: '',
-                  away_score: '',
-                  status: 'scheduled',
-                  admin_rating: ''
-                });
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Добави мач
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-slate-800 border-purple-700 max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-white">
-                {editingMatch ? 'Редактиране на мач' : 'Добавяне на мач'}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-purple-200">Домакин</Label>
-                  <Input
-                    value={formData.home_team}
-                    onChange={(e) => setFormData({...formData, home_team: e.target.value})}
-                    className="bg-slate-700 border-purple-600 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-purple-200">Гост</Label>
-                  <Input
-                    value={formData.away_team}
-                    onChange={(e) => setFormData({...formData, away_team: e.target.value})}
-                    className="bg-slate-700 border-purple-600 text-white"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label className="text-purple-200">Първенство</Label>
-                <Input
-                  value={formData.competition}
-                  onChange={(e) => setFormData({...formData, competition: e.target.value})}
-                  className="bg-slate-700 border-purple-600 text-white"
-                />
-              </div>
-              <div>
-                <Label className="text-purple-200">Дата и час</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.match_date}
-                  onChange={(e) => setFormData({...formData, match_date: e.target.value})}
-                  className="bg-slate-700 border-purple-600 text-white"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-purple-200">Резултат домакин</Label>
-                  <Input
-                    type="number"
-                    value={formData.home_score}
-                    onChange={(e) => setFormData({...formData, home_score: e.target.value})}
-                    className="bg-slate-700 border-purple-600 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-purple-200">Резултат гост</Label>
-                  <Input
-                    type="number"
-                    value={formData.away_score}
-                    onChange={(e) => setFormData({...formData, away_score: e.target.value})}
-                    className="bg-slate-700 border-purple-600 text-white"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-purple-200">Статус</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                    <SelectTrigger className="bg-slate-700 border-purple-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="scheduled">Планиран</SelectItem>
-                      <SelectItem value="live">На живо</SelectItem>
-                      <SelectItem value="finished">Завършен</SelectItem>
-                      <SelectItem value="postponed">Отложен</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-purple-200">Рейтинг (1-5)</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="5"
-                    value={formData.admin_rating}
-                    onChange={(e) => setFormData({...formData, admin_rating: e.target.value})}
-                    className="bg-slate-700 border-purple-600 text-white"
-                  />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={saveMatch} className="bg-purple-600 hover:bg-purple-700">
-                {editingMatch ? 'Запази промените' : 'Добави мач'}
+        <div className="flex gap-2">
+          <Button 
+            onClick={loadApiMatches}
+            disabled={loadingApi}
+            variant="outline"
+            className="border-purple-600 text-purple-200 hover:bg-purple-900"
+          >
+            {loadingApi ? (
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {loadingApi ? 'Зарежда...' : 'Обнови от API'}
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700"
+                onClick={() => {
+                  setEditingMatch(null);
+                  setFormData({
+                    home_team: '',
+                    away_team: '',
+                    competition: '',
+                    match_date: '',
+                    home_score: '',
+                    away_score: '',
+                    status: 'scheduled',
+                    admin_rating: ''
+                  });
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Добави мач
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="bg-slate-800 border-purple-700 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-white">
+                  {editingMatch ? 'Редактиране на мач' : 'Добавяне на мач'}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-purple-200">Домакин</Label>
+                    <Input
+                      value={formData.home_team}
+                      onChange={(e) => setFormData({...formData, home_team: e.target.value})}
+                      className="bg-slate-700 border-purple-600 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-purple-200">Гост</Label>
+                    <Input
+                      value={formData.away_team}
+                      onChange={(e) => setFormData({...formData, away_team: e.target.value})}
+                      className="bg-slate-700 border-purple-600 text-white"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-purple-200">Първенство</Label>
+                  <Input
+                    value={formData.competition}
+                    onChange={(e) => setFormData({...formData, competition: e.target.value})}
+                    className="bg-slate-700 border-purple-600 text-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-purple-200">Дата и час</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.match_date}
+                    onChange={(e) => setFormData({...formData, match_date: e.target.value})}
+                    className="bg-slate-700 border-purple-600 text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-purple-200">Резултат домакин</Label>
+                    <Input
+                      type="number"
+                      value={formData.home_score}
+                      onChange={(e) => setFormData({...formData, home_score: e.target.value})}
+                      className="bg-slate-700 border-purple-600 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-purple-200">Резултат гост</Label>
+                    <Input
+                      type="number"
+                      value={formData.away_score}
+                      onChange={(e) => setFormData({...formData, away_score: e.target.value})}
+                      className="bg-slate-700 border-purple-600 text-white"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-purple-200">Статус</Label>
+                    <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                      <SelectTrigger className="bg-slate-700 border-purple-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="scheduled">Планиран</SelectItem>
+                        <SelectItem value="live">На живо</SelectItem>
+                        <SelectItem value="finished">Завършен</SelectItem>
+                        <SelectItem value="postponed">Отложен</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-purple-200">Рейтинг (1-5)</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="5"
+                      value={formData.admin_rating}
+                      onChange={(e) => setFormData({...formData, admin_rating: e.target.value})}
+                      className="bg-slate-700 border-purple-600 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={saveMatch} className="bg-purple-600 hover:bg-purple-700">
+                  {editingMatch ? 'Запази промените' : 'Добави мач'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Филтри */}
@@ -305,9 +450,23 @@ export function AdminMatches() {
                 <SelectContent>
                   <SelectItem value="all">Всички статуси</SelectItem>
                   <SelectItem value="scheduled">Планиран</SelectItem>
+                  <SelectItem value="timed">Планиран</SelectItem>
                   <SelectItem value="live">На живо</SelectItem>
                   <SelectItem value="finished">Завършен</SelectItem>
                   <SelectItem value="postponed">Отложен</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-purple-200">Източник</Label>
+              <Select value={selectedSource} onValueChange={setSelectedSource}>
+                <SelectTrigger className="w-48 bg-slate-700 border-purple-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Всички</SelectItem>
+                  <SelectItem value="api">API мачове</SelectItem>
+                  <SelectItem value="database">База данни</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -331,11 +490,13 @@ export function AdminMatches() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredMatches.map((match) => (
+              {/* Database matches */}
+              {displayMatches.map((match) => (
                 <TableRow key={match.id} className="border-purple-700">
                   <TableCell>
                     <div className="text-white">
                       <div className="font-medium">{match.home_team} vs {match.away_team}</div>
+                      <div className="text-xs text-purple-300">База данни</div>
                     </div>
                   </TableCell>
                   <TableCell className="text-purple-200">{match.competition}</TableCell>
@@ -386,9 +547,7 @@ export function AdminMatches() {
                       </DialogTrigger>
                       <DialogContent className="bg-slate-800 border-purple-700 max-w-md">
                         <DialogHeader>
-                          <DialogTitle className="text-white">
-                            {editingMatch ? 'Редактиране на мач' : 'Добавяне на мач'}
-                          </DialogTitle>
+                          <DialogTitle className="text-white">Редактиране на мач</DialogTitle>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
                           <div className="grid grid-cols-2 gap-4">
@@ -476,11 +635,64 @@ export function AdminMatches() {
                         </div>
                         <DialogFooter>
                           <Button onClick={saveMatch} className="bg-purple-600 hover:bg-purple-700">
-                            {editingMatch ? 'Запази промените' : 'Добави мач'}
+                            Запази промените
                           </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+              
+              {/* API matches */}
+              {displayApiMatches.map((apiMatch) => (
+                <TableRow key={`api-${apiMatch.id}`} className="border-purple-700">
+                  <TableCell>
+                    <div className="text-white">
+                      <div className="font-medium">{apiMatch.homeTeam.name} vs {apiMatch.awayTeam.name}</div>
+                      <div className="text-xs text-green-300">API</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-purple-200">{apiMatch.competition.name}</TableCell>
+                  <TableCell className="text-purple-200">
+                    {new Date(apiMatch.utcDate).toLocaleDateString('bg-BG')}
+                  </TableCell>
+                  <TableCell className="text-white">
+                    {apiMatch.score.fullTime.home !== null && apiMatch.score.fullTime.away !== null 
+                      ? `${apiMatch.score.fullTime.home} - ${apiMatch.score.fullTime.away}` 
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={`${getStatusBadgeColor(apiMatch.status.toLowerCase())} text-white`}>
+                      {getStatusLabel(apiMatch.status.toLowerCase())}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Select 
+                        value={apiMatch.admin_rating.toString()} 
+                        onValueChange={(value) => updateApiMatchRating(apiMatch, parseInt(value))}
+                      >
+                        <SelectTrigger className="w-20 h-8 bg-slate-700 border-purple-600 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                          <SelectItem value="4">4</SelectItem>
+                          <SelectItem value="5">5</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-purple-200 text-sm">
+                      Рейтинг: {apiMatch.admin_rating}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
