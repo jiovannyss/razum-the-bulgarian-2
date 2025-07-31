@@ -4,11 +4,13 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen p-2">
+    <div className="min-h-screen p-2 overflow-hidden">
       <Header />
-      <div className="bg-background rounded-b-2xl shadow-2xl overflow-hidden relative -mt-px z-1">
-        <LiveScore />
-        <Footer />
+      <div className="bg-background rounded-b-2xl shadow-2xl overflow-hidden relative -mt-px">
+        <div className="overflow-hidden">
+          <LiveScore />
+          <Footer />
+        </div>
       </div>
     </div>
   );
