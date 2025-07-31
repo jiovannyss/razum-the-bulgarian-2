@@ -352,7 +352,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                              alt="Rank Shield" 
                              className="w-8 h-8 object-contain"
                            />
-                           <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-lg">
+                           <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black drop-shadow-lg">
                              {match.rank}
                            </span>
                          </>
