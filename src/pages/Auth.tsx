@@ -8,10 +8,245 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Upload, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Cleanup function за auth state
+// Countries data
+const countries = [
+  { code: 'AF', name: 'Afghanistan', phone: '+93', flag: '🇦🇫' },
+  { code: 'AL', name: 'Albania', phone: '+355', flag: '🇦🇱' },
+  { code: 'DZ', name: 'Algeria', phone: '+213', flag: '🇩🇿' },
+  { code: 'AD', name: 'Andorra', phone: '+376', flag: '🇦🇩' },
+  { code: 'AO', name: 'Angola', phone: '+244', flag: '🇦🇴' },
+  { code: 'AR', name: 'Argentina', phone: '+54', flag: '🇦🇷' },
+  { code: 'AM', name: 'Armenia', phone: '+374', flag: '🇦🇲' },
+  { code: 'AU', name: 'Australia', phone: '+61', flag: '🇦🇺' },
+  { code: 'AT', name: 'Austria', phone: '+43', flag: '🇦🇹' },
+  { code: 'AZ', name: 'Azerbaijan', phone: '+994', flag: '🇦🇿' },
+  { code: 'BH', name: 'Bahrain', phone: '+973', flag: '🇧🇭' },
+  { code: 'BD', name: 'Bangladesh', phone: '+880', flag: '🇧🇩' },
+  { code: 'BY', name: 'Belarus', phone: '+375', flag: '🇧🇾' },
+  { code: 'BE', name: 'Belgium', phone: '+32', flag: '🇧🇪' },
+  { code: 'BZ', name: 'Belize', phone: '+501', flag: '🇧🇿' },
+  { code: 'BJ', name: 'Benin', phone: '+229', flag: '🇧🇯' },
+  { code: 'BT', name: 'Bhutan', phone: '+975', flag: '🇧🇹' },
+  { code: 'BO', name: 'Bolivia', phone: '+591', flag: '🇧🇴' },
+  { code: 'BA', name: 'Bosnia and Herzegovina', phone: '+387', flag: '🇧🇦' },
+  { code: 'BW', name: 'Botswana', phone: '+267', flag: '🇧🇼' },
+  { code: 'BR', name: 'Brazil', phone: '+55', flag: '🇧🇷' },
+  { code: 'BG', name: 'Bulgaria', phone: '+359', flag: '🇧🇬' },
+  { code: 'BF', name: 'Burkina Faso', phone: '+226', flag: '🇧🇫' },
+  { code: 'BI', name: 'Burundi', phone: '+257', flag: '🇧🇮' },
+  { code: 'CV', name: 'Cape Verde', phone: '+238', flag: '🇨🇻' },
+  { code: 'KH', name: 'Cambodia', phone: '+855', flag: '🇰🇭' },
+  { code: 'CM', name: 'Cameroon', phone: '+237', flag: '🇨🇲' },
+  { code: 'CA', name: 'Canada', phone: '+1', flag: '🇨🇦' },
+  { code: 'CF', name: 'Central African Republic', phone: '+236', flag: '🇨🇫' },
+  { code: 'TD', name: 'Chad', phone: '+235', flag: '🇹🇩' },
+  { code: 'CL', name: 'Chile', phone: '+56', flag: '🇨🇱' },
+  { code: 'CN', name: 'China', phone: '+86', flag: '🇨🇳' },
+  { code: 'CO', name: 'Colombia', phone: '+57', flag: '🇨🇴' },
+  { code: 'KM', name: 'Comoros', phone: '+269', flag: '🇰🇲' },
+  { code: 'CG', name: 'Congo', phone: '+242', flag: '🇨🇬' },
+  { code: 'CR', name: 'Costa Rica', phone: '+506', flag: '🇨🇷' },
+  { code: 'HR', name: 'Croatia', phone: '+385', flag: '🇭🇷' },
+  { code: 'CU', name: 'Cuba', phone: '+53', flag: '🇨🇺' },
+  { code: 'CY', name: 'Cyprus', phone: '+357', flag: '🇨🇾' },
+  { code: 'CZ', name: 'Czech Republic', phone: '+420', flag: '🇨🇿' },
+  { code: 'DK', name: 'Denmark', phone: '+45', flag: '🇩🇰' },
+  { code: 'DJ', name: 'Djibouti', phone: '+253', flag: '🇩🇯' },
+  { code: 'DM', name: 'Dominica', phone: '+1', flag: '🇩🇲' },
+  { code: 'DO', name: 'Dominican Republic', phone: '+1', flag: '🇩🇴' },
+  { code: 'EC', name: 'Ecuador', phone: '+593', flag: '🇪🇨' },
+  { code: 'EG', name: 'Egypt', phone: '+20', flag: '🇪🇬' },
+  { code: 'SV', name: 'El Salvador', phone: '+503', flag: '🇸🇻' },
+  { code: 'GQ', name: 'Equatorial Guinea', phone: '+240', flag: '🇬🇶' },
+  { code: 'ER', name: 'Eritrea', phone: '+291', flag: '🇪🇷' },
+  { code: 'EE', name: 'Estonia', phone: '+372', flag: '🇪🇪' },
+  { code: 'SZ', name: 'Eswatini', phone: '+268', flag: '🇸🇿' },
+  { code: 'ET', name: 'Ethiopia', phone: '+251', flag: '🇪🇹' },
+  { code: 'FJ', name: 'Fiji', phone: '+679', flag: '🇫🇯' },
+  { code: 'FI', name: 'Finland', phone: '+358', flag: '🇫🇮' },
+  { code: 'FR', name: 'France', phone: '+33', flag: '🇫🇷' },
+  { code: 'GA', name: 'Gabon', phone: '+241', flag: '🇬🇦' },
+  { code: 'GM', name: 'Gambia', phone: '+220', flag: '🇬🇲' },
+  { code: 'GE', name: 'Georgia', phone: '+995', flag: '🇬🇪' },
+  { code: 'DE', name: 'Germany', phone: '+49', flag: '🇩🇪' },
+  { code: 'GH', name: 'Ghana', phone: '+233', flag: '🇬🇭' },
+  { code: 'GR', name: 'Greece', phone: '+30', flag: '🇬🇷' },
+  { code: 'GD', name: 'Grenada', phone: '+1', flag: '🇬🇩' },
+  { code: 'GT', name: 'Guatemala', phone: '+502', flag: '🇬🇹' },
+  { code: 'GN', name: 'Guinea', phone: '+224', flag: '🇬🇳' },
+  { code: 'GW', name: 'Guinea-Bissau', phone: '+245', flag: '🇬🇼' },
+  { code: 'GY', name: 'Guyana', phone: '+592', flag: '🇬🇾' },
+  { code: 'HT', name: 'Haiti', phone: '+509', flag: '🇭🇹' },
+  { code: 'HN', name: 'Honduras', phone: '+504', flag: '🇭🇳' },
+  { code: 'HU', name: 'Hungary', phone: '+36', flag: '🇭🇺' },
+  { code: 'IS', name: 'Iceland', phone: '+354', flag: '🇮🇸' },
+  { code: 'IN', name: 'India', phone: '+91', flag: '🇮🇳' },
+  { code: 'ID', name: 'Indonesia', phone: '+62', flag: '🇮🇩' },
+  { code: 'IR', name: 'Iran', phone: '+98', flag: '🇮🇷' },
+  { code: 'IQ', name: 'Iraq', phone: '+964', flag: '🇮🇶' },
+  { code: 'IE', name: 'Ireland', phone: '+353', flag: '🇮🇪' },
+  { code: 'IL', name: 'Israel', phone: '+972', flag: '🇮🇱' },
+  { code: 'IT', name: 'Italy', phone: '+39', flag: '🇮🇹' },
+  { code: 'JM', name: 'Jamaica', phone: '+1', flag: '🇯🇲' },
+  { code: 'JP', name: 'Japan', phone: '+81', flag: '🇯🇵' },
+  { code: 'JO', name: 'Jordan', phone: '+962', flag: '🇯🇴' },
+  { code: 'KZ', name: 'Kazakhstan', phone: '+7', flag: '🇰🇿' },
+  { code: 'KE', name: 'Kenya', phone: '+254', flag: '🇰🇪' },
+  { code: 'KI', name: 'Kiribati', phone: '+686', flag: '🇰🇮' },
+  { code: 'KP', name: 'North Korea', phone: '+850', flag: '🇰🇵' },
+  { code: 'KR', name: 'South Korea', phone: '+82', flag: '🇰🇷' },
+  { code: 'KW', name: 'Kuwait', phone: '+965', flag: '🇰🇼' },
+  { code: 'KG', name: 'Kyrgyzstan', phone: '+996', flag: '🇰🇬' },
+  { code: 'LA', name: 'Laos', phone: '+856', flag: '🇱🇦' },
+  { code: 'LV', name: 'Latvia', phone: '+371', flag: '🇱🇻' },
+  { code: 'LB', name: 'Lebanon', phone: '+961', flag: '🇱🇧' },
+  { code: 'LS', name: 'Lesotho', phone: '+266', flag: '🇱🇸' },
+  { code: 'LR', name: 'Liberia', phone: '+231', flag: '🇱🇷' },
+  { code: 'LY', name: 'Libya', phone: '+218', flag: '🇱🇾' },
+  { code: 'LI', name: 'Liechtenstein', phone: '+423', flag: '🇱🇮' },
+  { code: 'LT', name: 'Lithuania', phone: '+370', flag: '🇱🇹' },
+  { code: 'LU', name: 'Luxembourg', phone: '+352', flag: '🇱🇺' },
+  { code: 'MG', name: 'Madagascar', phone: '+261', flag: '🇲🇬' },
+  { code: 'MW', name: 'Malawi', phone: '+265', flag: '🇲🇼' },
+  { code: 'MY', name: 'Malaysia', phone: '+60', flag: '🇲🇾' },
+  { code: 'MV', name: 'Maldives', phone: '+960', flag: '🇲🇻' },
+  { code: 'ML', name: 'Mali', phone: '+223', flag: '🇲🇱' },
+  { code: 'MT', name: 'Malta', phone: '+356', flag: '🇲🇹' },
+  { code: 'MH', name: 'Marshall Islands', phone: '+692', flag: '🇲🇭' },
+  { code: 'MR', name: 'Mauritania', phone: '+222', flag: '🇲🇷' },
+  { code: 'MU', name: 'Mauritius', phone: '+230', flag: '🇲🇺' },
+  { code: 'MX', name: 'Mexico', phone: '+52', flag: '🇲🇽' },
+  { code: 'FM', name: 'Micronesia', phone: '+691', flag: '🇫🇲' },
+  { code: 'MD', name: 'Moldova', phone: '+373', flag: '🇲🇩' },
+  { code: 'MC', name: 'Monaco', phone: '+377', flag: '🇲🇨' },
+  { code: 'MN', name: 'Mongolia', phone: '+976', flag: '🇲🇳' },
+  { code: 'ME', name: 'Montenegro', phone: '+382', flag: '🇲🇪' },
+  { code: 'MA', name: 'Morocco', phone: '+212', flag: '🇲🇦' },
+  { code: 'MZ', name: 'Mozambique', phone: '+258', flag: '🇲🇿' },
+  { code: 'MM', name: 'Myanmar', phone: '+95', flag: '🇲🇲' },
+  { code: 'NA', name: 'Namibia', phone: '+264', flag: '🇳🇦' },
+  { code: 'NR', name: 'Nauru', phone: '+674', flag: '🇳🇷' },
+  { code: 'NP', name: 'Nepal', phone: '+977', flag: '🇳🇵' },
+  { code: 'NL', name: 'Netherlands', phone: '+31', flag: '🇳🇱' },
+  { code: 'NZ', name: 'New Zealand', phone: '+64', flag: '🇳🇿' },
+  { code: 'NI', name: 'Nicaragua', phone: '+505', flag: '🇳🇮' },
+  { code: 'NE', name: 'Niger', phone: '+227', flag: '🇳🇪' },
+  { code: 'NG', name: 'Nigeria', phone: '+234', flag: '🇳🇬' },
+  { code: 'MK', name: 'North Macedonia', phone: '+389', flag: '🇲🇰' },
+  { code: 'NO', name: 'Norway', phone: '+47', flag: '🇳🇴' },
+  { code: 'OM', name: 'Oman', phone: '+968', flag: '🇴🇲' },
+  { code: 'PK', name: 'Pakistan', phone: '+92', flag: '🇵🇰' },
+  { code: 'PW', name: 'Palau', phone: '+680', flag: '🇵🇼' },
+  { code: 'PA', name: 'Panama', phone: '+507', flag: '🇵🇦' },
+  { code: 'PG', name: 'Papua New Guinea', phone: '+675', flag: '🇵🇬' },
+  { code: 'PY', name: 'Paraguay', phone: '+595', flag: '🇵🇾' },
+  { code: 'PE', name: 'Peru', phone: '+51', flag: '🇵🇪' },
+  { code: 'PH', name: 'Philippines', phone: '+63', flag: '🇵🇭' },
+  { code: 'PL', name: 'Poland', phone: '+48', flag: '🇵🇱' },
+  { code: 'PT', name: 'Portugal', phone: '+351', flag: '🇵🇹' },
+  { code: 'QA', name: 'Qatar', phone: '+974', flag: '🇶🇦' },
+  { code: 'RO', name: 'Romania', phone: '+40', flag: '🇷🇴' },
+  { code: 'RU', name: 'Russia', phone: '+7', flag: '🇷🇺' },
+  { code: 'RW', name: 'Rwanda', phone: '+250', flag: '🇷🇼' },
+  { code: 'KN', name: 'Saint Kitts and Nevis', phone: '+1', flag: '🇰🇳' },
+  { code: 'LC', name: 'Saint Lucia', phone: '+1', flag: '🇱🇨' },
+  { code: 'VC', name: 'Saint Vincent and the Grenadines', phone: '+1', flag: '🇻🇨' },
+  { code: 'WS', name: 'Samoa', phone: '+685', flag: '🇼🇸' },
+  { code: 'SM', name: 'San Marino', phone: '+378', flag: '🇸🇲' },
+  { code: 'ST', name: 'Sao Tome and Principe', phone: '+239', flag: '🇸🇹' },
+  { code: 'SA', name: 'Saudi Arabia', phone: '+966', flag: '🇸🇦' },
+  { code: 'SN', name: 'Senegal', phone: '+221', flag: '🇸🇳' },
+  { code: 'RS', name: 'Serbia', phone: '+381', flag: '🇷🇸' },
+  { code: 'SC', name: 'Seychelles', phone: '+248', flag: '🇸🇨' },
+  { code: 'SL', name: 'Sierra Leone', phone: '+232', flag: '🇸🇱' },
+  { code: 'SG', name: 'Singapore', phone: '+65', flag: '🇸🇬' },
+  { code: 'SK', name: 'Slovakia', phone: '+421', flag: '🇸🇰' },
+  { code: 'SI', name: 'Slovenia', phone: '+386', flag: '🇸🇮' },
+  { code: 'SB', name: 'Solomon Islands', phone: '+677', flag: '🇸🇧' },
+  { code: 'SO', name: 'Somalia', phone: '+252', flag: '🇸🇴' },
+  { code: 'ZA', name: 'South Africa', phone: '+27', flag: '🇿🇦' },
+  { code: 'SS', name: 'South Sudan', phone: '+211', flag: '🇸🇸' },
+  { code: 'ES', name: 'Spain', phone: '+34', flag: '🇪🇸' },
+  { code: 'LK', name: 'Sri Lanka', phone: '+94', flag: '🇱🇰' },
+  { code: 'SD', name: 'Sudan', phone: '+249', flag: '🇸🇩' },
+  { code: 'SR', name: 'Suriname', phone: '+597', flag: '🇸🇷' },
+  { code: 'SE', name: 'Sweden', phone: '+46', flag: '🇸🇪' },
+  { code: 'CH', name: 'Switzerland', phone: '+41', flag: '🇨🇭' },
+  { code: 'SY', name: 'Syria', phone: '+963', flag: '🇸🇾' },
+  { code: 'TJ', name: 'Tajikistan', phone: '+992', flag: '🇹🇯' },
+  { code: 'TZ', name: 'Tanzania', phone: '+255', flag: '🇹🇿' },
+  { code: 'TH', name: 'Thailand', phone: '+66', flag: '🇹🇭' },
+  { code: 'TL', name: 'Timor-Leste', phone: '+670', flag: '🇹🇱' },
+  { code: 'TG', name: 'Togo', phone: '+228', flag: '🇹🇬' },
+  { code: 'TO', name: 'Tonga', phone: '+676', flag: '🇹🇴' },
+  { code: 'TT', name: 'Trinidad and Tobago', phone: '+1', flag: '🇹🇹' },
+  { code: 'TN', name: 'Tunisia', phone: '+216', flag: '🇹🇳' },
+  { code: 'TR', name: 'Turkey', phone: '+90', flag: '🇹🇷' },
+  { code: 'TM', name: 'Turkmenistan', phone: '+993', flag: '🇹🇲' },
+  { code: 'TV', name: 'Tuvalu', phone: '+688', flag: '🇹🇻' },
+  { code: 'UG', name: 'Uganda', phone: '+256', flag: '🇺🇬' },
+  { code: 'UA', name: 'Ukraine', phone: '+380', flag: '🇺🇦' },
+  { code: 'AE', name: 'United Arab Emirates', phone: '+971', flag: '🇦🇪' },
+  { code: 'GB', name: 'United Kingdom', phone: '+44', flag: '🇬🇧' },
+  { code: 'US', name: 'United States', phone: '+1', flag: '🇺🇸' },
+  { code: 'UY', name: 'Uruguay', phone: '+598', flag: '🇺🇾' },
+  { code: 'UZ', name: 'Uzbekistan', phone: '+998', flag: '🇺🇿' },
+  { code: 'VU', name: 'Vanuatu', phone: '+678', flag: '🇻🇺' },
+  { code: 'VA', name: 'Vatican City', phone: '+379', flag: '🇻🇦' },
+  { code: 'VE', name: 'Venezuela', phone: '+58', flag: '🇻🇪' },
+  { code: 'VN', name: 'Vietnam', phone: '+84', flag: '🇻🇳' },
+  { code: 'YE', name: 'Yemen', phone: '+967', flag: '🇾🇪' },
+  { code: 'ZM', name: 'Zambia', phone: '+260', flag: '🇿🇲' },
+  { code: 'ZW', name: 'Zimbabwe', phone: '+263', flag: '🇿🇼' },
+];
+
+// Animated avatars
+const animatedAvatars = [
+  'https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1441057206919-63d19fac2369?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1517022812141-23620dba5c23?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1582562124811-09040d0a901?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1498936178812-4b2e558d2937?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1452960962994-acf4fd70b632?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1487252665478-49b61b47f302?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1466721591366-2d5fba72006d?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1518877593221-1f28583780b4?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1439886183900-e79ec0057170?w=100&h=100&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?w=100&h=100&fit=crop&crop=faces',
+];
+
+// Days array for birth date dropdown
+const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+// Months array for birth date dropdown
+const months = [
+  { value: '01', label: 'January' },
+  { value: '02', label: 'February' },
+  { value: '03', label: 'March' },
+  { value: '04', label: 'April' },
+  { value: '05', label: 'May' },
+  { value: '06', label: 'June' },
+  { value: '07', label: 'July' },
+  { value: '08', label: 'August' },
+  { value: '09', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
+];
+
+// Years array for birth date dropdown (from current year - 100 to current year - 18)
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 82 }, (_, i) => currentYear - 18 - i);
+
+// Cleanup function for auth state
 const cleanupAuthState = () => {
   // Remove all Supabase auth keys from localStorage
   Object.keys(localStorage).forEach((key) => {
@@ -35,6 +270,7 @@ export default function Auth() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [showAvatarSelection, setShowAvatarSelection] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -42,36 +278,45 @@ export default function Auth() {
     fullName: '',
     username: '',
     nationality: '',
+    countryCode: '+359',
     phone: '',
     gender: '',
-    birthDate: ''
+    birthDay: '',
+    birthMonth: '',
+    birthYear: '',
+    avatarUrl: ''
   });
   const [error, setError] = useState<string | null>(null);
 
-  // Валидация на паролата
+  // Password validation
   const validatePassword = (password: string): string[] => {
     const errors: string[] = [];
-    if (password.length < 8) errors.push('Паролата трябва да е поне 8 символа');
-    if (!/[A-Z]/.test(password)) errors.push('Трябва да съдържа поне една главна буква');
-    if (!/[a-z]/.test(password)) errors.push('Трябва да съдържа поне една малка буква');
-    if (!/\d/.test(password)) errors.push('Трябва да съдържа поне една цифра');
+    if (password.length < 8) errors.push('Password must be at least 8 characters');
+    if (!/[A-Z]/.test(password)) errors.push('Must contain at least one uppercase letter');
+    if (!/[a-z]/.test(password)) errors.push('Must contain at least one lowercase letter');
+    if (!/\d/.test(password)) errors.push('Must contain at least one number');
     return errors;
   };
 
-  // Валидация на възрастта
-  const validateAge = (birthDate: string): boolean => {
+  // Age validation
+  const validateAge = (day: string, month: string, year: string): boolean => {
+    if (!day || !month || !year) return false;
+    
     const today = new Date();
-    const birth = new Date(birthDate);
-    const age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      return age - 1 >= 18;
+    const birthDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
     }
+    
     return age >= 18;
   };
 
   useEffect(() => {
-    // Проверяваме дали потребителят вече е логнат
+    // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -87,22 +332,22 @@ export default function Auth() {
     setError(null);
 
     try {
-      // Валидация на паролата
+      // Password validation
       const passwordErrors = validatePassword(formData.password);
       if (passwordErrors.length > 0) {
-        setError('Паролата не отговаря на изискванията:\n' + passwordErrors.join('\n'));
+        setError('Password requirements not met:\n' + passwordErrors.join('\n'));
         return;
       }
 
-      // Проверка за съвпадение на паролите
+      // Password confirmation check
       if (formData.password !== formData.confirmPassword) {
-        setError('Паролите не съвпадат');
+        setError('Passwords do not match');
         return;
       }
 
-      // Валидация на възрастта
-      if (!validateAge(formData.birthDate)) {
-        setError('Трябва да сте навършили поне 18 години');
+      // Age validation
+      if (!validateAge(formData.birthDay, formData.birthMonth, formData.birthYear)) {
+        setError('You must be at least 18 years old to register');
         return;
       }
 
@@ -117,6 +362,8 @@ export default function Auth() {
       }
 
       const redirectUrl = `${window.location.origin}/`;
+      const birthDate = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
+      const fullPhone = `${formData.countryCode}${formData.phone}`;
 
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -127,17 +374,18 @@ export default function Auth() {
             full_name: formData.fullName,
             username: formData.username,
             nationality: formData.nationality,
-            phone: formData.phone,
+            phone: fullPhone,
             gender: formData.gender,
-            birth_date: formData.birthDate
+            birth_date: birthDate,
+            avatar_url: formData.avatarUrl || null
           }
         }
       });
 
       if (error) {
-        // По-добро съобщение за грешка при съществуващ имейл
+        // Better error message for existing email
         if (error.message.includes('User already registered')) {
-          setError('Потребител с този имейл вече съществува. Опитайте да влезете в профила си.');
+          setError('A user with this email already exists. Please try signing in.');
         } else {
           throw error;
         }
@@ -147,20 +395,20 @@ export default function Auth() {
       if (data.user) {
         if (data.user.email_confirmed_at) {
           toast({
-            title: "Успешна регистрация!",
-            description: "Добре дошли в платформата!",
+            title: "Registration successful!",
+            description: "Welcome to the platform!",
           });
           window.location.href = '/';
         } else {
           toast({
-            title: "Регистрацията е успешна!",
-            description: "Моля проверете имейла си за потвърждение.",
+            title: "Registration successful!",
+            description: "Please check your email for confirmation.",
           });
         }
       }
     } catch (error: any) {
       console.error('Error during signup:', error);
-      setError(error.message || 'Възникна грешка при регистрацията');
+      setError(error.message || 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
@@ -168,7 +416,7 @@ export default function Auth() {
 
   const handlePasswordReset = async () => {
     if (!formData.email) {
-      setError('Моля въведете имейл адрес');
+      setError('Please enter an email address');
       return;
     }
 
@@ -184,12 +432,12 @@ export default function Auth() {
 
       setResetEmailSent(true);
       toast({
-        title: "Имейл за възстановяване изпратен",
-        description: "Проверете пощата си за линк за възстановяване на паролата.",
+        title: "Recovery email sent",
+        description: "Check your email for a password reset link.",
       });
     } catch (error: any) {
       console.error('Error during password reset:', error);
-      setError(error.message || 'Възникна грешка при изпращането на имейла');
+      setError(error.message || 'An error occurred while sending the email');
     } finally {
       setIsResettingPassword(false);
     }
@@ -220,18 +468,23 @@ export default function Auth() {
 
       if (data.user) {
         toast({
-          title: "Успешен вход!",
-          description: "Добре дошли обратно!",
+          title: "Sign in successful!",
+          description: "Welcome back!",
         });
         // Force page reload for clean state
         window.location.href = '/';
       }
     } catch (error: any) {
       console.error('Error during signin:', error);
-      setError(error.message || 'Възникна грешка при влизането');
+      setError(error.message || 'An error occurred during sign in');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAvatarSelect = (avatarUrl: string) => {
+    setFormData({...formData, avatarUrl});
+    setShowAvatarSelection(false);
   };
 
   return (
@@ -244,49 +497,49 @@ export default function Auth() {
           className="mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Назад към началото
+          Back to Home
         </Button>
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Добре дошли!</CardTitle>
+            <CardTitle className="text-2xl font-bold">Welcome!</CardTitle>
             <CardDescription>
-              Влезте в профила си или се регистрирайте
+              Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Вход</TabsTrigger>
-                <TabsTrigger value="signup">Регистрация</TabsTrigger>
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
 
               {error && (
                 <Alert variant="destructive" className="mt-4">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription className="whitespace-pre-line">{error}</AlertDescription>
                 </Alert>
               )}
 
               <TabsContent value="signin" className="space-y-4 mt-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Имейл адрес</Label>
+                    <Label htmlFor="signin-email">Email Address *</Label>
                     <Input
                       id="signin-email"
                       type="email"
-                      placeholder="име@example.com"
+                      placeholder="name@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Парола</Label>
+                    <Label htmlFor="signin-password">Password *</Label>
                     <div className="relative">
                       <Input
                         id="signin-password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Вашата парола"
+                        placeholder="Your password"
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         required
@@ -307,7 +560,7 @@ export default function Auth() {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Влизане...' : 'Влезте в профила'}
+                    {loading ? 'Signing in...' : 'Sign In'}
                   </Button>
                   <div className="mt-4 text-center">
                     <Button 
@@ -317,11 +570,11 @@ export default function Auth() {
                       onClick={handlePasswordReset}
                       disabled={isResettingPassword || !formData.email}
                     >
-                      {isResettingPassword ? 'Изпращане...' : 'Забравена парола?'}
+                      {isResettingPassword ? 'Sending...' : 'Forgot password?'}
                     </Button>
                     {resetEmailSent && (
                       <p className="text-sm text-muted-foreground mt-2">
-                        Имейл за възстановяване е изпратен!
+                        Recovery email sent!
                       </p>
                     )}
                   </div>
@@ -330,93 +583,184 @@ export default function Auth() {
 
               <TabsContent value="signup" className="space-y-4 mt-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  {/* Avatar Selection */}
                   <div className="space-y-2">
-                    <Label htmlFor="signup-fullname">Пълно име</Label>
+                    <Label>Avatar (Optional)</Label>
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={formData.avatarUrl} />
+                        <AvatarFallback>
+                          <User className="h-8 w-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Choose Avatar
+                      </Button>
+                    </div>
+                    
+                    {showAvatarSelection && (
+                      <div className="grid grid-cols-5 gap-2 p-4 border rounded-lg">
+                        {animatedAvatars.map((avatar, index) => (
+                          <Avatar 
+                            key={index}
+                            className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary"
+                            onClick={() => handleAvatarSelect(avatar)}
+                          >
+                            <AvatarImage src={avatar} />
+                            <AvatarFallback>{index + 1}</AvatarFallback>
+                          </Avatar>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-fullname">Full Name *</Label>
                     <Input
                       id="signup-fullname"
                       type="text"
-                      placeholder="Вашето пълно име"
+                      placeholder="Your full name"
                       value={formData.fullName}
                       onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                       required
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-username">Потребителско име</Label>
+                    <Label htmlFor="signup-username">Username *</Label>
                     <Input
                       id="signup-username"
                       type="text"
-                      placeholder="потребителско_име"
+                      placeholder="username"
                       value={formData.username}
                       onChange={(e) => setFormData({...formData, username: e.target.value})}
                       required
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Имейл адрес</Label>
+                    <Label htmlFor="signup-email">Email Address *</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="име@example.com"
+                      placeholder="name@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       required
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-nationality">Националност</Label>
-                    <Input
-                      id="signup-nationality"
-                      type="text"
-                      placeholder="България"
-                      value={formData.nationality}
-                      onChange={(e) => setFormData({...formData, nationality: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Телефон</Label>
-                    <Input
-                      id="signup-phone"
-                      type="tel"
-                      placeholder="+359 888 123 456"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-gender">Пол</Label>
-                    <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})} required>
+                    <Label htmlFor="signup-nationality">Nationality *</Label>
+                    <Select value={formData.nationality} onValueChange={(value) => setFormData({...formData, nationality: value})} required>
                       <SelectTrigger>
-                        <SelectValue placeholder="Изберете пол" />
+                        <SelectValue placeholder="Select nationality" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">Мъж</SelectItem>
-                        <SelectItem value="female">Жена</SelectItem>
-                        <SelectItem value="other">Друго</SelectItem>
+                      <SelectContent className="max-h-48">
+                        {countries.map((country) => (
+                          <SelectItem key={country.code} value={country.name}>
+                            {country.flag} {country.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-birthdate">Дата на раждане</Label>
-                    <Input
-                      id="signup-birthdate"
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
-                      max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                      required
-                    />
-                    <p className="text-sm text-muted-foreground">Трябва да сте навършили поне 18 години</p>
+                    <Label>Phone Number *</Label>
+                    <div className="flex gap-2">
+                      <Select value={formData.countryCode} onValueChange={(value) => setFormData({...formData, countryCode: value})}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {countries.map((country) => (
+                            <SelectItem key={country.code} value={country.phone}>
+                              {country.flag} {country.phone}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="tel"
+                        placeholder="888 123 456"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        required
+                        className="flex-1"
+                      />
+                    </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Парола</Label>
+                    <Label htmlFor="signup-gender">Gender *</Label>
+                    <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Date of Birth *</Label>
+                    <div className="flex gap-2">
+                      <Select value={formData.birthDay} onValueChange={(value) => setFormData({...formData, birthDay: value})} required>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Day" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {days.map((day) => (
+                            <SelectItem key={day} value={day.toString().padStart(2, '0')}>
+                              {day}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={formData.birthMonth} onValueChange={(value) => setFormData({...formData, birthMonth: value})} required>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Month" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {months.map((month) => (
+                            <SelectItem key={month.value} value={month.value}>
+                              {month.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={formData.birthYear} onValueChange={(value) => setFormData({...formData, birthYear: value})} required>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Year" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {years.map((year) => (
+                            <SelectItem key={year} value={year.toString()}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <p className="text-sm text-muted-foreground">You must be at least 18 years old</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password *</Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Поне 8 символа, цифри, главни и малки букви"
+                        placeholder="At least 8 characters, numbers, uppercase and lowercase"
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         required
@@ -437,13 +781,14 @@ export default function Auth() {
                       </Button>
                     </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Потвърдете паролата</Label>
+                    <Label htmlFor="signup-confirm-password">Confirm Password *</Label>
                     <div className="relative">
                       <Input
                         id="signup-confirm-password"
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Повторете паролата"
+                        placeholder="Repeat password"
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                         required
@@ -463,8 +808,13 @@ export default function Auth() {
                       </Button>
                     </div>
                   </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    * Required fields
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Регистриране...' : 'Създайте профил'}
+                    {loading ? 'Creating account...' : 'Create Account'}
                   </Button>
                 </form>
               </TabsContent>
