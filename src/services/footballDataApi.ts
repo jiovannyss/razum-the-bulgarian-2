@@ -69,28 +69,70 @@ class FootballDataApiService {
   private baseUrl = 'https://api.football-data.org/v4';
   private corsProxy = 'https://corsproxy.io/?';
   private apiKey = '4c0b967130864749a36fb552c0755910';
+  private lastRequestTime = 0;
+  private minRequestInterval = 6000; // 6 seconds between requests (10 requests per minute max)
 
-  private async makeRequest<T>(endpoint: string): Promise<T> {
+  private async waitForRateLimit(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    
+    if (timeSinceLastRequest < this.minRequestInterval) {
+      const waitTime = this.minRequestInterval - timeSinceLastRequest;
+      console.log(`⏳ Rate limiting: waiting ${waitTime}ms before next request`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    this.lastRequestTime = Date.now();
+  }
+
+  private async makeRequest<T>(endpoint: string, retryCount = 0): Promise<T> {
+    await this.waitForRateLimit();
+    
     console.log(`🌐 Making request to: ${this.baseUrl}${endpoint}`);
     
     // Use CORS proxy to bypass CORS restrictions
     const url = `${this.corsProxy}${encodeURIComponent(this.baseUrl + endpoint)}`;
     
-    const response = await fetch(url, {
-      headers: {
-        'X-Auth-Token': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'X-Auth-Token': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (!response.ok) {
-      console.error(`❌ API request failed: ${response.status} ${response.statusText}`);
-      throw new Error(`${response.status}: ${response.statusText}`);
+      if (response.status === 429) {
+        // Rate limit hit
+        const retryAfter = response.headers.get('retry-after');
+        const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 60000; // Default to 1 minute
+        
+        console.log(`🚫 Rate limit hit (429). Retry after: ${waitTime}ms`);
+        
+        if (retryCount < 2) { // Max 2 retries
+          console.log(`⏳ Waiting ${waitTime}ms before retry ${retryCount + 1}/2`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          return this.makeRequest<T>(endpoint, retryCount + 1);
+        } else {
+          throw new Error('RATE_LIMIT_EXCEEDED');
+        }
+      }
+
+      if (!response.ok) {
+        console.error(`❌ API request failed: ${response.status} ${response.statusText}`);
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ API response received:`, data);
+      return data;
+    } catch (error) {
+      if (retryCount < 1 && error instanceof Error && error.message.includes('fetch')) {
+        console.log(`🔄 Network error, retrying... (${retryCount + 1}/1)`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return this.makeRequest<T>(endpoint, retryCount + 1);
+      }
+      throw error;
     }
-
-    const data = await response.json();
-    console.log(`✅ API response received:`, data);
-    return data;
   }
 
   // Get available competitions (free tier only)
@@ -229,8 +271,8 @@ class FootballDataApiService {
       
       let allMatches: Match[] = [];
       
-      // Get matches from first 3 competitions to avoid rate limits
-      for (const competition of competitions.slice(0, 3)) {
+      // Get matches only from first 2 competitions to stay under rate limit
+      for (const competition of competitions.slice(0, 2)) {
         try {
           console.log(`🎯 Getting matches for: ${competition.name}`);
           
@@ -238,8 +280,8 @@ class FootballDataApiService {
           const currentMatchday = await this.getCurrentMatchday(competition.id);
           console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
           
-          // Only fetch current matchday and next few matchdays to avoid rate limits
-          const matchdaysToFetch = [currentMatchday, currentMatchday + 1, currentMatchday + 2];
+          // Only fetch current matchday to minimize API calls
+          const matchdaysToFetch = [currentMatchday];
           
           for (const matchday of matchdaysToFetch) {
             try {
@@ -249,17 +291,20 @@ class FootballDataApiService {
                 console.log(`✅ Added ${matches.length} matches from ${competition.name} GW${matchday}`);
               }
               
-              // Add delay to avoid hitting rate limits
-              await new Promise(resolve => setTimeout(resolve, 300));
+              // Add longer delay to avoid hitting rate limits
+              await new Promise(resolve => setTimeout(resolve, 1000));
             } catch (error) {
               console.log(`❌ Error getting GW${matchday} for ${competition.name}:`, error);
+              // Don't throw, just skip this matchday
             }
           }
         } catch (error) {
           console.log(`❌ Error getting matches for ${competition.name}:`, error);
+          // Don't throw, just skip this competition
         }
       }
       
+      console.log(`📊 Total matches collected: ${allMatches.length}`);
       return allMatches;
     } catch (error) {
       console.error('Error getting upcoming matches:', error);

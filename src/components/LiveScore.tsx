@@ -182,12 +182,28 @@ const LiveScore = () => {
       setCompetitionsWithCurrentMatchday(competitionsWithCurrentMatchday);
         
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Неизвестна грешка';
-      setError(errorMessage);
       console.error('❌ Error loading Football-Data.org matches:', err);
+      
+      let errorMessage = 'Неизвестна грешка';
+      let description = 'Неуспешно зареждане на мачовете';
+      
+      if (err instanceof Error) {
+        if (err.message === 'RATE_LIMIT_EXCEEDED') {
+          errorMessage = 'API лимит';
+          description = 'Превишен лимит на заявки. Моля, опитайте отново след малко.';
+        } else if (err.message.includes('429')) {
+          errorMessage = 'Твърде много заявки';
+          description = 'API сървърът е затрупан. Моля, изчакайте 1-2 минути и опитайте отново.';
+        } else {
+          errorMessage = err.message;
+          description = `Неуспешно зареждане на мачовете: ${errorMessage}`;
+        }
+      }
+      
+      setError(errorMessage);
       toast({
         title: "Грешка при зареждане",
-        description: `Неуспешно зареждане на мачовете: ${errorMessage}`,
+        description: description,
         variant: "destructive",
       });
     } finally {
