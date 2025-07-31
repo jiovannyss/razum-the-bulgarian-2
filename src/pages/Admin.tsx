@@ -77,7 +77,7 @@ export default function Admin() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-2">
         <Card className="w-full max-w-md bg-background rounded-2xl shadow-2xl">
           <CardHeader>
             <CardTitle className="text-destructive flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen p-2">
       <div className="min-h-screen bg-background rounded-2xl shadow-2xl overflow-hidden">
         <div className="container mx-auto p-6">
           {/* Header */}
