@@ -124,7 +124,7 @@ const LiveScore = () => {
         console.log(`⚠️ No matches found for ${leagueName} GW${matchday}`);
         toast({
           title: "No matches",
-          description: `No matches found for ${leagueName} Round ${matchday}`,
+          description: `No matches found for Round ${matchday}`,
           variant: "destructive",
         });
       }
