@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Trophy, TriangleAlert, Shield } from "lucide-react";
+import { ChevronDown, ChevronUp, Trophy, TriangleAlert } from "lucide-react";
+import shieldImage from "@/assets/shield-rank.png";
 import { GameWeekNavigation } from "./GameWeekNavigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -341,16 +342,22 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                     )}
                     onClick={() => handleMatchClick(match)}
                   >
-                   <div className="flex items-center justify-between gap-4">
-                     {/* Royal Gold Shield with rank inside */}
-                     {match.rank && match.rank > 1 && (
-                       <div className="flex-shrink-0 relative">
-                         <Shield className="w-6 h-6 royal-gold-shield" />
-                         <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-amber-900">
-                           {match.rank}
-                         </span>
-                       </div>
-                     )}
+                   <div className="flex items-center gap-4">
+                     {/* Shield area - always present */}
+                     <div className="flex-shrink-0 w-8 h-8 relative flex items-center justify-center">
+                       {match.rank && match.rank > 1 && (
+                         <>
+                           <img 
+                             src={shieldImage} 
+                             alt="Rank Shield" 
+                             className="w-8 h-8 object-contain"
+                           />
+                           <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-lg">
+                             {match.rank}
+                           </span>
+                         </>
+                       )}
+                     </div>
                      {/* Teams, Scores, Date/Time - takes most space */}
                      <div className="flex-1 min-w-0">
                        {/* Home Team Row */}
