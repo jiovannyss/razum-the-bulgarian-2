@@ -171,10 +171,41 @@ class APIFootballService {
     return response.response;
   }
 
-  // Get fixtures by date
+  // Get fixtures by date (instead of next - not available in free plan)
   async getFixturesByDate(date: string): Promise<APIFootballFixture[]> {
     const response = await this.makeRequest<APIFootballFixture[]>(`/fixtures?date=${date}`);
     return response.response;
+  }
+
+  // Get today's fixtures
+  async getTodaysFixtures(): Promise<APIFootballFixture[]> {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    return this.getFixturesByDate(today);
+  }
+
+  // Get fixtures for next few days (free plan alternative to 'next' parameter)
+  async getUpcomingFixtures(days: number = 3): Promise<APIFootballFixture[]> {
+    const fixtures: APIFootballFixture[] = [];
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      try {
+        const dayFixtures = await this.getFixturesByDate(dateStr);
+        fixtures.push(...dayFixtures);
+        
+        // Add small delay to avoid rate limits
+        if (i < days - 1) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+      } catch (error) {
+        console.log(`Failed to get fixtures for ${dateStr}:`, error);
+      }
+    }
+    
+    return fixtures;
   }
 
   // Get live fixtures
@@ -277,16 +308,30 @@ class APIFootballService {
         });
       }
       
-      // Test 3: Get next fixtures
-      console.log('\n⏭️ Test 3: Getting next fixtures...');
-      const nextFixtures = await this.getNextFixtures(5);
-      console.log(`✅ Found ${nextFixtures.length} upcoming fixtures`);
+      // Test 3: Get today's fixtures (instead of next)
+      console.log('\n📅 Test 3: Getting today\'s fixtures...');
+      const todaysFixtures = await this.getTodaysFixtures();
+      console.log(`✅ Found ${todaysFixtures.length} fixtures for today`);
       
-      if (nextFixtures.length > 0) {
+      if (todaysFixtures.length > 0) {
+        console.log('📅 Today\'s matches:');
+        todaysFixtures.slice(0, 5).forEach(f => {
+          const time = new Date(f.fixture.date).toLocaleTimeString();
+          console.log(`${f.teams.home.name} vs ${f.teams.away.name} - ${time} (${f.league.name})`);
+        });
+      }
+      
+      // Test 4: Get upcoming fixtures (next 2 days)
+      console.log('\n⏭️ Test 4: Getting upcoming fixtures...');
+      const upcomingFixtures = await this.getUpcomingFixtures(2);
+      console.log(`✅ Found ${upcomingFixtures.length} upcoming fixtures`);
+      
+      if (upcomingFixtures.length > 0) {
         console.log('📅 Upcoming matches:');
-        nextFixtures.forEach(f => {
+        upcomingFixtures.slice(0, 5).forEach(f => {
           const date = new Date(f.fixture.date).toLocaleDateString();
-          console.log(`${f.teams.home.name} vs ${f.teams.away.name} - ${date} (${f.league.name})`);
+          const time = new Date(f.fixture.date).toLocaleTimeString();
+          console.log(`${f.teams.home.name} vs ${f.teams.away.name} - ${date} ${time} (${f.league.name})`);
         });
       }
       
