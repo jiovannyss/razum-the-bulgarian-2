@@ -390,7 +390,7 @@ const LiveScore = () => {
         {/* Bottom Content */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Quick Stats */}
-          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700/50">
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <BarChart3 className="w-5 h-5 text-primary" />
@@ -420,7 +420,7 @@ const LiveScore = () => {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700/50">
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
