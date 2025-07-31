@@ -248,6 +248,54 @@ class APIFootballService {
       console.error('❌ Premier League API Test failed:', error);
     }
   }
+
+  // Test function to run a quick API check
+  async quickTest(): Promise<void> {
+    try {
+      console.log('🧪 Starting API-Football Quick Test...');
+      
+      // Test 1: Get leagues
+      console.log('📋 Test 1: Getting leagues...');
+      const leagues = await this.getLeagues();
+      console.log(`✅ Found ${leagues.length} leagues`);
+      console.log('🏆 Top 5 leagues:', leagues.slice(0, 5).map(l => ({
+        id: l.league.id,
+        name: l.league.name,
+        country: l.country.name,
+        type: l.league.type
+      })));
+      
+      // Test 2: Get live fixtures
+      console.log('\n📺 Test 2: Getting live fixtures...');
+      const liveFixtures = await this.getLiveFixtures();
+      console.log(`✅ Found ${liveFixtures.length} live fixtures`);
+      
+      if (liveFixtures.length > 0) {
+        console.log('🔴 Live matches:');
+        liveFixtures.slice(0, 3).forEach(f => {
+          console.log(`${f.teams.home.name} ${f.goals.home || 0} - ${f.goals.away || 0} ${f.teams.away.name} (${f.fixture.status.short})`);
+        });
+      }
+      
+      // Test 3: Get next fixtures
+      console.log('\n⏭️ Test 3: Getting next fixtures...');
+      const nextFixtures = await this.getNextFixtures(5);
+      console.log(`✅ Found ${nextFixtures.length} upcoming fixtures`);
+      
+      if (nextFixtures.length > 0) {
+        console.log('📅 Upcoming matches:');
+        nextFixtures.forEach(f => {
+          const date = new Date(f.fixture.date).toLocaleDateString();
+          console.log(`${f.teams.home.name} vs ${f.teams.away.name} - ${date} (${f.league.name})`);
+        });
+      }
+      
+      console.log('\n🎉 API-Football Quick Test completed successfully!');
+      
+    } catch (error) {
+      console.error('❌ API-Football Quick Test failed:', error);
+    }
+  }
 }
 
 export const apiFootballService = new APIFootballService();
