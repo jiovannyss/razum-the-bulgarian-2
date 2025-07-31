@@ -8,7 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Eye, EyeOff, Upload, User } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Upload, User, Camera } from 'lucide-react';
+import avatar1 from '@/assets/avatars/avatar-1.png';
+import avatar2 from '@/assets/avatars/avatar-2.png';
+import avatar3 from '@/assets/avatars/avatar-3.png';
+import avatar4 from '@/assets/avatars/avatar-4.png';
+import avatar5 from '@/assets/avatars/avatar-5.png';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -206,21 +211,21 @@ const countries = [
 
 // Animated avatars
 const animatedAvatars = [
-  'https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1441057206919-63d19fac2369?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1517022812141-23620dba5c23?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1582562124811-09040d0a901?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1498936178812-4b2e558d2937?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1452960962994-acf4fd70b632?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1487252665478-49b61b47f302?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1466721591366-2d5fba72006d?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1518877593221-1f28583780b4?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1439886183900-e79ec0057170?w=100&h=100&fit=crop&crop=faces',
-  'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?w=100&h=100&fit=crop&crop=faces',
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Fiona',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Harley',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Kimberly',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Liam',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Madison',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Nova',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Penny'
 ];
 
 // Days array for birth date dropdown
@@ -583,41 +588,6 @@ export default function Auth() {
 
               <TabsContent value="signup" className="space-y-4 mt-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
-                  {/* Avatar Selection */}
-                  <div className="space-y-2">
-                    <Label>Avatar (Optional)</Label>
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={formData.avatarUrl} />
-                        <AvatarFallback>
-                          <User className="h-8 w-8" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowAvatarSelection(!showAvatarSelection)}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Choose Avatar
-                      </Button>
-                    </div>
-                    
-                    {showAvatarSelection && (
-                      <div className="grid grid-cols-5 gap-2 p-4 border rounded-lg">
-                        {animatedAvatars.map((avatar, index) => (
-                          <Avatar 
-                            key={index}
-                            className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary"
-                            onClick={() => handleAvatarSelect(avatar)}
-                          >
-                            <AvatarImage src={avatar} />
-                            <AvatarFallback>{index + 1}</AvatarFallback>
-                          </Avatar>
-                        ))}
-                      </div>
-                    )}
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-fullname">Full Name *</Label>
@@ -752,6 +722,68 @@ export default function Auth() {
                       </Select>
                     </div>
                     <p className="text-sm text-muted-foreground">You must be at least 18 years old</p>
+                  </div>
+
+                  {/* Avatar Selection */}
+                  <div className="space-y-2">
+                    <Label>Avatar (Optional)</Label>
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={formData.avatarUrl} />
+                        <AvatarFallback>
+                          <User className="h-8 w-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Presets
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                        >
+                          <Camera className="h-4 w-4 mr-2" />
+                          Upload
+                        </Button>
+                      </div>
+                    </div>
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      capture="user"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setFormData({...formData, avatarUrl: url});
+                        }
+                      }}
+                    />
+                    
+                    {showAvatarSelection && (
+                      <div className="grid grid-cols-5 gap-2 p-4 border rounded-lg">
+                        {animatedAvatars.map((avatar, index) => (
+                          <Avatar 
+                            key={index}
+                            className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary"
+                            onClick={() => handleAvatarSelect(avatar)}
+                          >
+                            <AvatarImage src={avatar} />
+                            <AvatarFallback>{index + 1}</AvatarFallback>
+                          </Avatar>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
