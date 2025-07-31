@@ -254,11 +254,6 @@ const Header = () => {
           </div>
         )}
       </header>
-      
-      {/* Ad Space - Non-sticky */}
-      <div className="h-24 bg-muted/20 border-b border-purple-700/30 flex items-center justify-center">
-        <div className="text-muted-foreground text-sm">Advertisement Space</div>
-      </div>
     </>
   );
 };

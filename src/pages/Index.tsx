@@ -14,6 +14,10 @@ const Index = () => {
         
         {/* БЛОК част - скролиращ с заоблени долни ъгли */}
         <div className="flex-1 overflow-y-auto bg-background rounded-b-2xl">
+          {/* Advertisement Space */}
+          <div className="h-24 bg-muted/20 border-b border-purple-700/30 flex items-center justify-center">
+            <div className="text-muted-foreground text-sm">Advertisement Space</div>
+          </div>
           <LiveScore />
           <Footer />
         </div>
