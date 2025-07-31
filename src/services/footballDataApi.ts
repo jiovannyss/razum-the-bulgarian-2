@@ -97,7 +97,7 @@ class FootballDataApiService {
   async getCompetitions(): Promise<Competition[]> {
     const response = await this.makeRequest<CompetitionsResponse>('/competitions');
     // Filter only free tier competitions
-    return response.competitions.filter(comp => comp.plan === 'TIER_FOUR');
+    return response.competitions.filter(comp => comp.plan === 'TIER_ONE' || comp.plan === 'TIER_FOUR');
   }
 
   // Get matches for a specific competition
