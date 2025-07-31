@@ -67,22 +67,78 @@ const Header = () => {
               {/* Mobile: Show user avatar and name on the left */}
               <div className="md:hidden flex items-center gap-2">
                 {!loading && user && (
-                  <>
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={profile?.avatar_url} />
-                      <AvatarFallback className="text-xs hover:bg-black hover:text-transparent transition-colors">
-                        {profile?.full_name ? 
-                          profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
-                          user.email?.charAt(0).toUpperCase() || 'U'
-                        }
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="text-left">
-                      <div className="text-sm font-medium">
-                        {profile?.username || user.email?.split('@')[0]}
-                      </div>
-                    </div>
-                  </>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="gap-2 flex items-center p-1">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={profile?.avatar_url} />
+                          <AvatarFallback className="text-xs hover:bg-black hover:text-transparent transition-all duration-200">
+                            {profile?.full_name ? 
+                              profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
+                              user.email?.charAt(0).toUpperCase() || 'U'
+                            }
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="text-left">
+                          <div className="text-sm font-medium">
+                            {profile?.username || user.email?.split('@')[0]}
+                          </div>
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuLabel>
+                        <div>
+                          <p className="text-sm font-medium">{user.email}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="gap-2" onClick={() => navigate('/profile')}>
+                        <User className="w-4 h-4" />
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                      {(userRole === 'admin' || userRole === 'super_admin') && (
+                        <DropdownMenuItem className="gap-2" onClick={() => navigate('/admin')}>
+                          <Settings className="w-4 h-4" />
+                          <span>Admin Panel</span>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem className="gap-2">
+                        <Settings className="w-4 h-4" />
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger className="gap-2">
+                          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                          <span>Theme</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
+                            <Sun className="h-4 w-4" />
+                            <span>Light</span>
+                            {theme === "light" && <span className="ml-auto text-xs">✓</span>}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
+                            <Moon className="h-4 w-4" />
+                            <span>Dark</span>
+                            {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTheme("system")} className="gap-2">
+                            <Monitor className="h-4 w-4" />
+                            <span>System</span>
+                            {theme === "system" && <span className="ml-auto text-xs">✓</span>}
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="gap-2 text-red-600" onClick={signOut}>
+                        <LogOut className="w-4 h-4" />
+                        <span>Log out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </div>
               
@@ -113,7 +169,7 @@ const Header = () => {
                             <Button variant="ghost" size="sm" className="gap-2 flex items-center">
                               <Avatar className="w-8 h-8">
                                 <AvatarImage src={profile?.avatar_url} />
-                                <AvatarFallback className="text-xs hover:bg-black hover:text-transparent transition-colors">
+                                <AvatarFallback className="text-xs hover:bg-black hover:text-transparent transition-all duration-200">
                                   {profile?.full_name ? 
                                     profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
                                     user.email?.charAt(0).toUpperCase() || 'U'
