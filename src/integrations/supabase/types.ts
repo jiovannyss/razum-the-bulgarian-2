@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      matches: {
+        Row: {
+          admin_rating: number | null
+          away_score: number | null
+          away_team: string
+          competition: string
+          created_at: string
+          external_id: string | null
+          home_score: number | null
+          home_team: string
+          id: string
+          match_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_rating?: number | null
+          away_score?: number | null
+          away_team: string
+          competition: string
+          created_at?: string
+          external_id?: string | null
+          home_score?: number | null
+          home_team: string
+          id?: string
+          match_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_rating?: number | null
+          away_score?: number | null
+          away_team?: string
+          competition?: string
+          created_at?: string
+          external_id?: string | null
+          home_score?: number | null
+          home_team?: string
+          id?: string
+          match_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -41,6 +86,81 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      special_game_matches: {
+        Row: {
+          added_at: string
+          id: string
+          match_id: string
+          points_multiplier: number | null
+          special_game_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          match_id: string
+          points_multiplier?: number | null
+          special_game_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          match_id?: string
+          points_multiplier?: number | null
+          special_game_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "special_game_matches_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "special_game_matches_special_game_id_fkey"
+            columns: ["special_game_id"]
+            isOneToOne: false
+            referencedRelation: "special_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      special_games: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_date: string
+          id: string
+          is_active: boolean
+          name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean
+          name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          start_date?: string
+          updated_at?: string
         }
         Relationships: []
       }
