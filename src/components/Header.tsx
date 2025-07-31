@@ -59,7 +59,7 @@ const Header = () => {
   return (
     <>
       {/* Sticky Header with Title and Navigation */}
-      <header className="sticky top-2 z-50 bg-section-background backdrop-blur-lg border-b border-purple-700/50 rounded-t-2xl border border-purple-700">
+      <header className="sticky top-2 z-50 bg-section-background backdrop-blur-lg border-b border-purple-700/50 rounded-t-2xl border border-purple-700 border-b-0">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Left Section: User avatar and name */}
