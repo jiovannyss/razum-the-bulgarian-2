@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeProvider";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const { setTheme, theme } = useTheme();
+  const { user, userRole, signOut, loading } = useAuth();
   
   return (
     <>
@@ -51,65 +53,101 @@ const Header = () => {
             
             {/* Right Section: User Area */}
             <div className="flex items-center gap-[1vw]">
-              {/* Notifications */}
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
-                <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[1.5vw] min-h-[1.5vw] bg-destructive rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] flex items-center justify-center text-white font-bold">
-                  3
-                </div>
-              </Button>
-              
-              {/* User Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-1">
-                    <div className="w-[7vw] h-[7vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground text-[3.5vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
-                      JP
+              {!loading && (
+                <>
+                  {user ? (
+                    <>
+                      {/* Notifications - only for logged in users */}
+                      <Button variant="ghost" size="sm" className="relative">
+                        <Bell className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
+                        <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[1.5vw] min-h-[1.5vw] bg-destructive rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] flex items-center justify-center text-white font-bold">
+                          3
+                        </div>
+                      </Button>
+                      
+                      {/* User Menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="gap-1">
+                            <div className="w-[7vw] h-[7vw] md:w-[4vw] md:h-[4vw] lg:w-[2.5vw] lg:h-[2.5vw] bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground text-[3.5vw] md:text-[2vw] lg:text-[1.2vw] font-semibold">
+                              {user.email?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuLabel>
+                            <div>
+                              <p className="text-sm font-medium">{user.email}</p>
+                              <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+                            </div>
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="gap-2">
+                            <User className="w-4 h-4" />
+                            <span>Profile</span>
+                          </DropdownMenuItem>
+                          {(userRole === 'admin' || userRole === 'super_admin') && (
+                            <DropdownMenuItem className="gap-2" onClick={() => navigate('/admin')}>
+                              <Settings className="w-4 h-4" />
+                              <span>Admin Panel</span>
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem className="gap-2">
+                            <Settings className="w-4 h-4" />
+                            <span>Settings</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="gap-2">
+                              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                              <span>Theme</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
+                                <Sun className="h-4 w-4" />
+                                <span>Light</span>
+                                {theme === "light" && <span className="ml-auto text-xs">✓</span>}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
+                                <Moon className="h-4 w-4" />
+                                <span>Dark</span>
+                                {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setTheme("system")} className="gap-2">
+                                <Monitor className="h-4 w-4" />
+                                <span>System</span>
+                                {theme === "system" && <span className="ml-auto text-xs">✓</span>}
+                              </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="gap-2 text-red-600" onClick={signOut}>
+                            <LogOut className="w-4 h-4" />
+                            <span>Log out</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
+                  ) : (
+                    // Auth buttons for non-logged in users
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate('/auth')}
+                      >
+                        Вход
+                      </Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => navigate('/auth')}
+                      >
+                        Регистрация
+                      </Button>
                     </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="gap-2">
-                    <User className="w-4 h-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2">
-                    <Settings className="w-4 h-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="gap-2">
-                      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      <span>Theme</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
-                        <Sun className="h-4 w-4" />
-                        <span>Light</span>
-                        {theme === "light" && <span className="ml-auto text-xs">✓</span>}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
-                        <Moon className="h-4 w-4" />
-                        <span>Dark</span>
-                        {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme("system")} className="gap-2">
-                        <Monitor className="h-4 w-4" />
-                        <span>System</span>
-                        {theme === "system" && <span className="ml-auto text-xs">✓</span>}
-                      </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="gap-2 text-red-600">
-                    <LogOut className="w-4 h-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
