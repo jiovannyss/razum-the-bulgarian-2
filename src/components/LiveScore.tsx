@@ -326,7 +326,7 @@ const LiveScore = () => {
 
         {error && (
           <div className="flex items-center justify-center py-12">
-            <Card className="p-6 max-w-md mx-auto border-purple-700">
+            <Card className="p-6 max-w-md mx-auto border-purple-700 purple-glow">
               <div className="flex items-center gap-3 text-destructive mb-4">
                 <AlertCircle className="w-5 h-5" />
                 <span className="font-semibold">Error loading matches</span>
@@ -346,7 +346,7 @@ const LiveScore = () => {
 
         {!loading && !error && Object.keys(matchesByLeague).length === 0 && (
           <div className="flex items-center justify-center py-12">
-            <Card className="p-6 max-w-md mx-auto text-center border-purple-700">
+            <Card className="p-6 max-w-md mx-auto text-center border-purple-700 purple-glow">
               <div className="flex items-center justify-center gap-3 text-muted-foreground mb-4">
                 <Calendar className="w-5 h-5" />
                 <span className="font-semibold">No matches found</span>
@@ -390,7 +390,7 @@ const LiveScore = () => {
         {/* Bottom Content */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Quick Stats */}
-          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700">
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700 purple-glow">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <BarChart3 className="w-5 h-5 text-primary" />
@@ -420,7 +420,7 @@ const LiveScore = () => {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700">
+          <Card className="card-hover bg-card/50 backdrop-blur-sm border-purple-700 purple-glow">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>

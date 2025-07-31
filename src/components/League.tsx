@@ -274,7 +274,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
   };
 
   return (
-    <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-purple-700">
+    <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-purple-700 purple-glow">
       {/* League Header */}
       <div className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-purple-700/50">
         {/* Left part - Clickable */}

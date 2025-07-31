@@ -193,6 +193,15 @@
     box-shadow: var(--shadow-secondary-glow), 0 10px 25px -5px hsl(var(--secondary) / 0.4);
   }
 
+  /* Purple glow effects for borders */
+  .purple-glow {
+    box-shadow: 0 4px 15px -3px hsl(264 71% 56% / 0.3);
+  }
+
+  .purple-glow-subtle {
+    box-shadow: 0 2px 8px -2px hsl(264 71% 56% / 0.2);
+  }
+
   /* Card hover effects */
   .card-hover {
     transition: var(--transition-smooth);
