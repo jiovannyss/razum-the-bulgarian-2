@@ -178,33 +178,9 @@ const LiveScore = () => {
       console.log(`📋 Rounds in API matches: [${roundsInMatches.sort((a, b) => a - b).join(', ')}]`);
 
       if (upcomingMatches.length === 0) {
-        console.log('⚠️ No upcoming matches found - creating demo data');
-        // Create demo data if no matches are available
-        const demoMatches: ProcessedMatch[] = [
-          {
-            id: "demo1",
-            tournament: "Premier League",
-            homeTeam: "Liverpool",
-            awayTeam: "Arsenal", 
-            homeScore: null,
-            awayScore: null,
-            time: "2025-07-22T20:00:00Z",
-            status: "upcoming",
-            round: "1"
-          },
-          {
-            id: "demo2", 
-            tournament: "Premier League",
-            homeTeam: "Manchester City",
-            awayTeam: "Chelsea",
-            homeScore: null,
-            awayScore: null,
-            time: "2025-07-22T17:30:00Z", 
-            status: "upcoming",
-            round: "1"
-          }
-        ];
-        setMatches(demoMatches);
+        console.log('⚠️ No upcoming matches found from API');
+        setMatches([]);
+        setCompetitionsWithCurrentMatchday([]);
         return;
       }
 
