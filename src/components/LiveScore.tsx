@@ -155,22 +155,15 @@ const LiveScore = () => {
 
       console.log('🔍 Loading Football-Data.org matches...');
 
-      // Get competitions and their current matchdays
-      const competitions = await footballDataApi.getCompetitions();
-      const competitionsWithCurrentMatchday = await Promise.all(
-        competitions.slice(0, 3).map(async (comp) => {
-          try {
-            const currentMatchday = await footballDataApi.getCurrentMatchday(comp.id);
-            return { ...comp, currentMatchday };
-          } catch (error) {
-            console.log(`❌ Error getting current matchday for ${comp.name}:`, error);
-            return { ...comp, currentMatchday: 1 };
-          }
-        })
-      );
-
-      // Get upcoming matches from Football-Data.org
+      // Get upcoming matches from Football-Data.org (this calls getCompetitions internally)
       const upcomingMatches = await footballDataApi.getUpcomingMatches();
+      
+      // Get competitions for storing state
+      const competitions = await footballDataApi.getCompetitions();
+      const competitionsWithCurrentMatchday = competitions.slice(0, 3).map(comp => ({
+        ...comp, 
+        currentMatchday: comp.currentSeason.currentMatchday
+      }));
       console.log(`📊 Found ${upcomingMatches.length} total matches`);
       
       // Log rounds from the matches
