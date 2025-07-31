@@ -344,7 +344,7 @@ const LiveScore = () => {
                 <span className="font-semibold">No matches found</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                No upcoming matches available from Football-Data.org. Try refreshing.
+                No upcoming matches available. Try refreshing.
               </p>
               <Button 
                 onClick={loadMatches} 
