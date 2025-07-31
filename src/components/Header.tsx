@@ -70,7 +70,7 @@ const Header = () => {
                     <Button variant="ghost" size="sm" className="gap-2 flex items-center p-1">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src={profile?.avatar_url} />
-                        <AvatarFallback className={`text-xs transition-all duration-200 ${!profile?.avatar_url ? 'hover:bg-black hover:text-transparent' : ''}`}>
+                        <AvatarFallback className={`text-xs transition-all duration-200 ${!profile?.avatar_url ? 'hover:bg-black hover:text-white' : ''}`}>
                           {profile?.full_name ? 
                             profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
                             user.email?.charAt(0).toUpperCase() || 'U'
