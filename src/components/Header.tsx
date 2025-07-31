@@ -67,10 +67,10 @@ const Header = () => {
               {!loading && user && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="gap-2 flex items-center p-1">
+                    <Button variant="ghost" size="sm" className="gap-2 flex items-center p-1 group">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src={profile?.avatar_url} />
-                        <AvatarFallback className="text-xs transition-all duration-200 hover:bg-black hover:text-white">
+                        <AvatarFallback className="text-xs transition-all duration-200 group-hover:bg-black group-hover:text-white">
                           {profile?.full_name ? 
                             profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
                             user.email?.charAt(0).toUpperCase() || 'U'
