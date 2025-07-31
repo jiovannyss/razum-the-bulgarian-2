@@ -292,11 +292,13 @@ export function AdminMatches() {
                       <h3 className="text-lg font-semibold text-white">{competitionName}</h3>
                     </div>
                     <div className="flex items-center gap-3">
-                      <GameWeekNavigation
-                        currentGameWeek={currentGameWeek}
-                        onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
-                        maxGameWeek={38}
-                      />
+                      {!collapsedCompetitions.has(competitionName) && (
+                        <GameWeekNavigation
+                          currentGameWeek={currentGameWeek}
+                          onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
+                          maxGameWeek={38}
+                        />
+                      )}
                       <Badge variant="outline" className="border-purple-600 text-purple-200">
                         {currentMatches.length} мача
                       </Badge>

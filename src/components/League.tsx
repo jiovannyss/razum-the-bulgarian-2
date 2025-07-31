@@ -289,11 +289,13 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
         </div>
 
         <div className="flex items-center gap-1 lg:gap-2">
-          <GameWeekNavigation
-            currentGameWeek={currentGameWeek}
-            onGameWeekChange={handleGameWeekChange}
-            maxGameWeek={totalRounds}
-          />
+          {!isCollapsed && (
+            <GameWeekNavigation
+              currentGameWeek={currentGameWeek}
+              onGameWeekChange={handleGameWeekChange}
+              maxGameWeek={totalRounds}
+            />
+          )}
 
           {/* Collapse/Expand Button */}
           <Button
