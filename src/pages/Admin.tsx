@@ -67,18 +67,20 @@ export default function Admin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Проверява се достъпът...</div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-background rounded-2xl shadow-2xl p-8">
+          <div className="text-foreground text-xl">Проверява се достъпът...</div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-red-950/50 border-red-800">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-background rounded-2xl shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-red-200 flex items-center gap-2">
+            <CardTitle className="text-destructive flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
               Грешка при достъп
             </CardTitle>
@@ -90,7 +92,7 @@ export default function Admin() {
             <Button 
               onClick={() => navigate('/')} 
               variant="outline" 
-              className="w-full border-red-700 text-red-200 hover:bg-red-900"
+              className="w-full"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Назад към началото
@@ -102,84 +104,85 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={() => navigate('/')} 
-              variant="outline" 
-              size="sm"
-              className="border-purple-700 text-purple-200 hover:bg-purple-900"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Начало
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Администраторски панел</h1>
-              <p className="text-purple-200">Управление на платформата за прогнози</p>
-            </div>
-          </div>
-          <Badge 
-            variant={userRole === 'super_admin' ? 'default' : 'secondary'}
-            className="text-sm px-3 py-1"
-          >
-            {userRole === 'super_admin' ? 'Супер администратор' : 'Администратор'}
-          </Badge>
-        </div>
-
-        {/* Admin Tabs */}
-        <Card className="bg-slate-800/50 border-purple-800">
-          <CardContent className="p-0">
-            <Tabs defaultValue="users" className="w-full">
-              <TabsList className="grid w-full grid-cols-5 bg-slate-900/50">
-                <TabsTrigger value="users" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Потребители
-                </TabsTrigger>
-                <TabsTrigger value="matches" className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Мачове
-                </TabsTrigger>
-                <TabsTrigger value="special-games" className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4" />
-                  Специални игри
-                </TabsTrigger>
-                <TabsTrigger value="rooms" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Стаи
-                </TabsTrigger>
-                <TabsTrigger value="settings" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Настройки
-                </TabsTrigger>
-              </TabsList>
-
-              <div className="p-6">
-                <TabsContent value="users" className="mt-0">
-                  <AdminUsers userRole={userRole} />
-                </TabsContent>
-
-                <TabsContent value="matches" className="mt-0">
-                  <AdminMatches />
-                </TabsContent>
-
-                <TabsContent value="special-games" className="mt-0">
-                  <AdminSpecialGames />
-                </TabsContent>
-
-                <TabsContent value="rooms" className="mt-0">
-                  <AdminRooms />
-                </TabsContent>
-
-                <TabsContent value="settings" className="mt-0">
-                  <AdminSettings userRole={userRole} />
-                </TabsContent>
+    <div className="min-h-screen p-4">
+      <div className="min-h-screen bg-background rounded-2xl shadow-2xl overflow-hidden">
+        <div className="container mx-auto p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => navigate('/')} 
+                variant="outline" 
+                size="sm"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Начало
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold">Администраторски панел</h1>
+                <p className="text-muted-foreground">Управление на платформата за прогнози</p>
               </div>
-            </Tabs>
-          </CardContent>
-        </Card>
+            </div>
+            <Badge 
+              variant={userRole === 'super_admin' ? 'default' : 'secondary'}
+              className="text-sm px-3 py-1"
+            >
+              {userRole === 'super_admin' ? 'Супер администратор' : 'Администратор'}
+            </Badge>
+          </div>
+
+          {/* Admin Tabs */}
+          <Card>
+            <CardContent className="p-0">
+              <Tabs defaultValue="users" className="w-full">
+                <TabsList className="grid w-full grid-cols-5">
+                  <TabsTrigger value="users" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Потребители
+                  </TabsTrigger>
+                  <TabsTrigger value="matches" className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Мачове
+                  </TabsTrigger>
+                  <TabsTrigger value="special-games" className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4" />
+                    Специални игри
+                  </TabsTrigger>
+                  <TabsTrigger value="rooms" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Стаи
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Настройки
+                  </TabsTrigger>
+                </TabsList>
+
+                <div className="p-6">
+                  <TabsContent value="users" className="mt-0">
+                    <AdminUsers userRole={userRole} />
+                  </TabsContent>
+
+                  <TabsContent value="matches" className="mt-0">
+                    <AdminMatches />
+                  </TabsContent>
+
+                  <TabsContent value="special-games" className="mt-0">
+                    <AdminSpecialGames />
+                  </TabsContent>
+
+                  <TabsContent value="rooms" className="mt-0">
+                    <AdminRooms />
+                  </TabsContent>
+
+                  <TabsContent value="settings" className="mt-0">
+                    <AdminSettings userRole={userRole} />
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

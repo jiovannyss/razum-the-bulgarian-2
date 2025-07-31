@@ -378,18 +378,21 @@ export default function Profile() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-background rounded-2xl shadow-2xl p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading profile...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen p-4">
+      <div className="min-h-screen bg-background rounded-2xl shadow-2xl overflow-hidden">
+        <div className="max-w-2xl mx-auto p-6">
         <Button 
           onClick={() => navigate('/')} 
           variant="outline" 
@@ -618,6 +621,7 @@ export default function Profile() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
