@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import League from "./League";
 
 interface ProcessedMatch {
@@ -45,7 +46,7 @@ const LiveScore = () => {
   const { toast } = useToast();
 
   // Transform Football-Data.org API match to our format
-  const transformMatch = (apiMatch: Match): ProcessedMatch => {
+  const transformMatch = (apiMatch: Match, dbMatch?: any): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
     let time = apiMatch.utcDate; // Keep the full ISO date string
 
@@ -73,7 +74,7 @@ const LiveScore = () => {
       awayLogo: apiMatch.awayTeam.crest,
       predictions: Math.floor(Math.random() * 500) + 50,
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
-      rank: Math.floor(Math.random() * 3) + 1,
+      rank: dbMatch?.admin_rating || 1, // Use admin_rating from database or default to 1
       myPrediction: null,
       myPredictionCorrect: null,
       round: apiMatch.matchday.toString()
@@ -105,7 +106,22 @@ const LiveScore = () => {
       // Get matches for the specific matchday with error handling for rate limits
       const newMatches = await footballDataApi.getMatches(competition.id, matchday);
       if (newMatches && newMatches.length > 0) {
-        const transformedMatches = newMatches.map(transformMatch);
+        // Get admin ratings for new matches
+        const externalIds = newMatches.map(m => m.id.toString());
+        const { data: dbMatches } = await supabase
+          .from('matches')
+          .select('external_id, admin_rating')
+          .in('external_id', externalIds);
+        
+        // Create a map for quick lookup
+        const dbMatchMap = (dbMatches || []).reduce((acc, dbMatch) => {
+          acc[dbMatch.external_id] = dbMatch;
+          return acc;
+        }, {} as Record<string, any>);
+
+        const transformedMatches = newMatches.map(apiMatch => 
+          transformMatch(apiMatch, dbMatchMap[apiMatch.id.toString()])
+        );
         
         // Add new matches to existing matches
         setMatches(prevMatches => {
@@ -175,7 +191,22 @@ const LiveScore = () => {
         // Let the normal error handling take care of it
       }
 
-      const transformedMatches = upcomingMatches.map(transformMatch);
+      // Get admin ratings from database
+      const externalIds = upcomingMatches.map(m => m.id.toString());
+      const { data: dbMatches } = await supabase
+        .from('matches')
+        .select('external_id, admin_rating')
+        .in('external_id', externalIds);
+      
+      // Create a map for quick lookup
+      const dbMatchMap = (dbMatches || []).reduce((acc, dbMatch) => {
+        acc[dbMatch.external_id] = dbMatch;
+        return acc;
+      }, {} as Record<string, any>);
+
+      const transformedMatches = upcomingMatches.map(apiMatch => 
+        transformMatch(apiMatch, dbMatchMap[apiMatch.id.toString()])
+      );
       console.log(`🏁 Transformed ${transformedMatches.length} matches`);
       console.log(`📅 Competitions with current matchday:`, competitionsWithCurrentMatchday);
       setMatches(transformedMatches);

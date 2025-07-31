@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Trophy, TriangleAlert } from "lucide-react";
+import { ChevronDown, ChevronUp, Trophy, TriangleAlert, Shield } from "lucide-react";
 import { GameWeekNavigation } from "./GameWeekNavigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -342,6 +342,20 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                     onClick={() => handleMatchClick(match)}
                   >
                    <div className="flex items-center justify-between gap-4">
+                     {/* Shield based on rank */}
+                     <div className="flex items-center gap-2 flex-shrink-0">
+                       <Shield 
+                         className={cn(
+                           "w-5 h-5",
+                           match.rank === 5 ? "text-yellow-400 fill-yellow-400" :
+                           match.rank === 4 ? "text-orange-400 fill-orange-400" :
+                           match.rank === 3 ? "text-blue-400 fill-blue-400" :
+                           match.rank === 2 ? "text-green-400 fill-green-400" :
+                           "text-gray-400 fill-gray-400"
+                         )}
+                       />
+                       <span className="text-xs text-muted-foreground">{match.rank}</span>
+                     </div>
                      {/* Teams, Scores, Date/Time - takes most space */}
                      <div className="flex-1 min-w-0">
                        {/* Home Team Row */}
