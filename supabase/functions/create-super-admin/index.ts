@@ -14,10 +14,10 @@ Deno.serve(async (req) => {
   try {
     // Get the service key from environment
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_KEY')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
     if (!supabaseServiceKey) {
-      throw new Error('SUPABASE_SERVICE_KEY is not configured')
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured')
     }
 
     // Create admin client
