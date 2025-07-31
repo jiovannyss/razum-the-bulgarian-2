@@ -342,20 +342,15 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                     onClick={() => handleMatchClick(match)}
                   >
                    <div className="flex items-center justify-between gap-4">
-                     {/* Shield based on rank */}
-                     <div className="flex items-center gap-2 flex-shrink-0">
-                       <Shield 
-                         className={cn(
-                           "w-5 h-5",
-                           match.rank === 5 ? "text-yellow-400 fill-yellow-400" :
-                           match.rank === 4 ? "text-orange-400 fill-orange-400" :
-                           match.rank === 3 ? "text-blue-400 fill-blue-400" :
-                           match.rank === 2 ? "text-green-400 fill-green-400" :
-                           "text-gray-400 fill-gray-400"
-                         )}
-                       />
-                       <span className="text-xs text-muted-foreground">{match.rank}</span>
-                     </div>
+                     {/* Royal Gold Shield with rank inside */}
+                     {match.rank && match.rank > 1 && (
+                       <div className="flex-shrink-0 relative">
+                         <Shield className="w-6 h-6 royal-gold-shield" />
+                         <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-amber-900">
+                           {match.rank}
+                         </span>
+                       </div>
+                     )}
                      {/* Teams, Scores, Date/Time - takes most space */}
                      <div className="flex-1 min-w-0">
                        {/* Home Team Row */}

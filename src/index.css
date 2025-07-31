@@ -182,6 +182,16 @@
     background: var(--gradient-hero);
   }
 
+  /* Royal Gold Shield with 3D effect */
+  .royal-gold-shield {
+    background: linear-gradient(145deg, #ffd700 0%, #ffed4e 25%, #ffd700 50%, #b8860b 75%, #daa520 100%);
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -1px 0 rgba(184, 134, 11, 0.3);
+    border: 1px solid #b8860b;
+  }
+
   /* Glowing button effects */
   .btn-glow {
     box-shadow: var(--shadow-glow);
