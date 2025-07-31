@@ -179,9 +179,7 @@ const LiveScore = () => {
 
       if (upcomingMatches.length === 0) {
         console.log('⚠️ No upcoming matches found from API');
-        setMatches([]);
-        setCompetitionsWithCurrentMatchday([]);
-        return;
+        // Let the normal error handling take care of it
       }
 
       const transformedMatches = upcomingMatches.map(transformMatch);
