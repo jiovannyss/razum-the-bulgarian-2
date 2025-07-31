@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Trophy, TriangleAlert } from "lucide-react";
-import shieldImage from "@/assets/shield-rank.png";
 import { GameWeekNavigation } from "./GameWeekNavigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -346,16 +345,15 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
                      {/* Shield area - always present */}
                      <div className="flex-shrink-0 w-8 h-8 relative flex items-center justify-center">
                        {match.rank && match.rank > 1 && (
-                         <>
-                           <img 
-                             src={shieldImage} 
-                             alt="Rank Shield" 
-                             className="w-8 h-8 object-contain"
-                           />
-                           <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black drop-shadow-lg">
+                         <div className="relative w-8 h-8 flex items-center justify-center">
+                           <div className="w-7 h-8 bg-gradient-to-b from-yellow-300 via-yellow-400 to-yellow-600 rounded-sm shadow-lg border border-yellow-500 relative overflow-hidden">
+                             <div className="absolute inset-0 bg-gradient-to-br from-yellow-200/50 to-transparent"></div>
+                             <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-yellow-700 to-yellow-800"></div>
+                           </div>
+                           <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black z-10">
                              {match.rank}
                            </span>
-                         </>
+                         </div>
                        )}
                      </div>
                      {/* Teams, Scores, Date/Time - takes most space */}
