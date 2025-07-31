@@ -62,9 +62,32 @@ const Header = () => {
       <header className="sticky top-0 z-50 bg-section-background backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Left Section: Logo */}
+            {/* Left Section: User in mobile, Logo in desktop */}
             <div className="flex items-center">
-              <h1 className="text-[5vw] md:text-[4vw] lg:text-[3vw] font-bold bg-gradient-to-r from-secondary to-secondary-glow bg-clip-text text-transparent">
+              {/* Mobile: Show user avatar and name on the left */}
+              <div className="md:hidden flex items-center gap-2">
+                {!loading && user && (
+                  <>
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarFallback className="text-xs hover:bg-black hover:text-transparent transition-colors">
+                        {profile?.full_name ? 
+                          profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
+                          user.email?.charAt(0).toUpperCase() || 'U'
+                        }
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <div className="text-sm font-medium">
+                        {profile?.username || user.email?.split('@')[0]}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {/* Desktop: Show logo */}
+              <h1 className="hidden md:block text-[5vw] md:text-[4vw] lg:text-[3vw] font-bold bg-gradient-to-r from-secondary to-secondary-glow bg-clip-text text-transparent">
                 Glowter - <span className="text-[4vw] md:text-[3vw] lg:text-[2.5vw]">Live Prediction</span>
               </h1>
             </div>
@@ -83,26 +106,27 @@ const Header = () => {
                         </div>
                       </Button>
                       
-                      {/* User Menu */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="gap-2 flex items-center">
-                            <Avatar className="w-8 h-8">
-                              <AvatarImage src={profile?.avatar_url} />
-                              <AvatarFallback className="text-xs">
-                                {profile?.full_name ? 
-                                  profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
-                                  user.email?.charAt(0).toUpperCase() || 'U'
-                                }
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="hidden md:block text-left">
-                              <div className="text-sm font-medium max-w-24 truncate">
-                                {profile?.username || user.email?.split('@')[0]}
+                      {/* User Menu - Desktop only */}
+                      <div className="hidden md:block">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="gap-2 flex items-center">
+                              <Avatar className="w-8 h-8">
+                                <AvatarImage src={profile?.avatar_url} />
+                                <AvatarFallback className="text-xs hover:bg-black hover:text-transparent transition-colors">
+                                  {profile?.full_name ? 
+                                    profile.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
+                                    user.email?.charAt(0).toUpperCase() || 'U'
+                                  }
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="text-left">
+                                <div className="text-sm font-medium max-w-24 truncate">
+                                  {profile?.username || user.email?.split('@')[0]}
+                                </div>
                               </div>
-                            </div>
-                          </Button>
-                        </DropdownMenuTrigger>
+                            </Button>
+                          </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                           <DropdownMenuLabel>
                             <div>
@@ -155,7 +179,8 @@ const Header = () => {
                             <span>Log out</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
-                      </DropdownMenu>
+                        </DropdownMenu>
+                      </div>
                     </>
                   ) : (
                     // Auth buttons for non-logged in users

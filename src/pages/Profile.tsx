@@ -334,6 +334,9 @@ export default function Profile() {
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
       });
+
+      // Navigate back to previous page
+      navigate(-1);
     } catch (error: any) {
       console.error('Error saving profile:', error);
       setError(error.message);
@@ -344,6 +347,11 @@ export default function Profile() {
 
   const handleAvatarSelect = (avatarUrl: string) => {
     setProfileData(prev => ({ ...prev, avatar_url: avatarUrl }));
+    setShowAvatarSelection(false);
+  };
+
+  const handleRemoveAvatar = () => {
+    setProfileData(prev => ({ ...prev, avatar_url: '' }));
     setShowAvatarSelection(false);
   };
 
@@ -435,6 +443,17 @@ export default function Profile() {
                     <Camera className="h-4 w-4 mr-2" />
                     Upload Photo
                   </Button>
+                  {profileData.avatar_url && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveAvatar}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      Remove Avatar
+                    </Button>
+                  )}
                   <input
                     id="avatar-upload"
                     type="file"
