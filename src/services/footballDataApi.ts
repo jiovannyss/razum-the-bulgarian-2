@@ -59,6 +59,7 @@ export interface Match {
     };
   };
   venue?: string;
+  adminRating?: number;
 }
 
 export interface Standing {
@@ -306,7 +307,8 @@ class FootballDataApiService {
             away: null
           }
         },
-        venue: match.venue
+        venue: match.venue,
+        adminRating: match.admin_rating || 1
       }));
     } catch (error) {
       console.error('Error loading cached matches:', error);
@@ -535,7 +537,8 @@ class FootballDataApiService {
             away: null
           }
         },
-        venue: match.venue
+        venue: match.venue,
+        adminRating: match.admin_rating || 1
       }));
       
       console.log(`📊 Total matches from cache: ${allMatches.length}`);
