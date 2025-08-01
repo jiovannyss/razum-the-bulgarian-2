@@ -153,6 +153,63 @@ export type Database = {
           },
         ]
       }
+      cached_h2h_matches: {
+        Row: {
+          away_score: number | null
+          away_team_id: number
+          competition_id: number
+          created_at: string
+          home_score: number | null
+          home_team_id: number
+          id: string
+          last_updated: string
+          match_id: number
+          season_year: number
+          status: string
+          team1_id: number
+          team2_id: number
+          utc_date: string
+          venue: string | null
+          winner: string | null
+        }
+        Insert: {
+          away_score?: number | null
+          away_team_id: number
+          competition_id: number
+          created_at?: string
+          home_score?: number | null
+          home_team_id: number
+          id?: string
+          last_updated?: string
+          match_id: number
+          season_year: number
+          status: string
+          team1_id: number
+          team2_id: number
+          utc_date: string
+          venue?: string | null
+          winner?: string | null
+        }
+        Update: {
+          away_score?: number | null
+          away_team_id?: number
+          competition_id?: number
+          created_at?: string
+          home_score?: number | null
+          home_team_id?: number
+          id?: string
+          last_updated?: string
+          match_id?: number
+          season_year?: number
+          status?: string
+          team1_id?: number
+          team2_id?: number
+          utc_date?: string
+          venue?: string | null
+          winner?: string | null
+        }
+        Relationships: []
+      }
       cached_standings: {
         Row: {
           competition_id: number
@@ -221,6 +278,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cached_team_form: {
+        Row: {
+          created_at: string
+          form_string: string | null
+          id: string
+          last_updated: string
+          match1_result: string | null
+          match2_result: string | null
+          match3_result: string | null
+          match4_result: string | null
+          match5_result: string | null
+          team_id: number
+        }
+        Insert: {
+          created_at?: string
+          form_string?: string | null
+          id?: string
+          last_updated?: string
+          match1_result?: string | null
+          match2_result?: string | null
+          match3_result?: string | null
+          match4_result?: string | null
+          match5_result?: string | null
+          team_id: number
+        }
+        Update: {
+          created_at?: string
+          form_string?: string | null
+          id?: string
+          last_updated?: string
+          match1_result?: string | null
+          match2_result?: string | null
+          match3_result?: string | null
+          match4_result?: string | null
+          match5_result?: string | null
+          team_id?: number
+        }
+        Relationships: []
       }
       cached_teams: {
         Row: {

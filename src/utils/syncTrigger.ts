@@ -1,7 +1,7 @@
 // Utility to trigger football data sync manually
 import { supabase } from "@/integrations/supabase/client";
 
-export const triggerFootballDataSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures' | 'brazil-standings' = 'all') => {
+export const triggerFootballDataSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures' | 'brazil-standings' | 'h2h' | 'team-form' = 'all') => {
   try {
     console.log(`🚀 Triggering football data sync: ${syncType}`);
     

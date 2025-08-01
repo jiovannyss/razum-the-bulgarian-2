@@ -389,6 +389,182 @@ serve(async (req) => {
       }
     };
 
+    // Синхронизация на H2H мачове
+    const syncH2HMatches = async () => {
+      console.log(`🤝 Синхронизиране на H2H мачове...`);
+      
+      try {
+        // Вземаме всички отбори от кеша
+        const { data: teams, error: teamsError } = await supabase
+          .from('cached_teams')
+          .select('id')
+          .limit(1000);
+        
+        if (teamsError || !teams) {
+          console.error('❌ Грешка при зареждане на отбори:', teamsError);
+          return;
+        }
+
+        console.log(`🔍 Ще синхронизирам H2H за ${teams.length} отбора...`);
+        
+        let processedPairs = 0;
+        const currentYear = new Date().getFullYear();
+        const previousSeasons = Array.from({length: 10}, (_, i) => currentYear - 1 - i);
+        
+        // Генерираме всички възможни двойки отбори
+        for (let i = 0; i < teams.length; i++) {
+          for (let j = i + 1; j < teams.length; j++) {
+            const team1Id = teams[i].id;
+            const team2Id = teams[j].id;
+            
+            console.log(`🔍 H2H: ${team1Id} vs ${team2Id} (${processedPairs + 1}/${(teams.length * (teams.length - 1)) / 2})`);
+            
+            let h2hMatches: any[] = [];
+            
+            // Търсим H2H мачове за последните 10 години
+            for (const seasonYear of previousSeasons) {
+              try {
+                const data = await makeApiRequest(`/teams/${team1Id}/matches?season=${seasonYear}&status=FINISHED`);
+                
+                if (data.matches) {
+                  const h2hInSeason = data.matches.filter((match: ApiMatch) => 
+                    (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+                    (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+                  );
+                  
+                  h2hMatches.push(...h2hInSeason);
+                }
+                
+                // Пауза между заявките за сезони
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              } catch (seasonError) {
+                console.log(`⚠️ Грешка при търсене на H2H за сезон ${seasonYear}:`, seasonError);
+                continue;
+              }
+            }
+            
+            // Записваме намерените H2H мачове
+            for (const match of h2hMatches) {
+              const minTeamId = Math.min(team1Id, team2Id);
+              const maxTeamId = Math.max(team1Id, team2Id);
+              
+              await supabase
+                .from('cached_h2h_matches')
+                .upsert({
+                  team1_id: minTeamId,
+                  team2_id: maxTeamId,
+                  match_id: match.id,
+                  competition_id: match.competition.id,
+                  season_year: new Date(match.utcDate).getFullYear(),
+                  utc_date: match.utcDate,
+                  home_team_id: match.homeTeam.id,
+                  away_team_id: match.awayTeam.id,
+                  home_score: match.score.fullTime.home,
+                  away_score: match.score.fullTime.away,
+                  status: match.status,
+                  winner: match.score.winner,
+                  venue: match.venue,
+                  last_updated: new Date().toISOString()
+                });
+              
+              totalProcessed++;
+            }
+            
+            processedPairs++;
+            console.log(`✅ H2H ${team1Id} vs ${team2Id}: ${h2hMatches.length} мача`);
+            
+            // Пауза между двойките отбори
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
+        
+        console.log(`✅ H2H синхронизация завършена: ${processedPairs} двойки отбори`);
+      } catch (error) {
+        console.error('❌ Грешка при H2H синхронизация:', error);
+      }
+    };
+
+    // Синхронизация на форма на отборите
+    const syncTeamForm = async () => {
+      console.log(`📈 Синхронизиране на форма на отборите...`);
+      
+      try {
+        // Вземаме всички отбори от кеша
+        const { data: teams, error: teamsError } = await supabase
+          .from('cached_teams')
+          .select('id')
+          .limit(1000);
+        
+        if (teamsError || !teams) {
+          console.error('❌ Грешка при зареждане на отбори:', teamsError);
+          return;
+        }
+
+        console.log(`🔍 Ще синхронизирам форма за ${teams.length} отбора...`);
+        
+        for (const team of teams) {
+          try {
+            console.log(`📊 Форма за отбор ${team.id}...`);
+            
+            // Вземаме последните 5 мача на отбора
+            const data = await makeApiRequest(`/teams/${team.id}/matches?limit=5&status=FINISHED`);
+            
+            const matches = data.matches || [];
+            
+            // Изчисляваме резултатите (W/D/L)
+            const formResults = [];
+            for (let i = 0; i < 5; i++) {
+              if (i < matches.length) {
+                const match = matches[i];
+                const isHome = match.homeTeam.id === team.id;
+                
+                let result = '';
+                if (match.score.winner === 'DRAW') {
+                  result = 'D';
+                } else if (
+                  (isHome && match.score.winner === 'HOME_TEAM') ||
+                  (!isHome && match.score.winner === 'AWAY_TEAM')
+                ) {
+                  result = 'W';
+                } else {
+                  result = 'L';
+                }
+                formResults.push(result);
+              } else {
+                formResults.push(null);
+              }
+            }
+            
+            // Записваме формата в таблицата
+            await supabase
+              .from('cached_team_form')
+              .upsert({
+                team_id: team.id,
+                match1_result: formResults[0], // най-скорошен мач
+                match2_result: formResults[1],
+                match3_result: formResults[2],
+                match4_result: formResults[3],
+                match5_result: formResults[4], // най-стар от 5те мача
+                last_updated: new Date().toISOString()
+              });
+            
+            totalProcessed++;
+            console.log(`✅ Отбор ${team.id}: форма = "${formResults.join('')}"`);
+            
+            // Пауза между отборите
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          } catch (teamError) {
+            console.warn(`⚠️ Грешка при синхронизация на форма за отбор ${team.id}:`, teamError);
+            continue;
+          }
+        }
+        
+        console.log(`✅ Форма синхронизация завършена за ${teams.length} отбора`);
+      } catch (error) {
+        console.error('❌ Грешка при синхронизация на форма:', error);
+      }
+    };
+
     // Главна логика за синхронизация
     let competitions: number[] = [];
 
@@ -413,22 +589,29 @@ serve(async (req) => {
       }
     }
 
-    // Синхронизиране на данни за избраните турнири
-    for (const competitionId of competitions) {
-      if (syncType === 'all' || syncType === 'teams') {
-        await syncTeamsForCompetition(competitionId);
-      }
-      
-      if (syncType === 'all' || syncType === 'standings') {
-        await syncStandingsForCompetition(competitionId);
-      }
-      
-      if (syncType === 'all' || syncType === 'fixtures') {
-        await syncFixturesForCompetition(competitionId);
-      }
+    // Синхронизация на H2H и форма (независимо от турнири)
+    if (syncType === 'h2h') {
+      await syncH2HMatches();
+    } else if (syncType === 'team-form') {
+      await syncTeamForm();
+    } else {
+      // Синхронизиране на данни за избраните турнири
+      for (const competitionId of competitions) {
+        if (syncType === 'all' || syncType === 'teams') {
+          await syncTeamsForCompetition(competitionId);
+        }
+        
+        if (syncType === 'all' || syncType === 'standings') {
+          await syncStandingsForCompetition(competitionId);
+        }
+        
+        if (syncType === 'all' || syncType === 'fixtures') {
+          await syncFixturesForCompetition(competitionId);
+        }
 
-      // Увеличена пауза между турнирите за да спазваме rate limit
-      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 секунди между турнирите
+        // Увеличена пауза между турнирите за да спазваме rate limit
+        await new Promise(resolve => setTimeout(resolve, 3000)); // 3 секунди между турнирите
+      }
     }
 
     // Обновяване на sync log като завършен
