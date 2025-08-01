@@ -837,6 +837,13 @@ class FootballDataApiService {
         awayTeam: { id: match.awayTeam.id, name: match.awayTeam.name }
       });
       
+      console.log(`🔍 DEBUG: Team IDs being passed to getHeadToHead:`, {
+        homeTeamId: match.homeTeam.id,
+        awayTeamId: match.awayTeam.id,
+        homeTeamIdType: typeof match.homeTeam.id,
+        awayTeamIdType: typeof match.awayTeam.id
+      });
+      
       const h2h = await this.getHeadToHead(match.homeTeam.id, match.awayTeam.id, 5);
       console.log(`📋 Head-to-head result for ${match.homeTeam.name} vs ${match.awayTeam.name}:`, h2h.length, 'matches');
       
