@@ -424,37 +424,37 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     const isAwayTeam = team.team.name === match.awayTeam.name;
                     const isHighlighted = isHomeTeam || isAwayTeam;
                     
-                    return (
-                      <TableRow 
-                        key={team.position}
-                        className={`${
-                          isHighlighted
-                            ? 'h-8 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg overflow-hidden'
-                            : 'h-10 hover:bg-muted/50'
-                        }`}
-                      >
-                        <TableCell className={`font-medium py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.position}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
-                        <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.won}</TableCell>
-                        <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.draw}</TableCell>
-                        <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.lost}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                        <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
-                        <TableCell className={`py-1 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>
-                          <div className="flex space-x-1">
-                            {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
-                              <div
-                                key={index}
-                                className={`w-4 h-4 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
-                              >
-                                {result}
-                              </div>
-                            ))}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
+                     return (
+                       <TableRow 
+                         key={team.position}
+                         className={`${
+                           isHighlighted
+                             ? 'h-8 hover:bg-muted/50'
+                             : 'h-10 hover:bg-muted/50'
+                         }`}
+                       >
+                         <TableCell className={`font-medium py-1 text-xs ${isHighlighted ? 'hidden md:table-cell bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-l-lg' : ''}`}>{team.position}</TableCell>
+                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.team.name}</TableCell>
+                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.playedGames}</TableCell>
+                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.won}</TableCell>
+                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.draw}</TableCell>
+                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.lost}</TableCell>
+                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                         <TableCell className={`font-medium py-1 text-xs ${isHighlighted ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-y-2 border-yellow-400 dark:border-yellow-500' : ''}`}>{team.points}</TableCell>
+                         <TableCell className={`py-1 ${isHighlighted ? 'hidden md:table-cell bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-r-lg' : ''}`}>
+                           <div className="flex space-x-1">
+                             {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
+                               <div
+                                 key={index}
+                                 className={`w-4 h-4 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
+                               >
+                                 {result}
+                               </div>
+                             ))}
+                           </div>
+                         </TableCell>
+                       </TableRow>
+                     );
                   })}
                   {(!matchInfo?.standings || matchInfo.standings.length === 0) && (
                     <TableRow>
