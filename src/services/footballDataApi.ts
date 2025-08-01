@@ -748,6 +748,8 @@ class FootballDataApiService {
         const currentYear = new Date().getFullYear();
         const previousSeasons = Array.from({length: 10}, (_, i) => currentYear - 1 - i); // Search 10 years back
         
+        let allH2HMatches: Match[] = [];
+        
         for (const seasonYear of previousSeasons) {
           console.log(`🔍 [H2H] Searching season ${seasonYear} for finished matches...`);
           
@@ -765,16 +767,26 @@ class FootballDataApiService {
               
               if (h2hMatches.length > 0) {
                 console.log(`✅ [H2H] Found ${h2hMatches.length} finished matches in season ${seasonYear}`);
-                const result = h2hMatches
-                  .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
-                  .slice(0, limit);
-                return result;
+                allH2HMatches.push(...h2hMatches);
+                
+                // Stop if we have enough matches
+                if (allH2HMatches.length >= limit) {
+                  break;
+                }
               }
             }
           } catch (seasonError) {
             console.log(`⚠️ [H2H] Error searching season ${seasonYear}:`, seasonError);
             continue; // Try next season
           }
+        }
+        
+        if (allH2HMatches.length > 0) {
+          console.log(`✅ [H2H] Collected ${allH2HMatches.length} total finished matches from API`);
+          const result = allH2HMatches
+            .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
+            .slice(0, limit);
+          return result;
         }
       } catch (apiError) {
         console.log(`⚠️ [H2H] API historical search failed:`, apiError);
