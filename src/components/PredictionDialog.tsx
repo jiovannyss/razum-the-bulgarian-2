@@ -219,9 +219,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             <div className="flex items-center space-x-2">
               <DialogTitle className="text-lg font-semibold">Match Details</DialogTitle>
               {adminRating && adminRating >= 2 && (
-                <div className="flex items-center space-x-1 bg-yellow-500 text-black px-2 py-1 rounded-full">
-                  <Star className="h-3 w-3 fill-current" />
-                  <span className="text-xs font-bold">{adminRating}</span>
+                <div className="relative flex items-center justify-center">
+                  <Star className="h-6 w-6 md:h-8 md:w-8 fill-yellow-500 text-yellow-500" />
+                  <span className="absolute text-black text-xs md:text-sm font-bold">{adminRating}</span>
                 </div>
               )}
             </div>
