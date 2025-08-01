@@ -319,16 +319,16 @@ const LiveScore = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-6 lg:mb-8">
           <div className="space-y-2 w-full lg:w-auto">
-            <div className="flex flex-wrap items-center gap-2 lg:gap-4 pt-2">
-              <div className="flex items-center gap-2 text-xs lg:text-sm">
+            <div className="flex items-center gap-2 lg:gap-4 pt-2 flex-nowrap overflow-x-auto">
+              <div className="flex items-center gap-2 text-xs lg:text-sm whitespace-nowrap">
                 <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
-                <span className="text-live font-medium">{liveMatchesCount} Live Matches</span>
+                <span className="text-muted-foreground font-medium">{liveMatchesCount} Live Matches</span>
               </div>
-              <div className="flex items-center gap-2 text-xs lg:text-sm">
+              <div className="flex items-center gap-2 text-xs lg:text-sm whitespace-nowrap">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
                 <span className="text-muted-foreground">{todayMatchesCount} Matches Today</span>
               </div>
-              <div className="flex items-center gap-2 text-xs lg:text-sm">
+              <div className="flex items-center gap-2 text-xs lg:text-sm whitespace-nowrap">
                 <Trophy className="w-3 h-3 lg:w-4 lg:h-4 text-accent" />
                 <span className="text-muted-foreground">Active Leagues: {activeLeaguesCount}</span>
               </div>
