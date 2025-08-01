@@ -175,8 +175,14 @@ export function AdminMatches() {
           try {
             const competitionId = competitionData.matches[0].competition.id;
             
-            // Get the official current matchday from API
-            const officialCurrentMatchday = await footballDataApi.getCurrentMatchday(competitionId);
+            // Get the current matchday from cached competitions
+            const { data: cachedCompetition } = await supabase
+              .from('cached_competitions')
+              .select('current_matchday')
+              .eq('id', competitionId)
+              .single();
+            
+            const officialCurrentMatchday = cachedCompetition?.current_matchday || competitionData.currentMatchday || 1;
             console.log(`🏆 ${competitionName}: Official current matchday: ${officialCurrentMatchday}`);
             
             // Then get smart matchday based on official one
