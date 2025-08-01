@@ -328,8 +328,8 @@ serve(async (req) => {
         await syncFixturesForCompetition(competitionId);
       }
 
-      // Пауза между турнирите за да не преминем rate limit-а
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Намалена пауза между турнирите
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     // Обновяване на sync log като завършен
