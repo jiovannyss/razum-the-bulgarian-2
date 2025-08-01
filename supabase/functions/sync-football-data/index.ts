@@ -208,6 +208,46 @@ serve(async (req) => {
       }
     };
 
+    // Helper функция за изчисляване на форма от последни мачове
+    const calculateTeamForm = async (teamId: number, limit: number = 5): Promise<string> => {
+      try {
+        console.log(`🔍 Изчисляване на форма за отбор ${teamId}...`);
+        const matchesData = await makeApiRequest(`/teams/${teamId}/matches?limit=${limit}&status=FINISHED`);
+        
+        if (!matchesData.matches || matchesData.matches.length === 0) {
+          console.log(`⚠️ Няма мачове за отбор ${teamId}`);
+          return '';
+        }
+
+        const form = [];
+        
+        for (const match of matchesData.matches.slice(0, limit)) {
+          const isHome = match.homeTeam.id === teamId;
+          
+          let result;
+          if (match.score.winner === 'DRAW') {
+            result = 'D';
+          } else if (
+            (isHome && match.score.winner === 'HOME_TEAM') ||
+            (!isHome && match.score.winner === 'AWAY_TEAM')
+          ) {
+            result = 'W';
+          } else {
+            result = 'L';
+          }
+          
+          form.push(result);
+        }
+        
+        const formString = form.join('');
+        console.log(`✅ Отбор ${teamId}: форма = "${formString}"`);
+        return formString;
+      } catch (error) {
+        console.error(`❌ Грешка при изчисляване на форма за отбор ${teamId}:`, error);
+        return '';
+      }
+    };
+
     // Синхронизация на класирания за даден турнир
     const syncStandingsForCompetition = async (competitionId: number) => {
       console.log(`📊 Синхронизиране на класирания за турнир ${competitionId}...`);
@@ -230,12 +270,6 @@ serve(async (req) => {
         
         console.log(`🎯 Избрахме standing: type="${totalStanding?.type}", table entries=${totalStanding?.table?.length || 0}`);
         
-        // Добавяме проверка за първите 2 записа
-        if (totalStanding?.table?.length > 0) {
-          const firstTeam = totalStanding.table[0];
-          console.log(`🔍 First team example: ${firstTeam.team?.name}, form="${firstTeam.form}", type of form: ${typeof firstTeam.form}`);
-        }
-        
         const standings: ApiStanding[] = totalStanding?.table || [];
 
         // Първо изтриваме старите записи за този турнир
@@ -244,9 +278,11 @@ serve(async (req) => {
           .delete()
           .eq('competition_id', competitionId);
 
+        // Обработваме всеки отбор и изчисляваме формата му
+        const standingsToInsert = [];
+        
         for (const standing of standings) {
-          console.log(`🔍 Team ${standing.team?.name}: form="${standing.form}", team_id=${standing.team?.id}, type of team_id: ${typeof standing.team?.id}`);
-          console.log(`🔍 Full standing object:`, JSON.stringify(standing, null, 2));
+          console.log(`🔍 Обработване на ${standing.team?.name} (ID: ${standing.team?.id})...`);
           
           // Проверяваме дали team.id съществува
           if (!standing.team?.id) {
@@ -254,30 +290,39 @@ serve(async (req) => {
             continue;
           }
           
-          // Обработваме form полето правилно - може да е null, undefined или празен string
-          const formValue = standing.form === null || standing.form === undefined || standing.form === '' ? null : standing.form;
+          // Изчисляваме формата от последни мачове
+          const calculatedForm = await calculateTeamForm(standing.team.id);
           
-          await supabase
-            .from('cached_standings')
-            .insert({
-              competition_id: competitionId,
-              team_id: standing.team.id,
-              position: standing.position,
-              played_games: standing.playedGames,
-              won: standing.won,
-              draw: standing.draw,
-              lost: standing.lost,
-              points: standing.points,
-              goals_for: standing.goalsFor,
-              goals_against: standing.goalsAgainst,
-              goal_difference: standing.goalDifference,
-              form: formValue,
-              last_updated: new Date().toISOString()
-            });
-          totalProcessed++;
+          standingsToInsert.push({
+            competition_id: competitionId,
+            team_id: standing.team.id,
+            position: standing.position,
+            played_games: standing.playedGames,
+            won: standing.won,
+            draw: standing.draw,
+            lost: standing.lost,
+            points: standing.points,
+            goals_for: standing.goalsFor,
+            goals_against: standing.goalsAgainst,
+            goal_difference: standing.goalDifference,
+            form: calculatedForm || null,
+            last_updated: new Date().toISOString()
+          });
+          
+          // Малка пауза за да не натоварваме API-то
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        console.log(`✅ Синхронизирани ${standings.length} позиции в класирането за турнир ${competitionId}`);
+        // Записваме всички наведнъж
+        if (standingsToInsert.length > 0) {
+          await supabase
+            .from('cached_standings')
+            .insert(standingsToInsert);
+          
+          totalProcessed += standingsToInsert.length;
+        }
+
+        console.log(`✅ Синхронизирани ${standingsToInsert.length} позиции в класирането за турнир ${competitionId} с изчислена форма`);
       } catch (error) {
         console.warn(`⚠️ Не можах да синхронизирам класирането за турнир ${competitionId}:`, error);
       }
