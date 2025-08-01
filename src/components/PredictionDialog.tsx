@@ -83,7 +83,13 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
       setIsLoadingMatchInfo(true);
       const loadMatchInfo = async () => {
         try {
-          console.log('Loading match info for:', match);
+          console.log('Loading match info for match:', {
+            id: match.id,
+            homeTeam: match.homeTeam.name,
+            awayTeam: match.awayTeam.name,
+            competition: match.competition
+          });
+          
           // Add missing properties if not present
           const apiMatch = {
             ...match,
@@ -95,8 +101,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               halfTime: { home: null, away: null }
             }
           };
+          
+          console.log('API match object:', apiMatch);
           const info = await footballDataApi.getMatchInfo(apiMatch);
-          console.log('Loaded match info:', info);
+          console.log('Loaded match info successfully:', info);
           setMatchInfo(info);
         } catch (error) {
           console.error('Error loading match info:', error);
@@ -391,7 +399,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                       key={team.position}
                       className={`h-6 ${
                         team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name
-                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700'
+                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700 border-b-2'
                           : ''
                       }`}
                     >
