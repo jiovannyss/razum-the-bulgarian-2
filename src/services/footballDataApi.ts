@@ -437,13 +437,14 @@ class FootballDataApiService {
     try {
       console.log('⚽ Loading ALL matches from cached database...');
       
-      // Get ALL cached matches at once - much faster than individual API calls
+      // Get ALL cached matches with competition names
       const { data: fixtures, error } = await supabase
         .from('cached_fixtures' as any)
         .select(`
           *,
           home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
-          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*)
+          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
+          competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
         .order('utc_date', { ascending: true })
         .limit(500); // Get more matches
@@ -460,15 +461,15 @@ class FootballDataApiService {
 
       console.log(`✅ Loaded ${fixtures.length} matches from cache`);
 
-      // Transform cached data to Match interface
+      // Transform cached data to Match interface with REAL competition names
       const allMatches = fixtures.map((match: any) => ({
         id: match.id,
         competition: {
           id: match.competition_id,
-          name: 'Competition', // Will be filled by competition data if needed
-          code: '',
-          type: 'LEAGUE' as const,
-          emblem: ''
+          name: match.competition?.name || 'Unknown Competition', // РЕАЛНО ИМЕ ОТ БАЗАТА!
+          code: match.competition?.code || '',
+          type: match.competition?.type || 'LEAGUE' as const,
+          emblem: match.competition?.emblem_url || ''
         },
         season: {
           id: match.season_id,
