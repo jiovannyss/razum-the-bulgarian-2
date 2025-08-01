@@ -863,37 +863,37 @@ export default function Auth() {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-nationality">Nationality *</Label>
-                        <Select value={formData.nationality} onValueChange={(value) => setFormData({...formData, nationality: value})} required>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select nationality" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-48">
-                            {countries.map((country) => (
-                              <SelectItem key={country.code} value={country.name}>
-                                {country.flag} {country.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                       <div className="space-y-2">
+                         <Label htmlFor="signup-nationality">Nationality *</Label>
+                         <Select value={formData.nationality} onValueChange={(value) => setFormData({...formData, nationality: value})} required>
+                           <SelectTrigger className="text-muted-foreground data-[placeholder]:text-muted-foreground">
+                             <SelectValue placeholder="Select nationality" />
+                           </SelectTrigger>
+                           <SelectContent className="max-h-48">
+                             {countries.map((country) => (
+                               <SelectItem key={country.code} value={country.name}>
+                                 {country.flag} {country.name}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       </div>
 
                       <div className="space-y-2">
                         <Label>Phone Number *</Label>
-                        <div className="flex gap-2">
-                          <Select value={formData.countryCode} onValueChange={(value) => setFormData({...formData, countryCode: value})}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-48">
-                              {countries.map((country) => (
-                                <SelectItem key={country.code} value={country.phone}>
-                                  {country.flag} {country.phone}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                         <div className="flex gap-2">
+                           <Select value={formData.countryCode} onValueChange={(value) => setFormData({...formData, countryCode: value})}>
+                             <SelectTrigger className="w-32 text-muted-foreground data-[placeholder]:text-muted-foreground">
+                               <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent className="max-h-48">
+                               {countries.map((country) => (
+                                 <SelectItem key={country.code} value={country.phone}>
+                                   {country.flag} {country.phone}
+                                 </SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
                           <Input
                             type="tel"
                             placeholder="888 123 456"
@@ -907,57 +907,57 @@ export default function Auth() {
 
                       <div className="space-y-2">
                         <Label htmlFor="signup-gender">Gender *</Label>
-                        <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})} required>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
+                         <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})} required>
+                           <SelectTrigger className="text-muted-foreground data-[placeholder]:text-muted-foreground">
+                             <SelectValue placeholder="Select gender" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             <SelectItem value="male">Male</SelectItem>
+                             <SelectItem value="female">Female</SelectItem>
+                             <SelectItem value="other">Other</SelectItem>
+                           </SelectContent>
+                         </Select>
                       </div>
 
                       <div className="space-y-2">
                         <Label>Date of Birth *</Label>
                         <div className="flex gap-2">
-                          <Select value={formData.birthDay} onValueChange={(value) => setFormData({...formData, birthDay: value})} required>
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Day" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-48">
-                              {days.map((day) => (
-                                <SelectItem key={day} value={day.toString().padStart(2, '0')}>
-                                  {day}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select value={formData.birthMonth} onValueChange={(value) => setFormData({...formData, birthMonth: value})} required>
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-48">
-                              {months.map((month) => (
-                                <SelectItem key={month.value} value={month.value}>
-                                  {month.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select value={formData.birthYear} onValueChange={(value) => setFormData({...formData, birthYear: value})} required>
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Year" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-48">
-                              {years.map((year) => (
-                                <SelectItem key={year} value={year.toString()}>
-                                  {year}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                           <Select value={formData.birthDay} onValueChange={(value) => setFormData({...formData, birthDay: value})} required>
+                             <SelectTrigger className="flex-1 text-muted-foreground data-[placeholder]:text-muted-foreground">
+                               <SelectValue placeholder="Day" />
+                             </SelectTrigger>
+                             <SelectContent className="max-h-48">
+                               {days.map((day) => (
+                                 <SelectItem key={day} value={day.toString().padStart(2, '0')}>
+                                   {day}
+                                 </SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                           <Select value={formData.birthMonth} onValueChange={(value) => setFormData({...formData, birthMonth: value})} required>
+                             <SelectTrigger className="flex-1 text-muted-foreground data-[placeholder]:text-muted-foreground">
+                               <SelectValue placeholder="Month" />
+                             </SelectTrigger>
+                             <SelectContent className="max-h-48">
+                               {months.map((month) => (
+                                 <SelectItem key={month.value} value={month.value}>
+                                   {month.label}
+                                 </SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                           <Select value={formData.birthYear} onValueChange={(value) => setFormData({...formData, birthYear: value})} required>
+                             <SelectTrigger className="flex-1 text-muted-foreground data-[placeholder]:text-muted-foreground">
+                               <SelectValue placeholder="Year" />
+                             </SelectTrigger>
+                             <SelectContent className="max-h-48">
+                               {years.map((year) => (
+                                 <SelectItem key={year} value={year.toString()}>
+                                   {year}
+                                 </SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
                         </div>
                         <p className="text-sm text-muted-foreground">You must be at least 18 years old</p>
                       </div>
