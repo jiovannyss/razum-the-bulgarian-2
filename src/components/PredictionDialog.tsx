@@ -71,6 +71,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   const [matchInfo, setMatchInfo] = useState<MatchInfo | null>(null);
   const [isLoadingMatchInfo, setIsLoadingMatchInfo] = useState(false);
 
+  // Debug: Log adminRating
+  console.log('PredictionDialog adminRating:', adminRating, typeof adminRating);
+
   useEffect(() => {
     if (isOpen && currentPrediction) {
       setSelectedPrediction(currentPrediction);
@@ -215,7 +218,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </Button>
             <div className="flex items-center space-x-2">
               <DialogTitle className="text-lg font-semibold">Match Details</DialogTitle>
-              {adminRating && adminRating > 1 && (
+              {adminRating && adminRating >= 2 && (
                 <div className="flex items-center space-x-1 bg-yellow-500 text-black px-2 py-1 rounded-full">
                   <Star className="h-3 w-3 fill-current" />
                   <span className="text-xs font-bold">{adminRating}</span>
@@ -264,8 +267,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             
             {/* Prediction Buttons */}
             <div className="flex items-center justify-center py-4">
-              <div className="flex space-x-4 md:space-x-6">
-                {['1', 'X', '2'].map((option) => (
+              <div className="grid grid-cols-3 gap-4 md:gap-6 w-fit">
+                {['1', 'X', '2'].map((option, index) => (
                   <Button
                     key={option}
                     variant={selectedPrediction === option ? "default" : "outline"}
@@ -273,7 +276,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                       selectedPrediction === option 
                         ? 'bg-yellow-500 hover:bg-yellow-600 text-black' 
                         : ''
-                    }`}
+                    } ${index === 1 ? 'justify-self-center' : ''}`}
                     onClick={() => handlePredictionClick(option)}
                   >
                     {option}
