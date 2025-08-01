@@ -91,17 +91,19 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         try {
           console.log('Loading match info for match:', {
             id: match.id,
-            homeTeam: match.homeTeam.name,
-            awayTeam: match.awayTeam.name,
+            homeTeam: match.homeTeam,
+            awayTeam: match.awayTeam,
             competition: match.competition
           });
           
-          // Add missing properties if not present - use REAL competition data from match
+          console.log('🔍 CRITICAL DEBUG - Raw match object:', match);
+          
+          // Add missing properties if not present - DO NOT override existing competition data!
           const apiMatch = {
             ...match,
-            competition: match.competition || { id: 2013, name: "Unknown Competition" },
-            season: match.season || { id: 2371 },
-            matchday: match.matchday || 18,
+            competition: match.competition || { id: 0, name: "Unknown Competition" },
+            season: match.season || { id: 0 },
+            matchday: match.matchday || 1,
             score: {
               ...match.score,
               halfTime: { home: null, away: null }
@@ -110,6 +112,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           
           console.log('🔍 Match competition details:', {
             competitionFromMatch: match.competition,
+            homeTeamFromMatch: match.homeTeam,
+            awayTeamFromMatch: match.awayTeam,
             finalCompetitionId: apiMatch.competition.id,
             finalCompetitionName: apiMatch.competition.name
           });
