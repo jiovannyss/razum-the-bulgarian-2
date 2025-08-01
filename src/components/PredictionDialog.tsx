@@ -468,16 +468,16 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                          <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
                          <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
                          <TableCell className="py-1">
-                           <div className="flex space-x-1">
-                             {getRealisticForm(team).split('').slice(-5).map((result, index) => (
-                                <div
-                                  key={index}
-                                  className={`w-5 h-5 rounded flex items-center justify-center text-white text-[10px] ${getFormColor(result)}`}
-                                >
-                                 {result}
-                               </div>
-                             ))}
-                           </div>
+                            <div className="flex space-x-1">
+                              {getRealisticForm(team).split('').slice(-5).reverse().map((result, index) => (
+                                 <div
+                                   key={index}
+                                   className={`w-5 h-5 rounded flex items-center justify-center text-white text-[10px] ${getFormColor(result)}`}
+                                 >
+                                  {result}
+                                </div>
+                              ))}
+                            </div>
                          </TableCell>
                        </TableRow>
                      );
