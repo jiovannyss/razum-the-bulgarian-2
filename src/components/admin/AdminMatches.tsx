@@ -337,7 +337,7 @@ export function AdminMatches() {
               <Collapsible open={!collapsedCompetitions.has(competitionName)} onOpenChange={() => toggleCompetition(competitionName)}>
                 <div className="p-4 transition-colors flex items-center justify-between">
                   <CollapsibleTrigger asChild>
-                    <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-700/50 transition-colors flex-1 -mx-4 px-4 py-2 rounded">
+                    <div className="flex items-center gap-3 cursor-pointer transition-colors flex-1 -mx-4 px-4 py-2 rounded">
                       {collapsedCompetitions.has(competitionName) ? (
                         <ChevronRight className="h-5 w-5 text-purple-400" />
                       ) : (
