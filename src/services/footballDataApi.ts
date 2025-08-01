@@ -446,8 +446,9 @@ class FootballDataApiService {
           away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
           competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
+        .gte('utc_date', new Date().toISOString()) // Само бъдещи мачове
         .order('utc_date', { ascending: true })
-        .limit(500); // Get more matches
+        .limit(1000); // Увеличаваме лимита
 
       if (error) {
         console.error('❌ Error loading cached matches:', error);
