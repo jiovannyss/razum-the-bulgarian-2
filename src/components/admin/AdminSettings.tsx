@@ -172,50 +172,42 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
               disabled={isLoading}
               variant="outline"
             >
-              Турнири
+              Турнири/Competitions
             </Button>
             <Button 
               onClick={() => handleSync('teams')}
               disabled={isLoading}
               variant="outline"
             >
-              Отбори
+              Отбори/Teams
             </Button>
             <Button 
               onClick={() => handleSync('standings')}
               disabled={isLoading}
               variant="outline"
             >
-              Класирания
+              Класирания/Standings
             </Button>
             <Button 
               onClick={() => handleSync('fixtures')}
               disabled={isLoading}
               variant="outline"
             >
-              Мачове
-            </Button>
-            {/* Специални sync типове */}
-            <Button 
-              onClick={() => handleSync('brazil-standings')}
-              disabled={isLoading}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              🇧🇷 Бразилска Série A
+              Мачове/Fixtures
             </Button>
             <Button 
               onClick={() => handleSync('h2h')}
               disabled={isLoading}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              🤝 H2H мачове (10г)
+              🤝 H2H мачове (10г)/H2H
             </Button>
             <Button 
               onClick={() => handleSync('team-form')}
               disabled={isLoading}
               className="bg-orange-600 hover:bg-orange-700 text-white"
             >
-              📈 Форма отбори
+              📈 Форма отбори/Form
             </Button>
           </div>
           {isLoading && (
