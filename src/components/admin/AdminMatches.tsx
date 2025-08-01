@@ -75,16 +75,33 @@ export function AdminMatches() {
       if (existingMatches.data) {
         console.log('Found existing matches in DB:', existingMatches.data.length);
         console.log('Existing matches data:', existingMatches.data);
+        
+        // Check for Botafogo match specifically
+        const botafogoDbMatch = existingMatches.data.find(m => m.id === 535106);
+        console.log('🔍 Botafogo match in DB:', botafogoDbMatch);
+        
         // Update ratings from database
         mappedMatches.forEach(apiMatch => {
           const existing = existingMatches.data.find(db => db.id === apiMatch.id);
-          console.log(`Looking for match ${apiMatch.id} (${apiMatch.homeTeam.name} vs ${apiMatch.awayTeam.name})`);
+          
+          // Special logging for Botafogo match
+          if (apiMatch.id === 535106) {
+            console.log('🏟️ Processing Botafogo match:');
+            console.log('  - API match ID:', apiMatch.id);
+            console.log('  - Teams:', `${apiMatch.homeTeam.name} vs ${apiMatch.awayTeam.name}`);
+            console.log('  - Found in DB:', !!existing);
+            console.log('  - DB rating:', existing?.admin_rating);
+          }
+          
           if (existing) {
             console.log(`Found existing match ${apiMatch.id}: rating ${existing.admin_rating}, db_id ${existing.id}`);
-            console.log(`Before update: apiMatch.admin_rating = ${apiMatch.admin_rating}`);
             apiMatch.admin_rating = existing.admin_rating || 1;
-            console.log(`After update: apiMatch.admin_rating = ${apiMatch.admin_rating}`);
             apiMatch.db_id = existing.id.toString();
+            
+            // Special logging for Botafogo match
+            if (apiMatch.id === 535106) {
+              console.log('✅ Botafogo rating updated to:', apiMatch.admin_rating);
+            }
           } else {
             console.log(`No existing match found for ${apiMatch.id}`);
           }
