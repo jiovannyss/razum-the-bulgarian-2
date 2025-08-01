@@ -678,28 +678,55 @@ class FootballDataApiService {
       console.log(`🔍 [H2H DEBUG] Team ID types: ${typeof team1Id}, ${typeof team2Id}`);
       console.log(`🔍 [H2H DEBUG] Team IDs are numbers: ${Number.isInteger(team1Id)}, ${Number.isInteger(team2Id)}`);
       
-      // Use the direct head2head API endpoint
+      // Try multiple approaches to get head-to-head data
       const timestamp = Date.now();
-      const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=${limit * 3}&_t=${timestamp}`);
+      let response;
+      let foundMatches = false;
       
-      if (!response.matches || response.matches.length === 0) {
-        console.log(`⚠️ [H2H] No finished matches found for team ${team1Id} - may be a new season or team with no history`);
+      // First try: Get finished matches for team1 without competition restrictions
+      try {
+        response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=30&_t=${timestamp}`);
+        if (response.matches && response.matches.length > 0) {
+          foundMatches = true;
+          console.log(`🔍 [H2H] Found ${response.matches.length} finished matches for team ${team1Id}`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [H2H] Failed to get finished matches for team ${team1Id}:`, error);
+      }
+      
+      // Second try: Get all matches for team1 and filter
+      if (!foundMatches) {
+        try {
+          response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50&_t=${timestamp + 1}`);
+          if (response.matches && response.matches.length > 0) {
+            // Filter only finished matches
+            response.matches = response.matches.filter(match => match.status === 'FINISHED');
+            foundMatches = response.matches.length > 0;
+            console.log(`🔍 [H2H] Found ${response.matches.length} finished matches from all matches for team ${team1Id}`);
+          }
+        } catch (error) {
+          console.log(`⚠️ [H2H] Failed to get any matches for team ${team1Id}:`, error);
+        }
+      }
+      
+      if (!foundMatches) {
+        console.log(`⚠️ [H2H] No finished matches found for either team - trying direct H2H API`);
         
         // Try with the Football Data API head2head endpoint format
         try {
-          const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/teams/${team1Id}/head2head/${team2Id}?limit=${limit}&_t=${timestamp + 1}`);
+          const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/teams/${team1Id}/head2head/${team2Id}?limit=${limit}&_t=${timestamp + 2}`);
           if (h2hResponse.matches && h2hResponse.matches.length > 0) {
             console.log(`✅ [H2H] Found ${h2hResponse.matches.length} matches via direct H2H API`);
             return h2hResponse.matches.slice(0, limit);
           }
         } catch (h2hError) {
-          console.log(`⚠️ [H2H] Direct H2H API also returned no data or failed - teams may have no shared history`);
+          console.log(`⚠️ [H2H] Direct H2H API also failed - teams may have no shared history or API limitations`);
         }
         
         return []; // Return empty array if no matches found
       }
       
-      // Filter for direct head-to-head matches
+      // Filter for direct head-to-head matches from the response
       const headToHeadMatches = response.matches.filter(match => {
         const isDirectH2H = (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
                            (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id);
@@ -731,13 +758,39 @@ class FootballDataApiService {
     try {
       console.log(`🔍 FORM DEBUG: Fetching recent matches for team ${teamId}...`);
       
-      // Get last 5 finished matches for the team from any competition
-      const response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=10&status=FINISHED`);
-      console.log(`🔍 FORM DEBUG: API response for team ${teamId}:`, response.matches?.length || 0, 'matches');
+      // Try different approaches to get historical matches
+      let response;
+      let foundMatches = false;
       
-      // Check if there are actually any matches
-      if (!response.matches || response.matches.length === 0) {
-        console.log(`⚠️ FORM DEBUG: No finished matches found for team ${teamId} - season may not have started yet`);
+      // First try: Get finished matches without competition filter
+      try {
+        response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?status=FINISHED&limit=15`);
+        if (response.matches && response.matches.length > 0) {
+          foundMatches = true;
+          console.log(`🔍 FORM DEBUG: Found ${response.matches.length} finished matches for team ${teamId}`);
+        }
+      } catch (error) {
+        console.log(`⚠️ FORM DEBUG: Failed to get finished matches for team ${teamId}:`, error);
+      }
+      
+      // Second try: Get all recent matches if no finished ones found
+      if (!foundMatches) {
+        try {
+          response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=15`);
+          if (response.matches && response.matches.length > 0) {
+            // Filter only finished matches from the response
+            response.matches = response.matches.filter(match => match.status === 'FINISHED');
+            foundMatches = response.matches.length > 0;
+            console.log(`🔍 FORM DEBUG: Found ${response.matches.length} finished matches from all matches for team ${teamId}`);
+          }
+        } catch (error) {
+          console.log(`⚠️ FORM DEBUG: Failed to get any matches for team ${teamId}:`, error);
+        }
+      }
+      
+      // Check if we found any finished matches
+      if (!foundMatches || !response.matches || response.matches.length === 0) {
+        console.log(`⚠️ FORM DEBUG: No finished matches found for team ${teamId} - this may indicate API limitations or very new team`);
         return []; // Return empty array instead of question marks for teams with no matches
       }
       
