@@ -477,13 +477,14 @@ export default function Auth() {
             title: "Registration successful!",
             description: "Welcome to the platform!",
           });
-        navigate('/');
         } else {
           toast({
             title: "Registration successful!",
             description: "Please check your email for confirmation.",
           });
         }
+        // Navigate to home page in both cases
+        navigate('/');
       }
     } catch (error: any) {
       console.error('Error during signup:', error);
