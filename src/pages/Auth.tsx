@@ -314,6 +314,21 @@ export default function Auth() {
     }
   }, [error]);
 
+  // Check for auto-filled password fields to ensure toggle button is visible
+  useEffect(() => {
+    const checkAutoFill = () => {
+      const passwordInput = document.getElementById('signin-password') as HTMLInputElement;
+      if (passwordInput && passwordInput.value) {
+        // Force re-render to ensure toggle button is visible
+        setFormData(prev => ({ ...prev, password: passwordInput.value }));
+      }
+    };
+
+    // Check after a short delay to allow browser autofill
+    const timer = setTimeout(checkAutoFill, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Password validation
   const validatePassword = (password: string): string[] => {
     const errors: string[] = [];
@@ -480,7 +495,7 @@ export default function Auth() {
             title: "Registration successful!",
             description: "Welcome to the platform!",
           });
-          window.location.href = '/';
+        navigate('/');
         } else {
           toast({
             title: "Registration successful!",
@@ -585,8 +600,8 @@ export default function Auth() {
           title: "Sign in successful!",
           description: "Welcome back!",
         });
-        // Force page reload for clean state
-        window.location.href = '/';
+        // Navigate to home
+        navigate('/');
       }
     } catch (error: any) {
       console.error('Error during signin:', error);
@@ -663,11 +678,11 @@ export default function Auth() {
               <TabsContent value="signin" className="space-y-4 mt-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email Address *</Label>
+                    <Label htmlFor="signin-email">Email Address or Username *</Label>
                     <Input
                       id="signin-email"
-                      type="email"
-                      placeholder="name@example.com"
+                      type="text"
+                      placeholder="Enter email or username"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       required
