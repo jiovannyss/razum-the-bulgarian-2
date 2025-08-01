@@ -128,8 +128,20 @@ serve(async (req) => {
     const syncLogId = syncLog.id;
     let totalProcessed = 0;
 
-    // Helper функция за API заявки
+    // Helper функция за API заявки с увеличен rate limiting
+    let lastRequestTime = 0;
+    const RATE_LIMIT_DELAY = 7000; // 7 секунди между заявки (безплатен план = 10/минута)
+    
     const makeApiRequest = async (endpoint: string) => {
+      // Rate limiting - чакаме между заявките
+      const now = Date.now();
+      const timeSinceLastRequest = now - lastRequestTime;
+      if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
+        const waitTime = RATE_LIMIT_DELAY - timeSinceLastRequest;
+        console.log(`⏳ Чакаме ${waitTime}ms преди следваща заявка...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+      
       console.log(`🌐 API заявка: ${endpoint}`);
       const response = await fetch(`https://api.football-data.org/v4${endpoint}`, {
         headers: {
@@ -137,7 +149,15 @@ serve(async (req) => {
         }
       });
 
+      lastRequestTime = Date.now();
+
       if (!response.ok) {
+        if (response.status === 429) {
+          // Rate limit hit - чакаме повече и пробваме отново
+          console.log('🚫 Rate limit достигнат, чакаме 60 секунди...');
+          await new Promise(resolve => setTimeout(resolve, 60000));
+          return makeApiRequest(endpoint); // Опитваме отново
+        }
         throw new Error(`API грешка ${response.status}: ${response.statusText}`);
       }
 
@@ -309,8 +329,8 @@ serve(async (req) => {
             last_updated: new Date().toISOString()
           });
           
-          // Малка пауза за да не натоварваме API-то
-          await new Promise(resolve => setTimeout(resolve, 100));
+          // Увеличена пауза за да не натоварваме API-то
+          await new Promise(resolve => setTimeout(resolve, 2000)); // 2 секунди между отборите
         }
 
         // Записваме всички наведнъж
@@ -407,8 +427,8 @@ serve(async (req) => {
         await syncFixturesForCompetition(competitionId);
       }
 
-      // Намалена пауза между турнирите
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Увеличена пауза между турнирите за да спазваме rate limit
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 секунди между турнирите
     }
 
     // Обновяване на sync log като завършен
