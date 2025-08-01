@@ -1,5 +1,6 @@
-// Football-Data.org API Service with CORS proxy
-// Documentation: https://www.football-data.org/documentation/api
+// Football-Data.org API Service with cached data support
+// Uses Supabase cached tables for better performance and reliability
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Competition {
   id: number;
@@ -174,15 +175,143 @@ class FootballDataApiService {
     }
   }
 
-  // Get available competitions (free tier only)
+  // Get available competitions from cached data
   async getCompetitions(): Promise<Competition[]> {
+    try {
+      console.log('📋 Loading competitions from cache...');
+      
+      // Use raw SQL query to access cached_competitions table
+      const { data, error } = await supabase
+        .from('cached_competitions' as any)
+        .select('*')
+        .order('name');
+
+      if (error) {
+        console.error('❌ Error loading cached competitions:', error);
+        // Fallback to API if cache fails
+        return this.getCompetitionsFromAPI();
+      }
+
+      if (!data || data.length === 0) {
+        console.log('📋 No cached competitions found, using API...');
+        return this.getCompetitionsFromAPI();
+      }
+
+      console.log(`✅ Loaded ${data.length} competitions from cache`);
+      
+      // Transform cached data to Competition interface
+      return data.map((comp: any) => ({
+        id: comp.id,
+        area: {
+          id: 0, // Not stored in cache
+          name: comp.area_name,
+          code: comp.area_code
+        },
+        name: comp.name,
+        code: comp.code,
+        plan: comp.plan || 'TIER_ONE',
+        currentSeason: {
+          id: 0, // Not stored in cache
+          startDate: '',
+          endDate: '',
+          currentMatchday: comp.current_matchday || 1
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading cached competitions:', error);
+      return this.getCompetitionsFromAPI();
+    }
+  }
+
+  // Fallback method to get competitions from API
+  private async getCompetitionsFromAPI(): Promise<Competition[]> {
+    console.log('🌐 Fallback: Loading competitions from API...');
     const response = await this.makeRequest<CompetitionsResponse>('/competitions');
-    // Filter only free tier competitions
     return response.competitions.filter(comp => comp.plan === 'TIER_ONE' || comp.plan === 'TIER_FOUR');
   }
 
-  // Get matches for a specific competition
+  // Get matches for a specific competition from cached data
   async getMatches(competitionId: number, matchday?: number): Promise<Match[]> {
+    try {
+      console.log(`⚽ Loading matches from cache for competition ${competitionId}, matchday: ${matchday || 'all'}`);
+      
+      let query = supabase
+        .from('cached_fixtures' as any)
+        .select(`
+          *,
+          home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
+          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*)
+        `)
+        .eq('competition_id', competitionId)
+        .order('utc_date');
+
+      if (matchday) {
+        query = query.eq('matchday', matchday);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('❌ Error loading cached matches:', error);
+        return this.getMatchesFromAPI(competitionId, matchday);
+      }
+
+      if (!data || data.length === 0) {
+        console.log('⚽ No cached matches found, using API...');
+        return this.getMatchesFromAPI(competitionId, matchday);
+      }
+
+      console.log(`✅ Loaded ${data.length} matches from cache`);
+
+      // Transform cached data to Match interface
+      return data.map((match: any) => ({
+        id: match.id,
+        competition: {
+          id: match.competition_id,
+          name: 'Competition' // We don't store competition name in fixtures
+        },
+        season: {
+          id: match.season_id || 0
+        },
+        utcDate: match.utc_date,
+        status: match.status,
+        matchday: match.matchday,
+        homeTeam: {
+          id: match.home_team_id,
+          name: match.home_team?.name || 'Home Team',
+          shortName: match.home_team?.short_name || 'HTM',
+          tla: match.home_team?.tla || 'HTM',
+          crest: match.home_team?.crest_url || ''
+        },
+        awayTeam: {
+          id: match.away_team_id,
+          name: match.away_team?.name || 'Away Team',
+          shortName: match.away_team?.short_name || 'ATM',
+          tla: match.away_team?.tla || 'ATM',
+          crest: match.away_team?.crest_url || ''
+        },
+        score: {
+          winner: match.winner,
+          fullTime: {
+            home: match.home_score,
+            away: match.away_score
+          },
+          halfTime: {
+            home: null,
+            away: null
+          }
+        },
+        venue: match.venue
+      }));
+    } catch (error) {
+      console.error('Error loading cached matches:', error);
+      return this.getMatchesFromAPI(competitionId, matchday);
+    }
+  }
+
+  // Fallback method to get matches from API
+  private async getMatchesFromAPI(competitionId: number, matchday?: number): Promise<Match[]> {
+    console.log('🌐 Fallback: Loading matches from API...');
     let endpoint = `/competitions/${competitionId}/matches`;
     
     const params = new URLSearchParams();
@@ -403,15 +532,63 @@ class FootballDataApiService {
     }
   }
 
-  // Get standings for a competition
+  // Get standings for a competition from cached data
   async getStandings(competitionId: number): Promise<Standing[]> {
     try {
-      const response = await this.makeRequest<StandingsResponse>(`/competitions/${competitionId}/standings`);
-      return response.standings[0]?.table || [];
+      console.log(`📊 Loading standings from cache for competition ${competitionId}`);
+      
+      const { data, error } = await supabase
+        .from('cached_standings' as any)
+        .select(`
+          *,
+          team:cached_teams!cached_standings_team_id_fkey(*)
+        `)
+        .eq('competition_id', competitionId)
+        .order('position');
+
+      if (error) {
+        console.error('❌ Error loading cached standings:', error);
+        return this.getStandingsFromAPI(competitionId);
+      }
+
+      if (!data || data.length === 0) {
+        console.log('📊 No cached standings found, using API...');
+        return this.getStandingsFromAPI(competitionId);
+      }
+
+      console.log(`✅ Loaded ${data.length} standings from cache`);
+
+      // Transform cached data to Standing interface
+      return data.map((standing: any) => ({
+        position: standing.position,
+        team: {
+          id: standing.team_id,
+          name: standing.team?.name || 'Team',
+          shortName: standing.team?.short_name || 'TM',
+          tla: standing.team?.tla || 'TM',
+          crest: standing.team?.crest_url || ''
+        },
+        playedGames: standing.played_games || 0,
+        won: standing.won || 0,
+        draw: standing.draw || 0,
+        lost: standing.lost || 0,
+        points: standing.points || 0,
+        goalsFor: standing.goals_for || 0,
+        goalsAgainst: standing.goals_against || 0,
+        goalDifference: standing.goal_difference || 0,
+        form: standing.form || ''
+      }));
     } catch (error) {
-      console.error('Error getting standings:', error);
-      return [];
+      console.error('Error loading cached standings:', error);
+      return this.getStandingsFromAPI(competitionId);
     }
+  }
+
+  // Fallback method to get standings from API
+  private async getStandingsFromAPI(competitionId: number): Promise<Standing[]> {
+    console.log('🌐 Fallback: Loading standings from API...');
+    const response = await this.makeRequest<StandingsResponse>(`/competitions/${competitionId}/standings`);
+    return response.standings[0]?.table || [];
   }
 
   // Get head-to-head matches between two teams
