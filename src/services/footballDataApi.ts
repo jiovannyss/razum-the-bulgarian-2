@@ -270,46 +270,56 @@ class FootballDataApiService {
       console.log(`✅ Loaded ${data.length} matches from cache`);
 
       // Transform cached data to Match interface
-      return data.map((match: any) => ({
-        id: match.id,
-        competition: {
-          id: match.competition_id,
-          name: 'Competition' // We don't store competition name in fixtures
-        },
-        season: {
-          id: match.season_id || 0
-        },
-        utcDate: match.utc_date,
-        status: match.status,
-        matchday: match.matchday,
-        homeTeam: {
-          id: match.home_team_id,
-          name: match.home_team?.name || 'Home Team',
-          shortName: match.home_team?.short_name || 'HTM',
-          tla: match.home_team?.tla || 'HTM',
-          crest: match.home_team?.crest_url || ''
-        },
-        awayTeam: {
-          id: match.away_team_id,
-          name: match.away_team?.name || 'Away Team',
-          shortName: match.away_team?.short_name || 'ATM',
-          tla: match.away_team?.tla || 'ATM',
-          crest: match.away_team?.crest_url || ''
-        },
-        score: {
-          winner: match.winner,
-          fullTime: {
-            home: match.home_score,
-            away: match.away_score
+      return data.map((match: any) => {
+        console.log('🔍 DEBUG: Transforming cached match:', {
+          id: match.id,
+          homeTeamId: match.home_team_id,
+          awayTeamId: match.away_team_id,
+          homeTeamData: match.home_team,
+          awayTeamData: match.away_team
+        });
+        
+        return {
+          id: match.id,
+          competition: {
+            id: match.competition_id,
+            name: match.competition?.name || 'Competition' 
           },
-          halfTime: {
-            home: null,
-            away: null
-          }
-        },
-        venue: match.venue,
-        adminRating: match.admin_rating || 1
-      }));
+          season: {
+            id: match.season_id || 0
+          },
+          utcDate: match.utc_date,
+          status: match.status,
+          matchday: match.matchday,
+          homeTeam: {
+            id: match.home_team_id,
+            name: match.home_team?.name || 'Home Team',
+            shortName: match.home_team?.short_name || 'HTM',
+            tla: match.home_team?.tla || 'HTM',
+            crest: match.home_team?.crest_url || ''
+          },
+          awayTeam: {
+            id: match.away_team_id,
+            name: match.away_team?.name || 'Away Team',
+            shortName: match.away_team?.short_name || 'ATM',
+            tla: match.away_team?.tla || 'ATM',
+            crest: match.away_team?.crest_url || ''
+          },
+          score: {
+            winner: match.winner,
+            fullTime: {
+              home: match.home_score,
+              away: match.away_score
+            },
+            halfTime: {
+              home: null,
+              away: null
+            }
+          },
+          venue: match.venue,
+          adminRating: match.admin_rating || 1
+        };
+      });
     } catch (error) {
       console.error('Error loading cached matches:', error);
       return this.getMatchesFromAPI(competitionId, matchday);

@@ -497,7 +497,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                   {(!matchInfo?.standings || matchInfo.standings.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-4 text-muted-foreground">
-                        Няма налична информация за класирането в тази лига
+                        No standings information available for this league
                       </TableCell>
                     </TableRow>
                   )}
