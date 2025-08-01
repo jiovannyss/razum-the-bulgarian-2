@@ -676,8 +676,8 @@ class FootballDataApiService {
     try {
       console.log(`🔍 [H2H] Starting head-to-head search for teams ${team1Id} vs ${team2Id}`);
       
-      // First try to find matches in cached data - including ALL statuses for recent/upcoming matches
-      console.log(`🔍 [H2H] Searching cached fixtures for teams ${team1Id} and ${team2Id}`);
+      // First try to find FINISHED matches in cached data (historical games only)
+      console.log(`🔍 [H2H] Searching cached fixtures for FINISHED matches between teams ${team1Id} and ${team2Id}`);
       
       const { data: cachedMatches, error } = await supabase
         .from('cached_fixtures' as any)
@@ -688,6 +688,7 @@ class FootballDataApiService {
           competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
         .or(`and(home_team_id.eq.${team1Id},away_team_id.eq.${team2Id}),and(home_team_id.eq.${team2Id},away_team_id.eq.${team1Id})`)
+        .eq('status', 'FINISHED')  // Only finished historical matches
         .order('utc_date', { ascending: false })
         .limit(limit);
 
@@ -739,38 +740,47 @@ class FootballDataApiService {
         return h2hMatches;
       }
 
-      console.log(`⚠️ [H2H] No matches found in cache, trying API head2head endpoint...`);
+      console.log(`⚠️ [H2H] No finished matches found in cache, trying API for historical data...`);
       
-      // Fallback: Try to use the API /matches/{id}/head2head endpoint 
-      // First we need to find ANY match between these teams to get a match ID
-      
+      // Fallback: Search for historical finished matches via API 
+      // Use status=FINISHED filter and search previous seasons
       try {
-        const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50`);
+        const currentYear = new Date().getFullYear();
+        const previousSeasons = [currentYear - 1, currentYear - 2, currentYear - 3];
         
-        if (response.matches && response.matches.length > 0) {
-          // Find a match between these teams
-          const matchBetweenTeams = response.matches.find(match => 
-            (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
-            (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
-          );
+        for (const seasonYear of previousSeasons) {
+          console.log(`🔍 [H2H] Searching season ${seasonYear} for finished matches...`);
           
-          if (matchBetweenTeams) {
-            console.log(`🔍 [H2H] Found match ${matchBetweenTeams.id}, using /matches/{id}/head2head endpoint`);
+          try {
+            const response = await this.makeRequest<MatchesResponse>(
+              `/teams/${team1Id}/matches?status=FINISHED&season=${seasonYear}&limit=100`
+            );
             
-            // Use the official Head2Head endpoint as per documentation
-            const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/matches/${matchBetweenTeams.id}/head2head?limit=${limit}`);
-            
-            if (h2hResponse.matches && h2hResponse.matches.length > 0) {
-              console.log(`✅ [H2H] Found ${h2hResponse.matches.length} matches via official head2head endpoint`);
-              return h2hResponse.matches;
+            if (response.matches && response.matches.length > 0) {
+              // Filter for matches between these specific teams
+              const h2hMatches = response.matches.filter(match => 
+                (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+                (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+              );
+              
+              if (h2hMatches.length > 0) {
+                console.log(`✅ [H2H] Found ${h2hMatches.length} finished matches in season ${seasonYear}`);
+                const result = h2hMatches
+                  .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
+                  .slice(0, limit);
+                return result;
+              }
             }
+          } catch (seasonError) {
+            console.log(`⚠️ [H2H] Error searching season ${seasonYear}:`, seasonError);
+            continue; // Try next season
           }
         }
       } catch (apiError) {
-        console.log(`⚠️ [H2H] API head2head endpoint failed:`, apiError);
+        console.log(`⚠️ [H2H] API historical search failed:`, apiError);
       }
       
-      console.log(`⚠️ [H2H] No head-to-head matches found between teams ${team1Id} and ${team2Id}`);
+      console.log(`⚠️ [H2H] No historical head-to-head matches found between teams ${team1Id} and ${team2Id}`);
       return [];
     } catch (error) {
       console.error('❌ [H2H] Error getting head-to-head:', error);
