@@ -675,6 +675,8 @@ class FootballDataApiService {
   async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
     try {
       console.log(`🔍 [H2H] Getting head-to-head between teams ${team1Id} and ${team2Id} using direct API`);
+      console.log(`🔍 [H2H DEBUG] Team ID types: ${typeof team1Id}, ${typeof team2Id}`);
+      console.log(`🔍 [H2H DEBUG] Team IDs are numbers: ${Number.isInteger(team1Id)}, ${Number.isInteger(team2Id)}`);
       
       // Use the direct head2head API endpoint
       const timestamp = Date.now();
@@ -725,11 +727,16 @@ class FootballDataApiService {
   // Get team form from recent matches if standings don't provide it
   private async getTeamForm(teamId: number): Promise<string[]> {
     try {
+      console.log(`🔍 FORM DEBUG: Fetching recent matches for team ${teamId}...`);
+      
       // Get last 5 finished matches for the team from any competition
       const response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=10&status=FINISHED`);
+      console.log(`🔍 FORM DEBUG: API response for team ${teamId}:`, response.matches?.length || 0, 'matches');
       
       const form: string[] = [];
       for (const match of response.matches.slice(0, 5)) {
+        console.log(`🔍 FORM DEBUG: Processing match: ${match.homeTeam.name} vs ${match.awayTeam.name}, winner: ${match.score.winner}`);
+        
         if (match.homeTeam.id === teamId) {
           // Team is home
           if (match.score.winner === 'HOME_TEAM') {
@@ -751,9 +758,10 @@ class FootballDataApiService {
         }
       }
       
+      console.log(`🔍 FORM DEBUG: Final form for team ${teamId}:`, form);
       return form.length > 0 ? form : ['?', '?', '?', '?', '?'];
     } catch (error) {
-      console.error('Error fetching team form:', error);
+      console.error(`❌ FORM DEBUG: Error fetching team form for ${teamId}:`, error);
       return ['?', '?', '?', '?', '?'];
     }
   }
@@ -830,16 +838,20 @@ class FootballDataApiService {
         if (homeTeamStanding?.form) {
           info.homeForm = homeTeamStanding.form.split('').slice(-5);
         } else {
-          // Get form from recent matches if standings don't provide it
-          info.homeForm = await this.getTeamForm(match.homeTeam.id);
-        }
-        
-        if (awayTeamStanding?.form) {
-          info.awayForm = awayTeamStanding.form.split('').slice(-5);
-        } else {
-          // Get form from recent matches if standings don't provide it
-          info.awayForm = await this.getTeamForm(match.awayTeam.id);
-        }
+      // Get form from recent matches if standings don't provide it
+      console.log(`🔍 FORM DEBUG: Getting form for home team ${match.homeTeam.id} (${match.homeTeam.name})`);
+      info.homeForm = await this.getTeamForm(match.homeTeam.id);
+      console.log(`🔍 FORM DEBUG: Home team form result:`, info.homeForm);
+    }
+    
+    if (awayTeamStanding?.form) {
+      info.awayForm = awayTeamStanding.form.split('').slice(-5);
+    } else {
+      // Get form from recent matches if standings don't provide it
+      console.log(`🔍 FORM DEBUG: Getting form for away team ${match.awayTeam.id} (${match.awayTeam.name})`);
+      info.awayForm = await this.getTeamForm(match.awayTeam.id);
+      console.log(`🔍 FORM DEBUG: Away team form result:`, info.awayForm);
+    }
       }
 
       // Get head-to-head matches (limited API calls)

@@ -13,6 +13,8 @@ interface ProcessedMatch {
   tournament: string;
   homeTeam: string;
   awayTeam: string;
+  homeTeamId?: number; // Add real team IDs
+  awayTeamId?: number; // Add real team IDs
   homeScore: number | null;
   awayScore: number | null;
   time: string;
@@ -268,14 +270,14 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
     return {
       id: parseInt(match.id),
       homeTeam: {
-        id: parseInt(match.id) * 1000 + 1, // Generate unique ID based on match ID
+        id: match.homeTeamId || 1, // Use real team ID if available
         name: match.homeTeam,
         shortName: match.homeTeam,
         tla: match.homeTeam.substring(0, 3).toUpperCase(),
         crest: match.homeLogo || '/placeholder.svg'
       },
       awayTeam: {
-        id: parseInt(match.id) * 1000 + 2, // Generate unique ID based on match ID
+        id: match.awayTeamId || 2, // Use real team ID if available
         name: match.awayTeam,
         shortName: match.awayTeam,
         tla: match.awayTeam.substring(0, 3).toUpperCase(),

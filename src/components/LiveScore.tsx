@@ -23,6 +23,8 @@ interface ProcessedMatch {
   tournament: string;
   homeTeam: string;
   awayTeam: string;
+  homeTeamId?: number; // Add real team IDs
+  awayTeamId?: number; // Add real team IDs
   homeScore: number | null;
   awayScore: number | null;
   time: string;
@@ -75,6 +77,8 @@ const LiveScore = () => {
       tournament: apiMatch.competition.name,
       homeTeam: apiMatch.homeTeam.name,
       awayTeam: apiMatch.awayTeam.name,
+      homeTeamId: apiMatch.homeTeam.id, // Include real team IDs
+      awayTeamId: apiMatch.awayTeam.id, // Include real team IDs
       homeScore: apiMatch.score.fullTime.home,
       awayScore: apiMatch.score.fullTime.away,
       time,
