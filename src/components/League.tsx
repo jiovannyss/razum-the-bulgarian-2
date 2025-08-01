@@ -24,6 +24,7 @@ interface ProcessedMatch {
   myPrediction?: string | null;
   myPredictionCorrect?: boolean | null;
   round: string;
+  adminRating?: number;
 }
 
 interface LeagueProps {
@@ -484,6 +485,7 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
         onClose={handleClosePredictionDialog}
         onSavePrediction={handleSavePrediction}
         currentPrediction={selectedMatch?.myPrediction}
+        adminRating={selectedMatch?.adminRating}
       />
     </Card>
   );
