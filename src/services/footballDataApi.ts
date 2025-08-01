@@ -243,7 +243,8 @@ class FootballDataApiService {
           away_team:cached_teams!cached_fixtures_away_team_id_fkey(*)
         `)
         .eq('competition_id', competitionId)
-        .order('utc_date');
+        .order('utc_date')
+        .limit(100); // Get more matches for better coverage
 
       if (matchday) {
         query = query.eq('matchday', matchday);
@@ -257,7 +258,7 @@ class FootballDataApiService {
       }
 
       if (!data || data.length === 0) {
-        console.log('⚽ No cached matches found, using API...');
+        console.log(`⚽ No cached matches found for competition ${competitionId}${matchday ? ` matchday ${matchday}` : ''}, trying API...`);
         return this.getMatchesFromAPI(competitionId, matchday);
       }
 
@@ -431,49 +432,86 @@ class FootballDataApiService {
     }
   }
 
-  // Get upcoming matches across all competitions
+  // Get upcoming matches from ALL cached data across all competitions
   async getUpcomingMatches(): Promise<Match[]> {
     try {
-      const competitions = await this.getCompetitions();
-      console.log(`📋 Found ${competitions.length} free competitions`);
+      console.log('⚽ Loading ALL matches from cached database...');
       
-      let allMatches: Match[] = [];
-      
-      // Get matches from ALL competitions
-      for (const competition of competitions) {
-        try {
-          console.log(`🎯 Getting matches for: ${competition.name}`);
-          
-          // Get current matchday first
-          const currentMatchday = await this.getCurrentMatchday(competition.id);
-          console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
-          
-          // Fetch ALL matchdays (1 to 38 for typical season)
-          const totalMatchdays = 38; // Most leagues have 38 matchdays
-          const matchdaysToFetch = Array.from({length: totalMatchdays}, (_, i) => i + 1);
-          
-          for (const matchday of matchdaysToFetch) {
-            try {
-              const matches = await this.getMatches(competition.id, matchday);
-              if (matches && matches.length > 0) {
-                allMatches.push(...matches);
-                console.log(`✅ Added ${matches.length} matches from ${competition.name} GW${matchday}`);
-              }
-              
-              // Add longer delay to avoid hitting rate limits
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            } catch (error) {
-              console.log(`❌ Error getting GW${matchday} for ${competition.name}:`, error);
-              // Don't throw, just skip this matchday
-            }
-          }
-        } catch (error) {
-          console.log(`❌ Error getting matches for ${competition.name}:`, error);
-          // Don't throw, just skip this competition
-        }
+      // Get ALL cached matches at once - much faster than individual API calls
+      const { data: fixtures, error } = await supabase
+        .from('cached_fixtures' as any)
+        .select(`
+          *,
+          home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
+          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*)
+        `)
+        .order('utc_date', { ascending: true })
+        .limit(500); // Get more matches
+
+      if (error) {
+        console.error('❌ Error loading cached matches:', error);
+        throw error;
       }
+
+      if (!fixtures || fixtures.length === 0) {
+        console.log('⚽ No cached matches found in database');
+        return [];
+      }
+
+      console.log(`✅ Loaded ${fixtures.length} matches from cache`);
+
+      // Transform cached data to Match interface
+      const allMatches = fixtures.map((match: any) => ({
+        id: match.id,
+        competition: {
+          id: match.competition_id,
+          name: 'Competition', // Will be filled by competition data if needed
+          code: '',
+          type: 'LEAGUE' as const,
+          emblem: ''
+        },
+        season: {
+          id: match.season_id,
+          startDate: '',
+          endDate: '',
+          currentMatchday: match.matchday
+        },
+        utcDate: match.utc_date,
+        status: match.status as any,
+        matchday: match.matchday,
+        stage: match.stage as any,
+        group: match.group_name,
+        lastUpdated: match.last_updated,
+        homeTeam: {
+          id: match.home_team?.id || 0,
+          name: match.home_team?.name || 'Home Team',
+          shortName: match.home_team?.short_name || match.home_team?.name || 'HOME',
+          tla: match.home_team?.tla || 'HOM',
+          crest: match.home_team?.crest_url || ''
+        },
+        awayTeam: {
+          id: match.away_team?.id || 0,
+          name: match.away_team?.name || 'Away Team',
+          shortName: match.away_team?.short_name || match.away_team?.name || 'AWAY',
+          tla: match.away_team?.tla || 'AWA',
+          crest: match.away_team?.crest_url || ''
+        },
+        score: {
+          winner: match.winner,
+          duration: match.duration as any,
+          fullTime: {
+            home: match.home_score,
+            away: match.away_score
+          },
+          halfTime: {
+            home: null,
+            away: null
+          }
+        },
+        venue: match.venue
+      }));
       
-      console.log(`📊 Total matches collected: ${allMatches.length}`);
+      console.log(`📊 Total matches from cache: ${allMatches.length}`);
       return allMatches;
     } catch (error) {
       console.error('Error getting upcoming matches:', error);
