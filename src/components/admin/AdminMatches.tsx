@@ -49,10 +49,13 @@ export function AdminMatches() {
       }));
 
       // Check which matches already exist in database
+      const externalIds = mappedMatches.map(m => m.id.toString());
+      console.log('Looking for external_ids:', externalIds);
+      
       const existingMatches = await supabase
         .from('matches')
         .select('external_id, admin_rating, id')
-        .in('external_id', mappedMatches.map(m => m.id.toString()));
+        .in('external_id', externalIds);
 
       if (existingMatches.data) {
         console.log('Found existing matches in DB:', existingMatches.data.length);
