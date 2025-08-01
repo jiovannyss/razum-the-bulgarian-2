@@ -91,6 +91,14 @@ export function AdminMatches() {
         });
       }
 
+      // Debug: Show all matches with ratings from DB
+      console.log('Matches with ratings from DB:');
+      mappedMatches.forEach(match => {
+        if (match.admin_rating > 1) {
+          console.log(`${match.homeTeam.name} vs ${match.awayTeam.name}: rating ${match.admin_rating}, id: ${match.id}`);
+        }
+      });
+
       // Set all competitions as collapsed by default
       const competitions = new Set(mappedMatches.map(match => match.competition.name));
       setCollapsedCompetitions(competitions);
