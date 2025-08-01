@@ -263,21 +263,23 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </div>
             
             {/* Prediction Buttons */}
-            <div className="flex justify-center space-x-3 md:space-x-4 py-4">
-              {['1', 'X', '2'].map((option) => (
-                <Button
-                  key={option}
-                  variant={selectedPrediction === option ? "default" : "outline"}
-                  className={`w-12 h-10 md:w-16 md:h-12 text-base md:text-lg font-bold ${
-                    selectedPrediction === option 
-                      ? 'bg-yellow-500 hover:bg-yellow-600 text-black' 
-                      : ''
-                  }`}
-                  onClick={() => handlePredictionClick(option)}
-                >
-                  {option}
-                </Button>
-              ))}
+            <div className="flex items-center justify-center py-4">
+              <div className="flex space-x-4 md:space-x-6">
+                {['1', 'X', '2'].map((option) => (
+                  <Button
+                    key={option}
+                    variant={selectedPrediction === option ? "default" : "outline"}
+                    className={`w-12 h-10 md:w-16 md:h-12 text-base md:text-lg font-bold ${
+                      selectedPrediction === option 
+                        ? 'bg-yellow-500 hover:bg-yellow-600 text-black' 
+                        : ''
+                    }`}
+                    onClick={() => handlePredictionClick(option)}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
