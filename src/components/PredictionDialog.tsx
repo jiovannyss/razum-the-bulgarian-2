@@ -237,38 +237,40 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             
             <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
               <div className="flex flex-col items-center space-y-2">
-                <img 
-                  src={match.homeTeam.crest} 
-                  alt={match.homeTeam.name}
-                  className="w-12 h-12 md:w-16 md:h-16 object-contain"
-                />
+                <div className="relative">
+                  <img 
+                    src={match.homeTeam.crest} 
+                    alt={match.homeTeam.name}
+                    className="w-12 h-12 md:w-16 md:h-16 object-contain"
+                  />
+                  <div className="absolute -top-1 -right-1 w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <span className="text-black font-bold text-xs md:text-sm">{matchInfo?.homePosition || '?'}</span>
+                  </div>
+                </div>
                 <span className="font-semibold text-xs md:text-sm text-center">{match.homeTeam.name}</span>
               </div>
               
-              <div className="flex items-center space-x-2 md:space-x-4">
-                <div className="w-8 h-8 md:w-12 md:h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xs md:text-base">{matchInfo?.homePosition || '?'}</span>
-                </div>
-                <div className="flex flex-col items-center space-y-1">
-                  <span className="text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
-                  {adminRating && adminRating >= 2 && (
-                    <div className="relative flex items-center justify-center">
-                      <Star className="h-6 w-6 md:h-8 md:w-8 fill-yellow-500 text-yellow-500" />
-                      <span className="absolute text-black text-xs md:text-sm font-bold">{adminRating}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="w-8 h-8 md:w-12 md:h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xs md:text-base">{matchInfo?.awayPosition || '?'}</span>
-                </div>
+              <div className="flex flex-col items-center space-y-1">
+                <span className="text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
+                {adminRating && adminRating >= 2 && (
+                  <div className="relative flex items-center justify-center">
+                    <Star className="h-6 w-6 md:h-8 md:w-8 fill-yellow-500 text-yellow-500" />
+                    <span className="absolute text-black text-xs md:text-sm font-bold">{adminRating}</span>
+                  </div>
+                )}
               </div>
               
               <div className="flex flex-col items-center space-y-2">
-                <img 
-                  src={match.awayTeam.crest} 
-                  alt={match.awayTeam.name}
-                  className="w-12 h-12 md:w-16 md:h-16 object-contain"
-                />
+                <div className="relative">
+                  <img 
+                    src={match.awayTeam.crest} 
+                    alt={match.awayTeam.name}
+                    className="w-12 h-12 md:w-16 md:h-16 object-contain"
+                  />
+                  <div className="absolute -top-1 -left-1 w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <span className="text-black font-bold text-xs md:text-sm">{matchInfo?.awayPosition || '?'}</span>
+                  </div>
+                </div>
                 <span className="font-semibold text-xs md:text-sm text-center">{match.awayTeam.name}</span>
               </div>
             </div>
