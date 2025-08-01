@@ -494,19 +494,17 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardContent>
           </Card>
         </div>
-      </DialogContent>
-      
-      {/* Fixed Save Button извън DialogContent */}
-      {isOpen && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60] max-w-md w-[calc(100%-2rem)]">
+
+        {/* Save Button в горе в DialogContent */}
+        <div className="p-4 border-t border-border bg-background">
           <Button 
             onClick={handleSave} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xl"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           >
             Save Prediction
           </Button>
         </div>
-      )}
+      </DialogContent>
     </Dialog>
   );
 };
