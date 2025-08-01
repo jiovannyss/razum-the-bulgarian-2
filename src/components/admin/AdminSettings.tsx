@@ -69,7 +69,7 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
     }
   };
 
-  const handleSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures' | 'brazil-standings') => {
+  const handleSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures' | 'brazil-standings' | 'h2h' | 'team-form') => {
     setIsLoading(true);
     try {
       await triggerFootballDataSync(syncType);
@@ -195,13 +195,27 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
             >
               Мачове
             </Button>
-            {/* Временен бутон за бразилската лига */}
+            {/* Специални sync типове */}
             <Button 
               onClick={() => handleSync('brazil-standings')}
               disabled={isLoading}
-              className="bg-green-600 hover:bg-green-700 text-white col-span-2 md:col-span-3"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
-              🇧🇷 Бразилска Série A (временно)
+              🇧🇷 Бразилска Série A
+            </Button>
+            <Button 
+              onClick={() => handleSync('h2h')}
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              🤝 H2H мачове (10г)
+            </Button>
+            <Button 
+              onClick={() => handleSync('team-form')}
+              disabled={isLoading}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              📈 Форма отбори
             </Button>
           </div>
           {isLoading && (
