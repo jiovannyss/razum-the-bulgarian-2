@@ -32,6 +32,7 @@ interface ProcessedMatch {
   predictions?: number;
   popularPrediction?: string;
   rank?: number;
+  adminRating?: number;
   myPrediction?: string | null;
   myPredictionCorrect?: boolean | null;
   round: string;
@@ -75,6 +76,7 @@ const LiveScore = () => {
       predictions: Math.floor(Math.random() * 500) + 50,
       popularPrediction: ['1', 'X', '2'][Math.floor(Math.random() * 3)],
       rank: dbMatch?.admin_rating || 1, // Use admin_rating from database or default to 1
+      adminRating: dbMatch?.admin_rating || 1, // Add adminRating field for consistency
       myPrediction: null,
       myPredictionCorrect: null,
       round: apiMatch.matchday.toString()
