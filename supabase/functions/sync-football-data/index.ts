@@ -125,7 +125,7 @@ serve(async (req) => {
       throw syncLogError;
     }
 
-    const syncLogId = syncLog.id;
+    let syncLogId = syncLog.id;
     let totalProcessed = 0;
 
     // Helper функция за API заявки с увеличен rate limiting
@@ -638,10 +638,27 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Грешка при синхронизация:', error);
 
-    // Обновяване на sync log като неуспешен
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Обновяване на sync log като неуспешен (ако е създаден)
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      // Проверяваме дали syncLogId съществува преди да го обновим
+      if (typeof syncLogId !== 'undefined') {
+        await supabase
+          .from('sync_logs')
+          .update({
+            status: 'failed',
+            completed_at: new Date().toISOString(),
+            errors: error.message,
+            records_processed: totalProcessed
+          })
+          .eq('id', syncLogId);
+      }
+    } catch (logError) {
+      console.error('❌ Грешка при обновяване на sync log:', logError);
+    }
 
     return new Response(JSON.stringify({
       error: error.message,
