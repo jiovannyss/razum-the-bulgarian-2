@@ -247,12 +247,16 @@ serve(async (req) => {
 
         for (const standing of standings) {
           console.log(`🔍 Team ${standing.team?.name}: form="${standing.form}", team_id=${standing.team?.id}, type of team_id: ${typeof standing.team?.id}`);
+          console.log(`🔍 Full standing object:`, JSON.stringify(standing, null, 2));
           
           // Проверяваме дали team.id съществува
           if (!standing.team?.id) {
             console.warn(`⚠️ Missing team_id for team: ${standing.team?.name}`);
             continue;
           }
+          
+          // Обработваме form полето правилно - може да е null, undefined или празен string
+          const formValue = standing.form === null || standing.form === undefined || standing.form === '' ? null : standing.form;
           
           await supabase
             .from('cached_standings')
@@ -268,7 +272,7 @@ serve(async (req) => {
               goals_for: standing.goalsFor,
               goals_against: standing.goalsAgainst,
               goal_difference: standing.goalDifference,
-              form: standing.form,
+              form: formValue,
               last_updated: new Date().toISOString()
             });
           totalProcessed++;
