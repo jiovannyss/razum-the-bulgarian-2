@@ -36,6 +36,14 @@ interface ProcessedMatch {
   myPrediction?: string | null;
   myPredictionCorrect?: boolean | null;
   round: string;
+  competition?: {
+    id: number;
+    name: string;
+    emblem?: string;
+    area?: {
+      name: string;
+    };
+  };
 }
 
 const LiveScore = () => {
@@ -79,7 +87,15 @@ const LiveScore = () => {
       adminRating: dbMatch?.admin_rating || 1, // Add adminRating field for consistency
       myPrediction: null,
       myPredictionCorrect: null,
-      round: apiMatch.matchday.toString()
+      round: apiMatch.matchday.toString(),
+      competition: {
+        id: apiMatch.competition.id,
+        name: apiMatch.competition.name,
+        emblem: apiMatch.competition.emblem || '', // Използваме данните от API-то
+        area: {
+          name: apiMatch.competition.area?.name || 'Unknown' // Използваме данните от API-то
+        }
+      }
     };
   };
 
@@ -401,10 +417,15 @@ const LiveScore = () => {
 
         {/* Leagues */}
         <div className="space-y-6 mb-8">
-          {!loading && !error && Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => {
-            // Find current matchday for this league
+        {!loading && !error && Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => {
+            // Find current matchday and competition details for this league
             const competitionInfo = competitionsWithCurrentMatchday.find(comp => comp.name === leagueName);
             const currentMatchday = competitionInfo?.currentMatchday || 1;
+            
+            // Get competition details from the first match (they all have the same competition)
+            const firstMatch = leagueMatches[0];
+            const leagueEmblem = firstMatch?.competition?.emblem;
+            const areaName = firstMatch?.competition?.area?.name;
             
             console.log(`🎯 League: ${leagueName}, Found competition:`, competitionInfo, `Current matchday: ${currentMatchday}`);
             
@@ -412,6 +433,8 @@ const LiveScore = () => {
               <League
                 key={leagueName}
                 leagueName={leagueName}
+                areaName={areaName}
+                leagueLogo={leagueEmblem}
                 matches={leagueMatches}
                 currentMatchday={currentMatchday}
                 onLoadMatchday={loadMatchdayForLeague}

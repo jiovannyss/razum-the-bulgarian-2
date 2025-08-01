@@ -29,13 +29,14 @@ interface ProcessedMatch {
 
 interface LeagueProps {
   leagueName: string;
+  areaName?: string;
   matches: ProcessedMatch[];
   leagueLogo?: string;
   currentMatchday?: number;
   onLoadMatchday?: (leagueName: string, matchday: number) => Promise<void>;
 }
 
-const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchday }: LeagueProps) => {
+const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, onLoadMatchday }: LeagueProps) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState<ProcessedMatch | null>(null);
   const [isPredictionDialogOpen, setIsPredictionDialogOpen] = useState(false);
@@ -289,7 +290,9 @@ const League = ({ leagueName, matches, leagueLogo, currentMatchday, onLoadMatchd
             <Trophy className="w-6 h-6 lg:w-8 lg:h-8 text-primary" />
           )}
           <div>
-            <h3 className="font-semibold text-sm lg:text-lg">{leagueName}</h3>
+            <h3 className="font-semibold text-sm lg:text-lg">
+              {leagueName}{areaName && `, ${areaName}`}
+            </h3>
           </div>
         </div>
 

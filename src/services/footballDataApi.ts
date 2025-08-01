@@ -34,6 +34,10 @@ export interface Match {
   competition: {
     id: number;
     name: string;
+    emblem?: string;
+    area?: {
+      name: string;
+    };
   };
   season: {
     id: number;
@@ -470,7 +474,10 @@ class FootballDataApiService {
           name: match.competition?.name || 'Unknown Competition', // РЕАЛНО ИМЕ ОТ БАЗАТА!
           code: match.competition?.code || '',
           type: match.competition?.type || 'LEAGUE' as const,
-          emblem: match.competition?.emblem_url || ''
+          emblem: match.competition?.emblem_url || '', // РЕАЛНО ЛОГО!
+          area: {
+            name: match.competition?.area_name || 'Unknown' // РЕАЛНА ОБЛАСТ!
+          }
         },
         season: {
           id: match.season_id,
