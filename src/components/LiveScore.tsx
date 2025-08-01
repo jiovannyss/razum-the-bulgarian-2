@@ -55,7 +55,7 @@ const LiveScore = () => {
   const { toast } = useToast();
 
   // Transform Football-Data.org API match to our format
-  const transformMatch = (apiMatch: Match, dbMatch?: any): ProcessedMatch => {
+  const transformMatch = (apiMatch: Match): ProcessedMatch => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
     let time = apiMatch.utcDate; // Keep the full ISO date string
 
@@ -124,21 +124,8 @@ const LiveScore = () => {
       // Get matches for the specific matchday with error handling for rate limits
       const newMatches = await footballDataApi.getMatches(competition.id, matchday);
       if (newMatches && newMatches.length > 0) {
-        // Get admin ratings for new matches
-        const externalIds = newMatches.map(m => m.id.toString());
-        const { data: dbMatches } = await supabase
-          .from('matches')
-          .select('external_id, admin_rating')
-          .in('external_id', externalIds);
-        
-        // Create a map for quick lookup
-        const dbMatchMap = (dbMatches || []).reduce((acc, dbMatch) => {
-          acc[dbMatch.external_id] = dbMatch;
-          return acc;
-        }, {} as Record<string, any>);
-
         const transformedMatches = newMatches.map(apiMatch => 
-          transformMatch(apiMatch, dbMatchMap[apiMatch.id.toString()])
+          transformMatch(apiMatch)
         );
         
         // Add new matches to existing matches
@@ -209,21 +196,8 @@ const LiveScore = () => {
         // Let the normal error handling take care of it
       }
 
-      // Get admin ratings from database
-      const externalIds = upcomingMatches.map(m => m.id.toString());
-      const { data: dbMatches } = await supabase
-        .from('matches')
-        .select('external_id, admin_rating')
-        .in('external_id', externalIds);
-      
-      // Create a map for quick lookup
-      const dbMatchMap = (dbMatches || []).reduce((acc, dbMatch) => {
-        acc[dbMatch.external_id] = dbMatch;
-        return acc;
-      }, {} as Record<string, any>);
-
       const transformedMatches = upcomingMatches.map(apiMatch => 
-        transformMatch(apiMatch, dbMatchMap[apiMatch.id.toString()])
+        transformMatch(apiMatch)
       );
       console.log(`🏁 Transformed ${transformedMatches.length} matches`);
       console.log(`📅 Competitions with current matchday:`, competitionsWithCurrentMatchday);
