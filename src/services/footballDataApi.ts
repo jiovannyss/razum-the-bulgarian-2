@@ -429,37 +429,40 @@ class FootballDataApiService {
     }
   }
 
-  // Generate mock form based on team performance statistics
-  private generateMockForm(teamStanding?: Standing): string[] {
-    if (!teamStanding) {
-      return ['?', '?', '?', '?', '?'];
-    }
-
-    const { won, draw, lost, playedGames } = teamStanding;
-    const totalGames = won + draw + lost;
-    
-    if (totalGames === 0 || playedGames === 0) {
-      return ['?', '?', '?', '?', '?'];
-    }
-
-    // Calculate win/draw/loss percentages
-    const winRate = won / totalGames;
-    const drawRate = draw / totalGames;
-    
-    // Generate 5 form results based on performance
-    const form: string[] = [];
-    for (let i = 0; i < 5; i++) {
-      const random = Math.random();
-      if (random < winRate) {
-        form.push('W');
-      } else if (random < winRate + drawRate) {
-        form.push('D');
-      } else {
-        form.push('L');
+  // Get team form from recent matches if standings don't provide it
+  private async getTeamForm(teamId: number): Promise<string[]> {
+    try {
+      // Get last 5 matches for the team
+      const response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=5&status=FINISHED`);
+      
+      const form: string[] = [];
+      for (const match of response.matches.slice(0, 5)) {
+        if (match.homeTeam.id === teamId) {
+          // Team is home
+          if (match.score.winner === 'HOME_TEAM') {
+            form.push('W');
+          } else if (match.score.winner === 'AWAY_TEAM') {
+            form.push('L');
+          } else {
+            form.push('D');
+          }
+        } else {
+          // Team is away
+          if (match.score.winner === 'AWAY_TEAM') {
+            form.push('W');
+          } else if (match.score.winner === 'HOME_TEAM') {
+            form.push('L');
+          } else {
+            form.push('D');
+          }
+        }
       }
+      
+      return form.length > 0 ? form : ['?', '?', '?', '?', '?'];
+    } catch (error) {
+      console.error('Error fetching team form:', error);
+      return ['?', '?', '?', '?', '?'];
     }
-    
-    return form;
   }
   async getMatchInfo(match: Match): Promise<MatchInfo> {
     const info: MatchInfo = {
@@ -528,19 +531,19 @@ class FootballDataApiService {
         info.homePosition = homeTeamStanding?.position;
         info.awayPosition = awayTeamStanding?.position;
 
-        // Extract form from standings
+        // Extract form from standings or fetch from recent matches
         if (homeTeamStanding?.form) {
           info.homeForm = homeTeamStanding.form.split('').slice(-5);
         } else {
-          // Generate mock form based on recent performance if form is not available
-          info.homeForm = this.generateMockForm(homeTeamStanding);
+          // Get form from recent matches if standings don't provide it
+          info.homeForm = await this.getTeamForm(match.homeTeam.id);
         }
         
         if (awayTeamStanding?.form) {
           info.awayForm = awayTeamStanding.form.split('').slice(-5);
         } else {
-          // Generate mock form based on recent performance if form is not available
-          info.awayForm = this.generateMockForm(awayTeamStanding);
+          // Get form from recent matches if standings don't provide it
+          info.awayForm = await this.getTeamForm(match.awayTeam.id);
         }
       }
 
