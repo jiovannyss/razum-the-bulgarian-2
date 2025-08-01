@@ -96,6 +96,10 @@ const Header = () => {
                       <User className="w-4 h-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2" onClick={() => navigate('/profile')}>
+                      <Trophy className="w-4 h-4" />
+                      <span>My Leagues</span>
+                    </DropdownMenuItem>
                     {(userRole === 'admin' || userRole === 'super_admin') && (
                       <DropdownMenuItem className="gap-2" onClick={() => navigate('/admin')}>
                         <Settings className="w-4 h-4" />
