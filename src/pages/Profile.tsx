@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Upload, User, Camera } from 'lucide-react';
+import { ArrowLeft, Save, Upload, User, Camera, Trophy } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import avatar1 from '@/assets/avatars/avatar-1.png';
 import avatar2 from '@/assets/avatars/avatar-2.png';
@@ -18,7 +19,7 @@ import avatar4 from '@/assets/avatars/avatar-4.png';
 import avatar5 from '@/assets/avatars/avatar-5.png';
 import UserCompetitions from '@/components/UserCompetitions';
 
-// Countries data (same as in Auth.tsx)
+// Countries data
 const countries = [
   { code: 'AF', name: 'Afghanistan', phone: '+93', flag: '🇦🇫' },
   { code: 'AL', name: 'Albania', phone: '+355', flag: '🇦🇱' },
@@ -356,272 +357,250 @@ export default function Profile() {
     setShowAvatarSelection(false);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfileData(prev => ({ ...prev, avatar_url: url }));
-    }
-  };
-
-  // Get user initials for fallback
-  const getUserInitials = () => {
-    if (profileData.full_name) {
-      return profileData.full_name
-        .split(' ')
-        .map(name => name.charAt(0))
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return user?.email?.charAt(0).toUpperCase() || 'U';
-  };
-
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-2">
-        <div className="bg-background rounded-2xl shadow-2xl p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading profile...</p>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen p-2">
-      <div className="min-h-screen bg-background rounded-2xl shadow-2xl overflow-hidden">
-        <div className="max-w-2xl mx-auto p-6">
-        <Button 
-          onClick={() => navigate('/')} 
-          variant="outline" 
-          size="sm"
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary-foreground to-secondary">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
-            <p className="text-muted-foreground">
-              Manage your account information and preferences
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+          <Tabs defaultValue="profile" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="profile" className="gap-2">
+                <User className="h-4 w-4" />
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="leagues" className="gap-2">
+                <Trophy className="h-4 w-4" />
+                My Leagues
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Avatar Section */}
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold">Profile Picture</Label>
-              <div className="flex items-center gap-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={profileData.avatar_url} />
-                  <AvatarFallback className="text-xl">
-                    {getUserInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowAvatarSelection(!showAvatarSelection)}
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Choose Avatar
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => document.getElementById('avatar-upload')?.click()}
-                  >
-                    <Camera className="h-4 w-4 mr-2" />
-                    Upload Photo
-                  </Button>
-                  {profileData.avatar_url && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRemoveAvatar}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      Remove Avatar
-                    </Button>
+            <TabsContent value="profile">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Edit Profile</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
                   )}
-                  <input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    capture="user"
-                    style={{ display: 'none' }}
-                    onChange={handleFileUpload}
-                  />
-                </div>
-              </div>
-              
-              {showAvatarSelection && (
-                <div className="grid grid-cols-5 gap-2 p-4 border rounded-lg">
-                  {animatedAvatars.map((avatar, index) => (
-                    <Avatar 
-                      key={index}
-                      className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary"
-                      onClick={() => handleAvatarSelect(avatar)}
+
+                  {/* Avatar Selection */}
+                  <div className="space-y-2">
+                    <Label>Avatar</Label>
+                    <div className="flex items-center gap-4">
+                      <Avatar className="w-20 h-20">
+                        <AvatarImage src={profileData.avatar_url} />
+                        <AvatarFallback className="text-lg">
+                          {profileData.full_name ? 
+                            profileData.full_name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase().slice(0, 2) :
+                            user.email?.charAt(0).toUpperCase() || 'U'
+                          }
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                          className="gap-2"
+                        >
+                          <Camera className="h-4 w-4" />
+                          Change Avatar
+                        </Button>
+                        {profileData.avatar_url && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleRemoveAvatar}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Avatar Selection Grid */}
+                    {showAvatarSelection && (
+                      <div className="mt-4 p-4 border rounded-lg bg-muted/50">
+                        <div className="grid grid-cols-5 gap-3">
+                          {animatedAvatars.map((avatar, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handleAvatarSelect(avatar)}
+                              className="relative group"
+                            >
+                              <Avatar className="w-16 h-16 transition-transform group-hover:scale-110 ring-2 ring-transparent group-hover:ring-primary">
+                                <AvatarImage src={avatar} />
+                                <AvatarFallback>A{index + 1}</AvatarFallback>
+                              </Avatar>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Username */}
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      value={profileData.username}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, username: e.target.value }))}
+                      placeholder="Enter your username"
+                    />
+                  </div>
+
+                  {/* Full Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="full_name">Full Name</Label>
+                    <Input
+                      id="full_name"
+                      value={profileData.full_name}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, full_name: e.target.value }))}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  {/* Nationality */}
+                  <div className="space-y-2">
+                    <Label htmlFor="nationality">Nationality</Label>
+                    <Select 
+                      value={profileData.nationality} 
+                      onValueChange={(value) => setProfileData(prev => ({ ...prev, nationality: value }))}
                     >
-                      <AvatarImage src={avatar} />
-                      <AvatarFallback>{index + 1}</AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
-              )}
-            </div>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your nationality" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-48">
+                        {countries.map((country) => (
+                          <SelectItem key={country.code} value={country.name}>
+                            <div className="flex items-center gap-2">
+                              <span>{country.flag}</span>
+                              <span>{country.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold">Basic Information</Label>
-              
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={profileData.username}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, username: e.target.value }))}
-                    placeholder="Your username"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="full_name">Full Name</Label>
-                  <Input
-                    id="full_name"
-                    value={profileData.full_name}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, full_name: e.target.value }))}
-                    placeholder="Your full name"
-                  />
-                </div>
-              </div>
+                  {/* Phone */}
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  value={user?.email || ''}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Email address cannot be changed here. Contact support if needed.
-                </p>
-              </div>
+                  {/* Gender */}
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select 
+                      value={profileData.gender} 
+                      onValueChange={(value) => setProfileData(prev => ({ ...prev, gender: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="nationality">Nationality</Label>
-                <Select 
-                  value={profileData.nationality} 
-                  onValueChange={(value) => setProfileData(prev => ({ ...prev, nationality: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select nationality" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-48">
-                    {countries.map((country) => (
-                      <SelectItem key={country.code} value={country.name}>
-                        {country.flag} {country.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  {/* Birth Date */}
+                  <div className="space-y-2">
+                    <Label>Birth Date</Label>
+                    <div className="flex gap-2">
+                      <Select value={birthDay} onValueChange={setBirthDay}>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Day" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {days.map((day) => (
+                            <SelectItem key={day} value={day.toString().padStart(2, '0')}>
+                              {day}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={birthMonth} onValueChange={setBirthMonth}>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Month" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {months.map((month) => (
+                            <SelectItem key={month.value} value={month.value}>
+                              {month.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={birthYear} onValueChange={setBirthYear}>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Year" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-48">
+                          {years.map((year) => (
+                            <SelectItem key={year} value={year.toString()}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={profileData.phone}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="+359 888 123 456"
-                />
-              </div>
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-6">
+                    <Button onClick={handleSave} disabled={loading} className="gap-2">
+                      <Save className="h-4 w-4" />
+                      {loading ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-              <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select 
-                  value={profileData.gender} 
-                  onValueChange={(value) => setProfileData(prev => ({ ...prev, gender: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Date of Birth</Label>
-                <div className="flex gap-2">
-                  <Select value={birthDay} onValueChange={setBirthDay}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Day" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-48">
-                      {days.map((day) => (
-                        <SelectItem key={day} value={day.toString().padStart(2, '0')}>
-                          {day}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={birthMonth} onValueChange={setBirthMonth}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Month" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-48">
-                      {months.map((month) => (
-                        <SelectItem key={month.value} value={month.value}>
-                          {month.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={birthYear} onValueChange={setBirthYear}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Year" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-48">
-                      {years.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <div className="flex justify-end pt-6">
-              <Button onClick={handleSave} disabled={loading} className="gap-2">
-                <Save className="h-4 w-4" />
-                {loading ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            <TabsContent value="leagues">
+              <UserCompetitions />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
