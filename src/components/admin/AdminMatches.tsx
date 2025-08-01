@@ -128,6 +128,10 @@ export function AdminMatches() {
           : match
       ));
 
+      // Clear cache to force refresh in home
+      localStorage.removeItem('football-matches-cache');
+      localStorage.removeItem('football-competitions-cache');
+
       toast({
         title: "Успех",
         description: "Рейтингът е обновен успешно",
