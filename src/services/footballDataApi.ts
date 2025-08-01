@@ -665,15 +665,15 @@ class FootballDataApiService {
     try {
       console.log(`🔍 Getting head-to-head between teams ${team1Id} and ${team2Id}`);
       
-      // First, get a recent match between these teams to use for the head2head endpoint
-      // We'll try to find any match involving either team and then use it for head2head
+      // Try to find ANY match between these two teams to use for the head2head endpoint
       let matchId: number | null = null;
       
       try {
-        const team1Matches = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=20`);
+        // Search matches for team1
+        const team1Matches = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50`);
         console.log(`📊 Got ${team1Matches.matches.length} matches for team ${team1Id}`);
         
-        // Find a match between these two teams
+        // Find a match that's specifically between these two teams
         const directMatch = team1Matches.matches.find(match => 
           (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
           (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
@@ -681,18 +681,34 @@ class FootballDataApiService {
         
         if (directMatch) {
           matchId = directMatch.id;
-          console.log(`✅ Found direct match ID: ${matchId}`);
+          console.log(`✅ Found direct match ID between teams ${team1Id} and ${team2Id}: ${matchId}`);
+        } else {
+          console.log(`⚠️ No direct match found between teams ${team1Id} and ${team2Id}, trying team2 matches`);
+          
+          // If not found, try searching matches for team2
+          const team2Matches = await this.makeRequest<MatchesResponse>(`/teams/${team2Id}/matches?limit=50`);
+          console.log(`📊 Got ${team2Matches.matches.length} matches for team ${team2Id}`);
+          
+          const directMatch2 = team2Matches.matches.find(match => 
+            (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+            (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+          );
+          
+          if (directMatch2) {
+            matchId = directMatch2.id;
+            console.log(`✅ Found direct match ID via team2 search: ${matchId}`);
+          }
         }
       } catch (error) {
-        console.log('Could not find direct match, trying fallback approach');
+        console.log('❌ Could not find direct match via teams endpoint');
       }
       
       if (matchId) {
-        // Use the head2head endpoint for this match
+        // Use the head2head endpoint for this specific match between the two teams
         try {
           interface Head2HeadResponse {
             matches: Match[];
-            head2head: {
+            head2head?: {
               numberOfMatches: number;
               totalGoals: number;
               homeTeam: { wins: number; draws: number; losses: number };
@@ -700,23 +716,27 @@ class FootballDataApiService {
             };
           }
           
+          console.log(`🎯 Calling head2head API for match ${matchId} between teams ${team1Id} and ${team2Id}`);
           const h2hResponse = await this.makeRequest<Head2HeadResponse>(`/matches/${matchId}/head2head?limit=${limit}`);
           console.log(`⚽ Head2head API returned ${h2hResponse.matches?.length || 0} matches`);
-          console.log('📊 Head2head stats:', h2hResponse.head2head);
+          
+          if (h2hResponse.head2head) {
+            console.log('📊 Head2head stats:', h2hResponse.head2head);
+          }
           
           if (h2hResponse.matches && h2hResponse.matches.length > 0) {
             console.log(`✅ Returning ${h2hResponse.matches.length} head-to-head matches from API`);
             return h2hResponse.matches;
           }
         } catch (h2hError) {
-          console.log('Head2head endpoint failed, falling back to manual filtering');
+          console.error('❌ Head2head endpoint failed:', h2hError);
         }
       }
       
       // Fallback: manual filtering (original approach)
       console.log('🔄 Using fallback manual filtering approach');
       const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=100&status=FINISHED`);
-      console.log(`📊 Got ${response.matches.length} total matches for team ${team1Id}`);
+      console.log(`📊 Got ${response.matches.length} total matches for team ${team1Id} (fallback)`);
       
       const headToHeadMatches = response.matches.filter(match => 
         (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
@@ -729,7 +749,7 @@ class FootballDataApiService {
         .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
         .slice(0, limit);
         
-      console.log(`✅ Returning ${result.length} recent head-to-head matches`);
+      console.log(`✅ Returning ${result.length} recent head-to-head matches (fallback)`);
       return result;
     } catch (error) {
       console.error('❌ Error getting head-to-head:', error);
