@@ -1,13 +1,13 @@
-// Тест на Football-Data.org API за Бразилски шампионат
+// Тест на Football-Data.org API - проверка на новия план
 const corsProxy = 'https://corsproxy.io/?';
 const baseUrl = 'https://api.football-data.org/v4';
 const apiKey = '4c0b967130864749a36fb552c0755910';
 
-async function testBrazilianLeague() {
+async function testNewApiPlan() {
     try {
-        console.log('🔍 Testing Football-Data.org API...');
+        console.log('🔍 Testing NEW Football-Data.org API plan...');
         
-        // Първо получаваме всички състезания
+        // Получаваме всички състезания с новия план
         const competitionsUrl = `${corsProxy}${encodeURIComponent(baseUrl + '/competitions')}`;
         const competitionsResponse = await fetch(competitionsUrl, {
             headers: {
@@ -21,49 +21,65 @@ async function testBrazilianLeague() {
         }
         
         const competitionsData = await competitionsResponse.json();
-        console.log('🏆 Available competitions:', competitionsData.competitions.map(c => ({
-            id: c.id,
-            name: c.name,
-            code: c.code,
-            plan: c.plan
-        })));
-        
-        // Намираме бразилския шампионат
-        const brasileirao = competitionsData.competitions.find(c => 
-            c.name.includes('Brasileiro') || c.code === 'BSA'
-        );
-        
-        if (!brasileirao) {
-            console.log('❌ Бразилски шампионат не е намерен');
-            return;
-        }
-        
-        console.log('🇧🇷 Намерен бразилски шампионат:', brasileirao);
-        
-        // Получаваме мачовете за 21-ви кръг
-        const matchesUrl = `${corsProxy}${encodeURIComponent(baseUrl + `/competitions/${brasileirao.id}/matches?matchday=21`)}`;
-        const matchesResponse = await fetch(matchesUrl, {
-            headers: {
-                'X-Auth-Token': apiKey,
-                'Content-Type': 'application/json',
-            },
+        console.log('🏆 ALL Available competitions with NEW plan:');
+        competitionsData.competitions.forEach(c => {
+            console.log(`- ${c.name} (${c.code}) - Area: ${c.area.name} - Plan: ${c.plan}`);
         });
         
-        if (!matchesResponse.ok) {
-            throw new Error(`Matches API failed: ${matchesResponse.status}`);
+        // Сравняваме с текущите в базата
+        const currentInDB = [
+            { id: 2002, name: 'Bundesliga', code: 'BL1', area: 'Germany' },
+            { id: 2013, name: 'Campeonato Brasileiro Série A', code: 'BSA', area: 'Brazil' },
+            { id: 2016, name: 'Championship', code: 'ELC', area: 'England' },
+            { id: 2003, name: 'Eredivisie', code: 'DED', area: 'Netherlands' },
+            { id: 2018, name: 'European Championship', code: 'EC', area: 'Europe' },
+            { id: 2000, name: 'FIFA World Cup', code: 'WC', area: 'World' },
+            { id: 2015, name: 'Ligue 1', code: 'FL1', area: 'France' },
+            { id: 2021, name: 'Premier League', code: 'PL', area: 'England' },
+            { id: 2017, name: 'Primeira Liga', code: 'PPL', area: 'Portugal' },
+            { id: 2014, name: 'Primera Division', code: 'PD', area: 'Spain' },
+            { id: 2019, name: 'Serie A', code: 'SA', area: 'Italy' },
+            { id: 2001, name: 'UEFA Champions League', code: 'CL', area: 'Europe' }
+        ];
+        
+        console.log('\n📊 COMPARISON - Current in DB vs NEW API:');
+        console.log('Current competitions in database:', currentInDB.length);
+        console.log('Available competitions from API:', competitionsData.competitions.length);
+        
+        // Намираме новите competitions
+        const newCompetitions = competitionsData.competitions.filter(apiComp => 
+            !currentInDB.some(dbComp => dbComp.id === apiComp.id)
+        );
+        
+        console.log('\n🆕 NEW competitions available:');
+        if (newCompetitions.length > 0) {
+            newCompetitions.forEach(c => {
+                console.log(`+ ${c.name} (${c.code}) - Area: ${c.area.name} - Plan: ${c.plan} - ID: ${c.id}`);
+            });
+        } else {
+            console.log('No new competitions found.');
         }
         
-        const matchesData = await matchesResponse.json();
-        console.log('⚽ Мачове от 21-ви кръг:', matchesData.matches.map(m => ({
-            id: m.id,
-            homeTeam: m.homeTeam.name,
-            awayTeam: m.awayTeam.name,
-            utcDate: m.utcDate,
-            matchday: m.matchday,
-            status: m.status
-        })));
+        // Намираме премахнатите competitions
+        const removedCompetitions = currentInDB.filter(dbComp =>
+            !competitionsData.competitions.some(apiComp => apiComp.id === dbComp.id)
+        );
         
-        return matchesData.matches;
+        console.log('\n❌ REMOVED competitions:');
+        if (removedCompetitions.length > 0) {
+            removedCompetitions.forEach(c => {
+                console.log(`- ${c.name} (${c.code}) - Area: ${c.area}`);
+            });
+        } else {
+            console.log('No competitions removed.');
+        }
+        
+        return {
+            total: competitionsData.competitions.length,
+            new: newCompetitions,
+            removed: removedCompetitions,
+            all: competitionsData.competitions
+        };
         
     } catch (error) {
         console.error('❌ API Грешка:', error);
@@ -72,4 +88,4 @@ async function testBrazilianLeague() {
 }
 
 // Изпълняваме теста
-testBrazilianLeague();
+testNewApiPlan();
