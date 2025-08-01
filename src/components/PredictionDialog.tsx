@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Users, Trophy, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Users, Trophy, Loader2, Star } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -56,6 +56,7 @@ interface PredictionDialogProps {
   onClose: () => void;
   onSavePrediction: (matchId: number, prediction: string | null) => void;
   currentPrediction?: string | null;
+  adminRating?: number;
 }
 
 export const PredictionDialog: React.FC<PredictionDialogProps> = ({
@@ -64,6 +65,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   onClose,
   onSavePrediction,
   currentPrediction,
+  adminRating,
 }) => {
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
   const [matchInfo, setMatchInfo] = useState<MatchInfo | null>(null);
@@ -211,7 +213,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <DialogTitle className="text-lg font-semibold">Match Details</DialogTitle>
+            <div className="flex items-center space-x-2">
+              <DialogTitle className="text-lg font-semibold">Match Details</DialogTitle>
+              {adminRating && adminRating > 1 && (
+                <div className="flex items-center space-x-1 bg-yellow-500 text-black px-2 py-1 rounded-full">
+                  <Star className="h-3 w-3 fill-current" />
+                  <span className="text-xs font-bold">{adminRating}</span>
+                </div>
+              )}
+            </div>
           </div>
         </DialogHeader>
         
@@ -399,7 +409,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                       key={team.position}
                       className={`h-6 ${
                         team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name
-                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700 border-b-2'
+                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-md'
                           : ''
                       }`}
                     >

@@ -442,8 +442,33 @@ class FootballDataApiService {
       info.standings = standings;
 
       if (standings.length > 0) {
-        const homeTeamStanding = standings.find(s => s.team.id === match.homeTeam.id);
-        const awayTeamStanding = standings.find(s => s.team.id === match.awayTeam.id);
+        console.log('Looking for teams in standings:', {
+          homeTeam: { id: match.homeTeam.id, name: match.homeTeam.name },
+          awayTeam: { id: match.awayTeam.id, name: match.awayTeam.name }
+        });
+
+        const homeTeamStanding = standings.find(s => {
+          const nameMatch = s.team.name === match.homeTeam.name || 
+                          s.team.shortName === match.homeTeam.name ||
+                          s.team.name === match.homeTeam.shortName ||
+                          s.team.shortName === match.homeTeam.shortName;
+          const idMatch = s.team.id === match.homeTeam.id;
+          return nameMatch || idMatch;
+        });
+        
+        const awayTeamStanding = standings.find(s => {
+          const nameMatch = s.team.name === match.awayTeam.name || 
+                          s.team.shortName === match.awayTeam.name ||
+                          s.team.name === match.awayTeam.shortName ||
+                          s.team.shortName === match.awayTeam.shortName;
+          const idMatch = s.team.id === match.awayTeam.id;
+          return nameMatch || idMatch;
+        });
+
+        console.log('Found team standings:', {
+          homeTeamStanding: homeTeamStanding ? { position: homeTeamStanding.position, name: homeTeamStanding.team.name } : null,
+          awayTeamStanding: awayTeamStanding ? { position: awayTeamStanding.position, name: awayTeamStanding.team.name } : null
+        });
 
         info.homePosition = homeTeamStanding?.position;
         info.awayPosition = awayTeamStanding?.position;
