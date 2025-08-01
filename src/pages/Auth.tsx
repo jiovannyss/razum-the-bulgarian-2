@@ -374,25 +374,7 @@ export default function Auth() {
       const competitions = await footballDataApi.getCompetitions();
       setAvailableCompetitions(competitions);
       
-      // For specific users, pre-select competitions
-      if (formData.email === 'admin@razum.bg') {
-        // Admin gets all competitions by default
-        const allIds = new Set(competitions.map(c => c.id));
-        setSelectedCompetitions(allIds);
-      } else if (formData.email === 'jiovannyss@gmail.com') {
-        // Pre-select specific competitions for this user
-        const targetCompetitions = ['Campeonato Brasileiro Série A', 'Primera Division', 'Championship', 'Premier League'];
-        const selectedIds = new Set(
-          competitions
-            .filter(c => targetCompetitions.some(target => c.name.includes(target)))
-            .map(c => c.id)
-        );
-        setSelectedCompetitions(selectedIds);
-      } else {
-        // Default: select all competitions for other users
-        const allIds = new Set(competitions.map(c => c.id));
-        setSelectedCompetitions(allIds);
-      }
+      // No pre-selection - all competitions start unmarked
     } catch (error) {
       console.error('Error loading competitions:', error);
       setError('Failed to load competitions');
