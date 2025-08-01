@@ -407,15 +407,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               <Table>
                 <TableHeader>
                   <TableRow className="h-8">
-                    <TableHead className="w-8 py-1">#</TableHead>
+                    <TableHead className="w-8 py-1 hidden md:table-cell">#</TableHead>
                     <TableHead className="py-1">Team</TableHead>
                     <TableHead className="w-8 py-1">MP</TableHead>
-                    <TableHead className="w-8 py-1">W</TableHead>
-                    <TableHead className="w-8 py-1">D</TableHead>
-                    <TableHead className="w-8 py-1">L</TableHead>
+                    <TableHead className="w-8 py-1 hidden md:table-cell">W</TableHead>
+                    <TableHead className="w-8 py-1 hidden md:table-cell">D</TableHead>
+                    <TableHead className="w-8 py-1 hidden md:table-cell">L</TableHead>
                     <TableHead className="w-12 py-1">Goals</TableHead>
                     <TableHead className="w-8 py-1">PTS</TableHead>
-                    <TableHead className="py-1">Form</TableHead>
+                    <TableHead className="py-1 hidden md:table-cell">Form</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -427,29 +427,26 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     return (
                       <TableRow 
                         key={team.position}
-                        className={`h-6 relative ${
+                        className={`relative ${
                           isHighlighted
-                            ? 'bg-yellow-100/80 dark:bg-yellow-900/30'
-                            : 'hover:bg-muted/50'
+                            ? 'h-5 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg'
+                            : 'h-8 hover:bg-muted/50'
                         }`}
                       >
-                        {isHighlighted && (
-                          <div className="absolute inset-0 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg pointer-events-none" />
-                        )}
-                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.position}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.team.name}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.playedGames}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.won}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.draw}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.lost}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.points}</TableCell>
-                        <TableCell className="py-1 relative z-10">
+                        <TableCell className={`font-medium py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.position}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
+                        <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.won}</TableCell>
+                        <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.draw}</TableCell>
+                        <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.lost}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                        <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
+                        <TableCell className={`py-1 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>
                           <div className="flex space-x-1">
-                            {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
+                            {(team.form || 'WWWWW').split('').slice(-5).reverse().map((result, index) => (
                               <div
                                 key={index}
-                                className={`w-3 h-3 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
+                                className={`w-3 h-3 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
                               >
                                 {result}
                               </div>
@@ -473,12 +470,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Fixed Save Button */}
-        <Button 
-          onClick={handleSave} 
-          className="sticky bottom-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg z-50"
-        >
-          Save Prediction
-        </Button>
+        <div className="sticky bottom-4 flex justify-center z-50">
+          <Button 
+            onClick={handleSave} 
+            className="w-[calc(100%-2rem)] bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg"
+          >
+            Save Prediction
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
