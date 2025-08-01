@@ -439,8 +439,8 @@ class FootballDataApiService {
       
       let allMatches: Match[] = [];
       
-      // Get matches from more competitions and matchdays for better coverage
-      for (const competition of competitions.slice(0, 5)) {
+      // Get matches from ALL competitions
+      for (const competition of competitions) {
         try {
           console.log(`🎯 Getting matches for: ${competition.name}`);
           
@@ -448,8 +448,9 @@ class FootballDataApiService {
           const currentMatchday = await this.getCurrentMatchday(competition.id);
           console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
           
-          // Fetch current and next 2 matchdays for more matches
-          const matchdaysToFetch = [currentMatchday, currentMatchday + 1, currentMatchday + 2].filter(md => md > 0);
+          // Fetch ALL matchdays (1 to 38 for typical season)
+          const totalMatchdays = 38; // Most leagues have 38 matchdays
+          const matchdaysToFetch = Array.from({length: totalMatchdays}, (_, i) => i + 1);
           
           for (const matchday of matchdaysToFetch) {
             try {
