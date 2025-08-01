@@ -674,13 +674,79 @@ class FootballDataApiService {
   // Get head-to-head matches between two teams
   async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
     try {
-      console.log(`🔍 [H2H] Getting head-to-head between teams ${team1Id} and ${team2Id}`);
+      console.log(`🔍 [H2H] Starting head-to-head search for teams ${team1Id} vs ${team2Id}`);
       
-      // First try to get matches from team1 to find any match between these teams
+      // First try to find matches in cached data
+      console.log(`🔍 [H2H] Searching cached fixtures for teams ${team1Id} and ${team2Id}`);
+      
+      const { data: cachedMatches, error } = await supabase
+        .from('cached_fixtures' as any)
+        .select(`
+          *,
+          home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
+          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
+          competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
+        `)
+        .or(`and(home_team_id.eq.${team1Id},away_team_id.eq.${team2Id}),and(home_team_id.eq.${team2Id},away_team_id.eq.${team1Id})`)
+        .eq('status', 'FINISHED')
+        .order('utc_date', { ascending: false })
+        .limit(limit);
+
+      if (!error && cachedMatches && cachedMatches.length > 0) {
+        console.log(`✅ [H2H] Found ${cachedMatches.length} matches in cached data`);
+        
+        // Transform cached data to Match interface
+        const h2hMatches = cachedMatches.map((match: any) => ({
+          id: match.id,
+          competition: {
+            id: match.competition_id,
+            name: match.competition?.name || 'Competition'
+          },
+          season: {
+            id: match.season_id || 0
+          },
+          utcDate: match.utc_date,
+          status: match.status,
+          matchday: match.matchday,
+          homeTeam: {
+            id: match.home_team_id,
+            name: match.home_team?.name || 'Home Team',
+            shortName: match.home_team?.short_name || 'HTM',
+            tla: match.home_team?.tla || 'HTM',
+            crest: match.home_team?.crest_url || ''
+          },
+          awayTeam: {
+            id: match.away_team_id,
+            name: match.away_team?.name || 'Away Team',
+            shortName: match.away_team?.short_name || 'ATM',
+            tla: match.away_team?.tla || 'ATM',
+            crest: match.away_team?.crest_url || ''
+          },
+          score: {
+            winner: match.winner,
+            fullTime: {
+              home: match.home_score,
+              away: match.away_score
+            },
+            halfTime: {
+              home: null,
+              away: null
+            }
+          },
+          venue: match.venue
+        }));
+
+        console.log(`✅ [H2H] Returning ${h2hMatches.length} cached head-to-head matches`);
+        return h2hMatches;
+      }
+
+      console.log(`⚠️ [H2H] No matches found in cache, trying API...`);
+      
+      // Fallback to API if no cached data
       const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=30`);
       
       if (!response.matches || response.matches.length === 0) {
-        console.log(`⚠️ [H2H] No matches found for team ${team1Id}`);
+        console.log(`⚠️ [H2H] No matches found for team ${team1Id} via API`);
         return [];
       }
       
@@ -705,7 +771,7 @@ class FootballDataApiService {
         }
       }
       
-      // Fallback: manually filter matches between these teams
+      // Final fallback: manually filter matches between these teams
       const headToHeadMatches = response.matches.filter(match => 
         (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
         (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
