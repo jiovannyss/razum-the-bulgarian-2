@@ -261,6 +261,7 @@ export function AdminMatches() {
   // Filter matches by current game week for each competition
   const getMatchesForGameWeek = (competitionData: CompetitionWithMatches) => {
     const currentGameWeek = getCurrentGameWeek(competitionData.competition, competitionData.currentMatchday);
+    console.log(`Filtering matches for ${competitionData.competition}, game week: ${currentGameWeek}`);
     return competitionData.matches.filter(match => match.matchday === currentGameWeek);
   };
 
