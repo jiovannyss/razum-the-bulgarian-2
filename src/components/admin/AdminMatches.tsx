@@ -55,10 +55,12 @@ export function AdminMatches() {
         .in('external_id', mappedMatches.map(m => m.id.toString()));
 
       if (existingMatches.data) {
+        console.log('Found existing matches in DB:', existingMatches.data.length);
         // Update ratings from database
         mappedMatches.forEach(apiMatch => {
           const existing = existingMatches.data.find(db => db.external_id === apiMatch.id.toString());
           if (existing) {
+            console.log(`Setting rating for match ${apiMatch.id}: ${existing.admin_rating}`);
             apiMatch.admin_rating = existing.admin_rating || 1;
             apiMatch.db_id = existing.id;
           }
@@ -100,6 +102,12 @@ export function AdminMatches() {
         admin_rating: newRating,
         external_id: apiMatch.id.toString(),
       };
+
+      console.log('Updating match rating:', { 
+        external_id: apiMatch.id.toString(), 
+        newRating, 
+        hasDbId: !!apiMatch.db_id 
+      });
 
       if (apiMatch.db_id) {
         // Update existing match
