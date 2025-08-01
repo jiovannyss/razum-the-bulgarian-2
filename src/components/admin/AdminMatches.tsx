@@ -65,24 +65,40 @@ export function AdminMatches() {
 
       // Check which matches already exist in database
       const externalIds = mappedMatches.map(m => m.id);
-      console.log('Looking for external_ids:', externalIds);
+      console.log('Looking for external_ids:', externalIds.length, 'matches');
       
-      const existingMatches = await supabase
-        .from('cached_fixtures')
-        .select('id, admin_rating')
-        .in('id', externalIds);
+      // Split into smaller chunks to avoid URL length limits
+      const chunkSize = 100;
+      const existingMatches = [];
+      
+      for (let i = 0; i < externalIds.length; i += chunkSize) {
+        const chunk = externalIds.slice(i, i + chunkSize);
+        const { data, error } = await supabase
+          .from('cached_fixtures')
+          .select('id, admin_rating')
+          .in('id', chunk);
+          
+        if (error) {
+          console.error('Error loading matches chunk:', error);
+          continue;
+        }
+        
+        if (data) {
+          existingMatches.push(...data);
+        }
+      }
 
-      if (existingMatches.data) {
-        console.log('Found existing matches in DB:', existingMatches.data.length);
-        console.log('Existing matches data:', existingMatches.data);
+      if (existingMatches.length > 0) {
+        console.log('Found existing matches in DB:', existingMatches.length);
+        console.log('Existing matches data:', existingMatches);
         
         // Check for Botafogo match specifically
-        const botafogoDbMatch = existingMatches.data.find(m => m.id === 535106);
+        const botafogoDbMatch = existingMatches.find(m => m.id === 535106);
         console.log('🔍 Botafogo match in DB:', botafogoDbMatch);
         
         // Update ratings from database
         mappedMatches.forEach(apiMatch => {
-          const existing = existingMatches.data.find(db => db.id === apiMatch.id);
+          const existing = existingMatches.find(db => db.id === apiMatch.id);
           
           // Special logging for Botafogo match
           if (apiMatch.id === 535106) {
