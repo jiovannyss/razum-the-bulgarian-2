@@ -446,7 +446,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                              {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
                                 <div
                                   key={index}
-                                  className={`w-4 h-5 flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
+                                  className={`w-5 h-5 flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
                                 >
                                  {result}
                                </div>
