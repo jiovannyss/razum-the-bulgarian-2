@@ -676,7 +676,7 @@ class FootballDataApiService {
     try {
       console.log(`🔍 [H2H] Starting head-to-head search for teams ${team1Id} vs ${team2Id}`);
       
-      // First try to find matches in cached data
+      // First try to find matches in cached data - including ALL statuses for recent/upcoming matches
       console.log(`🔍 [H2H] Searching cached fixtures for teams ${team1Id} and ${team2Id}`);
       
       const { data: cachedMatches, error } = await supabase
@@ -688,7 +688,6 @@ class FootballDataApiService {
           competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
         .or(`and(home_team_id.eq.${team1Id},away_team_id.eq.${team2Id}),and(home_team_id.eq.${team2Id},away_team_id.eq.${team1Id})`)
-        .eq('status', 'FINISHED')
         .order('utc_date', { ascending: false })
         .limit(limit);
 
@@ -740,49 +739,39 @@ class FootballDataApiService {
         return h2hMatches;
       }
 
-      console.log(`⚠️ [H2H] No matches found in cache, trying API...`);
+      console.log(`⚠️ [H2H] No matches found in cache, trying API head2head endpoint...`);
       
-      // Fallback to API if no cached data
-      const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=30`);
+      // Fallback: Try to use the API /matches/{id}/head2head endpoint 
+      // First we need to find ANY match between these teams to get a match ID
       
-      if (!response.matches || response.matches.length === 0) {
-        console.log(`⚠️ [H2H] No matches found for team ${team1Id} via API`);
-        return [];
-      }
-      
-      // Find a match between these teams to use for head2head endpoint
-      const matchBetweenTeams = response.matches.find(match => 
-        (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
-        (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
-      );
-      
-      if (matchBetweenTeams) {
-        // Use the /matches/{id}/head2head endpoint as per documentation
-        try {
-          console.log(`🔍 [H2H] Found match ${matchBetweenTeams.id}, using head2head endpoint`);
-          const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/matches/${matchBetweenTeams.id}/head2head`);
-          
-          if (h2hResponse.matches && h2hResponse.matches.length > 0) {
-            console.log(`✅ [H2H] Found ${h2hResponse.matches.length} matches via /matches/{id}/head2head`);
-            return h2hResponse.matches.slice(0, limit);
-          }
-        } catch (h2hError) {
-          console.log(`⚠️ [H2H] head2head endpoint failed, falling back to manual filtering`);
-        }
-      }
-      
-      // Final fallback: manually filter matches between these teams
-      const headToHeadMatches = response.matches.filter(match => 
-        (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
-        (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
-      );
-      
-      const result = headToHeadMatches
-        .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
-        .slice(0, limit);
+      try {
+        const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50`);
         
-      console.log(`✅ [H2H] Returning ${result.length} head-to-head matches (manual filter)`);
-      return result;
+        if (response.matches && response.matches.length > 0) {
+          // Find a match between these teams
+          const matchBetweenTeams = response.matches.find(match => 
+            (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+            (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+          );
+          
+          if (matchBetweenTeams) {
+            console.log(`🔍 [H2H] Found match ${matchBetweenTeams.id}, using /matches/{id}/head2head endpoint`);
+            
+            // Use the official Head2Head endpoint as per documentation
+            const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/matches/${matchBetweenTeams.id}/head2head?limit=${limit}`);
+            
+            if (h2hResponse.matches && h2hResponse.matches.length > 0) {
+              console.log(`✅ [H2H] Found ${h2hResponse.matches.length} matches via official head2head endpoint`);
+              return h2hResponse.matches;
+            }
+          }
+        }
+      } catch (apiError) {
+        console.log(`⚠️ [H2H] API head2head endpoint failed:`, apiError);
+      }
+      
+      console.log(`⚠️ [H2H] No head-to-head matches found between teams ${team1Id} and ${team2Id}`);
+      return [];
     } catch (error) {
       console.error('❌ [H2H] Error getting head-to-head:', error);
       return [];
