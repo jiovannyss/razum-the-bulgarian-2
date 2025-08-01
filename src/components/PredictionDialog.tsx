@@ -202,7 +202,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center space-x-3">
             <Button 
@@ -404,37 +404,41 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(matchInfo?.standings || []).map((team) => (
-                    <TableRow 
-                      key={team.position}
-                      className={`h-6 ${
-                        team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name
-                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl'
-                          : ''
-                      }`}
-                    >
-                      <TableCell className="font-medium py-1 text-xs">{team.position}</TableCell>
-                      <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
-                      <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
-                      <TableCell className="py-1 text-xs">{team.won}</TableCell>
-                      <TableCell className="py-1 text-xs">{team.draw}</TableCell>
-                      <TableCell className="py-1 text-xs">{team.lost}</TableCell>
-                      <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                      <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
-                      <TableCell className="py-1">
-                        <div className="flex space-x-1">
-                          {(team.form || '').split('').slice(-5).map((result, index) => (
-                            <div
-                              key={index}
-                              className={`w-3 h-3 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
-                            >
-                              {result}
-                            </div>
-                          ))}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {(matchInfo?.standings || []).map((team) => {
+                    const isHighlighted = team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name;
+                    return (
+                      <TableRow 
+                        key={team.position}
+                        className={`h-6 ${
+                          isHighlighted
+                            ? 'relative'
+                            : ''
+                        }`}
+                      >
+                        <div className={`${isHighlighted ? 'absolute inset-0 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl' : ''}`} style={{ zIndex: -1 }} />
+                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.position}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.team.name}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.playedGames}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.won}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.draw}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.lost}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.points}</TableCell>
+                        <TableCell className="py-1 relative z-10">
+                          <div className="flex space-x-1">
+                            {(team.form || '').split('').slice(-5).map((result, index) => (
+                              <div
+                                key={index}
+                                className={`w-3 h-3 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
+                              >
+                                {result}
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                   {(!matchInfo?.standings || matchInfo.standings.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-4 text-muted-foreground">
