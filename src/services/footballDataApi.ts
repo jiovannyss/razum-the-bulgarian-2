@@ -663,15 +663,16 @@ class FootballDataApiService {
   // Get head-to-head matches between two teams using the direct API endpoint
   async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
     try {
-      console.log(`🔍 Getting head-to-head between teams ${team1Id} and ${team2Id}`);
+      console.log(`🔍 [H2H] Getting head-to-head between teams ${team1Id} (${team1Id}) and ${team2Id} (${team2Id})`);
       
       // Try to find ANY match between these two teams to use for the head2head endpoint
       let matchId: number | null = null;
       
       try {
-        // Search matches for team1
-        const team1Matches = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50`);
-        console.log(`📊 Got ${team1Matches.matches.length} matches for team ${team1Id}`);
+        // Search matches for team1 - добавяме timestamp за избягване на кеш
+        const timestamp = Date.now();
+        const team1Matches = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50&_t=${timestamp}`);
+        console.log(`📊 [H2H] Got ${team1Matches.matches.length} matches for team ${team1Id}`);
         
         // Find a match that's specifically between these two teams
         const directMatch = team1Matches.matches.find(match => 
@@ -876,7 +877,14 @@ class FootballDataApiService {
       }
 
       // Get head-to-head matches (limited API calls)
+      console.log(`🎯 Getting head-to-head for match between:`, {
+        homeTeam: { id: match.homeTeam.id, name: match.homeTeam.name },
+        awayTeam: { id: match.awayTeam.id, name: match.awayTeam.name }
+      });
+      
       const h2h = await this.getHeadToHead(match.homeTeam.id, match.awayTeam.id, 5);
+      console.log(`📋 Head-to-head result for ${match.homeTeam.name} vs ${match.awayTeam.name}:`, h2h.length, 'matches');
+      
       info.headToHead = h2h.map(m => ({
         date: new Date(m.utcDate).toLocaleDateString('en-GB'),
         competition: m.competition.name.slice(0, 3).toUpperCase(),
