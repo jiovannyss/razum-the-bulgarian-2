@@ -263,6 +263,28 @@ const LiveScore = () => {
   // Load matches on component mount
   useEffect(() => {
     loadMatches();
+    
+    // Set up realtime listener for matches table updates
+    const channel = supabase
+      .channel('matches-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'matches'
+        },
+        (payload) => {
+          console.log('Match updated via realtime:', payload);
+          // Reload matches when any match is updated
+          loadMatches();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Helper function to check if a match is today
