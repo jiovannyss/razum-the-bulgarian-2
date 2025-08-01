@@ -214,7 +214,12 @@ serve(async (req) => {
       console.log(`📊 Синхронизиране на класирания за турнир ${competitionId}...`);
       try {
         const data = await makeApiRequest(`/competitions/${competitionId}/standings`);
-        const standings: ApiStanding[] = data.standings?.[0]?.table || [];
+        
+        // Търсим TOTAL standings table (не HOME/AWAY), защото само там има form данни
+        const totalStanding = data.standings?.find((s: any) => 
+          s.type === 'TOTAL' || !s.type || s.stage === 'REGULAR_SEASON'
+        );
+        const standings: ApiStanding[] = totalStanding?.table || [];
 
         // Първо изтриваме старите записи за този турнир
         await supabase
