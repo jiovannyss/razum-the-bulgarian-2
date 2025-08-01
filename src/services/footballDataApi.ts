@@ -53,6 +53,45 @@ export interface Match {
       away?: number;
     };
   };
+  venue?: string;
+}
+
+export interface Standing {
+  position: number;
+  team: Team;
+  playedGames: number;
+  won: number;
+  draw: number;
+  lost: number;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  form: string;
+}
+
+export interface StandingsResponse {
+  standings: {
+    table: Standing[];
+  }[];
+}
+
+export interface MatchInfo {
+  venue?: string;
+  capacity?: string;
+  homePosition?: number;
+  awayPosition?: number;
+  homeForm?: string[];
+  awayForm?: string[];
+  headToHead?: {
+    date: string;
+    competition: string;
+    homeTeam: string;
+    awayTeam: string;
+    homeScore: number;
+    awayScore: number;
+  }[];
+  standings?: Standing[];
 }
 
 export interface CompetitionsResponse {
@@ -351,6 +390,89 @@ class FootballDataApiService {
     } catch (error) {
       console.error('❌ Brazilian League API Test failed:', error);
     }
+  }
+
+  // Get match details including venue information
+  async getMatchDetails(matchId: number): Promise<Match | null> {
+    try {
+      const response = await this.makeRequest<Match>(`/matches/${matchId}`);
+      return response;
+    } catch (error) {
+      console.error('Error getting match details:', error);
+      return null;
+    }
+  }
+
+  // Get standings for a competition
+  async getStandings(competitionId: number): Promise<Standing[]> {
+    try {
+      const response = await this.makeRequest<StandingsResponse>(`/competitions/${competitionId}/standings`);
+      return response.standings[0]?.table || [];
+    } catch (error) {
+      console.error('Error getting standings:', error);
+      return [];
+    }
+  }
+
+  // Get head-to-head matches between two teams
+  async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
+    try {
+      const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=${limit * 2}`);
+      // Filter matches where both teams played against each other
+      return response.matches.filter(match => 
+        (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+        (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+      ).slice(0, limit);
+    } catch (error) {
+      console.error('Error getting head-to-head:', error);
+      return [];
+    }
+  }
+
+  // Get comprehensive match information
+  async getMatchInfo(match: Match): Promise<MatchInfo> {
+    const info: MatchInfo = {
+      venue: match.venue || "TBD",
+      capacity: "N/A"
+    };
+
+    try {
+      // Get standings to find team positions and form
+      const standings = await this.getStandings(match.competition.id);
+      info.standings = standings;
+
+      if (standings.length > 0) {
+        const homeTeamStanding = standings.find(s => s.team.id === match.homeTeam.id);
+        const awayTeamStanding = standings.find(s => s.team.id === match.awayTeam.id);
+
+        info.homePosition = homeTeamStanding?.position;
+        info.awayPosition = awayTeamStanding?.position;
+
+        // Extract form from standings
+        if (homeTeamStanding?.form) {
+          info.homeForm = homeTeamStanding.form.split('').slice(-5);
+        }
+        if (awayTeamStanding?.form) {
+          info.awayForm = awayTeamStanding.form.split('').slice(-5);
+        }
+      }
+
+      // Get head-to-head matches (limited API calls)
+      const h2h = await this.getHeadToHead(match.homeTeam.id, match.awayTeam.id, 5);
+      info.headToHead = h2h.map(m => ({
+        date: new Date(m.utcDate).toLocaleDateString('en-GB'),
+        competition: m.competition.name.slice(0, 3).toUpperCase(),
+        homeTeam: m.homeTeam.name,
+        awayTeam: m.awayTeam.name,
+        homeScore: m.score.fullTime.home || 0,
+        awayScore: m.score.fullTime.away || 0
+      }));
+
+    } catch (error) {
+      console.error('Error getting comprehensive match info:', error);
+    }
+
+    return info;
   }
 }
 
