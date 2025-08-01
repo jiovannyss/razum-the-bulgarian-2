@@ -335,9 +335,9 @@ export function AdminMatches() {
           return (
             <Card key={competitionName} className="bg-slate-800/50 border-purple-700">
               <Collapsible open={!collapsedCompetitions.has(competitionName)} onOpenChange={() => toggleCompetition(competitionName)}>
-                <CollapsibleTrigger asChild>
-                  <div className="p-4 cursor-pointer hover:bg-slate-700/50 transition-colors flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                <div className="p-4 transition-colors flex items-center justify-between">
+                  <CollapsibleTrigger asChild>
+                    <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-700/50 transition-colors flex-1 -mx-4 px-4 py-2 rounded">
                       {collapsedCompetitions.has(competitionName) ? (
                         <ChevronRight className="h-5 w-5 text-purple-400" />
                       ) : (
@@ -345,20 +345,20 @@ export function AdminMatches() {
                       )}
                       <h3 className="text-lg font-semibold text-white">{competitionName}</h3>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {!collapsedCompetitions.has(competitionName) && (
-                        <GameWeekNavigation
-                          currentGameWeek={currentGameWeek}
-                          onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
-                          maxGameWeek={38}
-                        />
-                      )}
-                      <Badge variant="outline" className="border-purple-600 text-purple-200">
-                        {currentMatches.length} мача
-                      </Badge>
-                    </div>
+                  </CollapsibleTrigger>
+                  <div className="flex items-center gap-3">
+                    {!collapsedCompetitions.has(competitionName) && (
+                      <GameWeekNavigation
+                        currentGameWeek={currentGameWeek}
+                        onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
+                        maxGameWeek={38}
+                      />
+                    )}
+                    <Badge variant="outline" className="border-purple-600 text-purple-200">
+                      {currentMatches.length} мача
+                    </Badge>
                   </div>
-                </CollapsibleTrigger>
+                </div>
                 <CollapsibleContent>
                   <CardContent className="p-0">
                     <div className="grid gap-3 p-4">
