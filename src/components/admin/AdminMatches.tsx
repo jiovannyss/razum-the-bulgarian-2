@@ -338,21 +338,26 @@ export function AdminMatches() {
                                 
                                 <div className="flex items-center gap-2">
                                   <span className="text-purple-200 text-sm">Рейтинг:</span>
-                                  <Select 
-                                    value={match.admin_rating.toString()} 
-                                    onValueChange={(value) => updateApiMatchRating(match, parseInt(value))}
-                                  >
-                                    <SelectTrigger className="w-20 h-8 bg-slate-700 border-purple-600 text-white">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="1">1</SelectItem>
-                                      <SelectItem value="2">2</SelectItem>
-                                      <SelectItem value="3">3</SelectItem>
-                                      <SelectItem value="4">4</SelectItem>
-                                      <SelectItem value="5">5</SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                 <Select 
+                                   value={match.admin_rating.toString()} 
+                                   onValueChange={(value) => updateApiMatchRating(match, parseInt(value))}
+                                   disabled={match.status.toLowerCase() === 'live' || match.status.toLowerCase() === 'finished'}
+                                 >
+                                   <SelectTrigger className={`w-20 h-8 border-purple-600 text-white ${
+                                     match.status.toLowerCase() === 'live' || match.status.toLowerCase() === 'finished' 
+                                       ? 'bg-slate-600 cursor-not-allowed opacity-50' 
+                                       : 'bg-slate-700'
+                                   }`}>
+                                     <SelectValue />
+                                   </SelectTrigger>
+                                   <SelectContent>
+                                     <SelectItem value="1">1</SelectItem>
+                                     <SelectItem value="2">2</SelectItem>
+                                     <SelectItem value="3">3</SelectItem>
+                                     <SelectItem value="4">4</SelectItem>
+                                     <SelectItem value="5">5</SelectItem>
+                                   </SelectContent>
+                                 </Select>
                                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
                                 </div>
                               </div>
