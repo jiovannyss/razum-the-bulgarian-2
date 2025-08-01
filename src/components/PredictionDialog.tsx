@@ -427,21 +427,20 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                      return (
                        <TableRow 
                          key={team.position}
-                         className={`h-8 hover:bg-muted/50 ${
-                           isHighlighted
-                             ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg'
-                             : ''
-                         }`}
+                         className="h-8 hover:bg-muted/50 relative"
                        >
-                         <TableCell className={`font-medium py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.position}</TableCell>
-                         <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
-                         <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
-                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.won}</TableCell>
-                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.draw}</TableCell>
-                         <TableCell className={`py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.lost}</TableCell>
-                         <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                         <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
-                         <TableCell className={`py-1 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>
+                         {isHighlighted && (
+                           <div className="absolute inset-0 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg -mx-4"></div>
+                         )}
+                         <TableCell className={`font-medium py-1 text-xs relative z-10 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.position}</TableCell>
+                         <TableCell className="py-1 text-xs relative z-10">{team.team.name}</TableCell>
+                         <TableCell className="py-1 text-xs relative z-10">{team.playedGames}</TableCell>
+                         <TableCell className={`py-1 text-xs relative z-10 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.won}</TableCell>
+                         <TableCell className={`py-1 text-xs relative z-10 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.draw}</TableCell>
+                         <TableCell className={`py-1 text-xs relative z-10 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.lost}</TableCell>
+                         <TableCell className="py-1 text-xs relative z-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                         <TableCell className="font-medium py-1 text-xs relative z-10">{team.points}</TableCell>
+                         <TableCell className={`py-1 relative z-10 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>
                            <div className="flex space-x-1">
                              {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
                                <div
