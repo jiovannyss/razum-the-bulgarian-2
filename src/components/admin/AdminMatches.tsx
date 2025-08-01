@@ -48,6 +48,21 @@ export function AdminMatches() {
         admin_rating: 1, // Default rating
       }));
 
+      console.log('Total API matches loaded:', mappedMatches.length);
+      console.log('Looking for Botafogo vs Cruzeiro in API matches...');
+      const botafogoMatch = mappedMatches.find(m => 
+        m.homeTeam.name.includes('Botafogo') && m.awayTeam.name.includes('Cruzeiro')
+      );
+      console.log('Botafogo vs Cruzeiro found in API:', botafogoMatch ? 'YES' : 'NO');
+      if (botafogoMatch) {
+        console.log('Botafogo match details:', {
+          id: botafogoMatch.id,
+          homeTeam: botafogoMatch.homeTeam.name,
+          awayTeam: botafogoMatch.awayTeam.name,
+          matchday: botafogoMatch.matchday
+        });
+      }
+
       // Check which matches already exist in database
       const externalIds = mappedMatches.map(m => m.id.toString());
       console.log('Looking for external_ids:', externalIds);
