@@ -663,14 +663,29 @@ class FootballDataApiService {
   // Get head-to-head matches between two teams
   async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
     try {
-      const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=${limit * 2}`);
+      console.log(`🔍 Getting head-to-head between teams ${team1Id} and ${team2Id}`);
+      
+      // Try to get more matches to increase chances of finding head-to-head
+      const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=100&status=FINISHED`);
+      console.log(`📊 Got ${response.matches.length} total matches for team ${team1Id}`);
+      
       // Filter matches where both teams played against each other
-      return response.matches.filter(match => 
+      const headToHeadMatches = response.matches.filter(match => 
         (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
         (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
-      ).slice(0, limit);
+      );
+      
+      console.log(`⚽ Found ${headToHeadMatches.length} head-to-head matches`);
+      
+      // Return the most recent ones, limited by the limit parameter
+      const result = headToHeadMatches
+        .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
+        .slice(0, limit);
+        
+      console.log(`✅ Returning ${result.length} recent head-to-head matches`);
+      return result;
     } catch (error) {
-      console.error('Error getting head-to-head:', error);
+      console.error('❌ Error getting head-to-head:', error);
       return [];
     }
   }

@@ -110,7 +110,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           
           console.log('API match object:', apiMatch);
           const info = await footballDataApi.getMatchInfo(apiMatch);
-          console.log('Loaded match info successfully:', info);
+          console.log('✅ Loaded match info successfully:', info);
+          console.log('📊 Head-to-head matches found:', info.headToHead?.length || 0);
           setMatchInfo(info);
         } catch (error) {
           console.error('Error loading match info:', error);
