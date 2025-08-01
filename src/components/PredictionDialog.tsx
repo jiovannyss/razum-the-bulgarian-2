@@ -231,7 +231,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[90vh] overflow-y-auto p-0 pb-20">
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center space-x-3">
             <Button 
@@ -495,11 +495,11 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </Card>
         </div>
 
-        {/* Fixed Save Button */}
-        <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center">
+        {/* Fixed Save Button positioned within dialog */}
+        <div className="sticky bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
           <Button 
             onClick={handleSave} 
-            className="w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           >
             Save Prediction
           </Button>
