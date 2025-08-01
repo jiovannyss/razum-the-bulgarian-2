@@ -439,8 +439,8 @@ class FootballDataApiService {
       
       let allMatches: Match[] = [];
       
-      // Get matches only from first 2 competitions to stay under rate limit
-      for (const competition of competitions.slice(0, 2)) {
+      // Get matches from more competitions and matchdays for better coverage
+      for (const competition of competitions.slice(0, 5)) {
         try {
           console.log(`🎯 Getting matches for: ${competition.name}`);
           
@@ -448,8 +448,8 @@ class FootballDataApiService {
           const currentMatchday = await this.getCurrentMatchday(competition.id);
           console.log(`📅 Current matchday for ${competition.name}: ${currentMatchday}`);
           
-          // Only fetch current matchday to minimize API calls
-          const matchdaysToFetch = [currentMatchday];
+          // Fetch current and next 2 matchdays for more matches
+          const matchdaysToFetch = [currentMatchday, currentMatchday + 1, currentMatchday + 2].filter(md => md > 0);
           
           for (const matchday of matchdaysToFetch) {
             try {

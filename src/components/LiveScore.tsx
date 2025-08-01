@@ -178,7 +178,7 @@ const LiveScore = () => {
       
       // Get competitions for storing state
       const competitions = await footballDataApi.getCompetitions();
-      const competitionsWithCurrentMatchday = competitions.slice(0, 3).map(comp => ({
+      const competitionsWithCurrentMatchday = competitions.slice(0, 5).map(comp => ({
         ...comp, 
         currentMatchday: comp.currentSeason.currentMatchday
       }));
