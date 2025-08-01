@@ -40,6 +40,14 @@ interface Match {
       away: number | null;
     };
   };
+  competition?: {
+    id: number;
+    name: string;
+  };
+  season?: {
+    id: number;
+  };
+  matchday?: number;
 }
 
 interface PredictionDialogProps {
@@ -75,18 +83,20 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
       setIsLoadingMatchInfo(true);
       const loadMatchInfo = async () => {
         try {
-          // Convert the local match to API match format
+          console.log('Loading match info for:', match);
+          // Add missing properties if not present
           const apiMatch = {
             ...match,
-            competition: { id: 2013, name: "Campeonato Brasileiro Série A" },
-            season: { id: 2371 },
-            matchday: 18,
+            competition: match.competition || { id: 2013, name: "Campeonato Brasileiro Série A" },
+            season: match.season || { id: 2371 },
+            matchday: match.matchday || 18,
             score: {
               ...match.score,
               halfTime: { home: null, away: null }
             }
           };
           const info = await footballDataApi.getMatchInfo(apiMatch);
+          console.log('Loaded match info:', info);
           setMatchInfo(info);
         } catch (error) {
           console.error('Error loading match info:', error);
@@ -94,10 +104,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           setMatchInfo({
             venue: match.venue || "TBD",
             capacity: "N/A",
-            homePosition: 4,
-            awayPosition: 20,
-            homeForm: ['W', 'W', 'L', 'D', 'W'],
-            awayForm: ['L', 'L', 'W', 'D', 'L'],
+            homePosition: undefined,
+            awayPosition: undefined,
+            homeForm: undefined,
+            awayForm: undefined,
             headToHead: [],
             standings: []
           });
@@ -381,7 +391,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                       key={team.position}
                       className={`h-6 ${
                         team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name
-                          ? 'bg-yellow-50 dark:bg-yellow-950/20'
+                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700'
                           : ''
                       }`}
                     >
