@@ -424,22 +424,21 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     return (
                       <TableRow 
                         key={team.position}
-                        className={`h-6 ${
+                        className={`h-6 relative ${
                           isHighlighted
-                            ? 'relative'
-                            : ''
+                            ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl'
+                            : 'hover:bg-muted/50'
                         }`}
                       >
-                        <div className={`${isHighlighted ? 'absolute inset-0 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl' : ''}`} style={{ zIndex: -1 }} />
-                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.position}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.team.name}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.playedGames}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.won}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.draw}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.lost}</TableCell>
-                        <TableCell className="py-1 text-xs relative z-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.points}</TableCell>
-                        <TableCell className="py-1 relative z-10">
+                        <TableCell className="font-medium py-1 text-xs">{team.position}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.won}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.draw}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.lost}</TableCell>
+                        <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                        <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
+                        <TableCell className="py-1">
                           <div className="flex space-x-1">
                             {(team.form || '').split('').slice(-5).map((result, index) => (
                               <div
@@ -468,8 +467,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Fixed Save Button */}
-        <div className="sticky bottom-0 bg-background border-t border-border p-4 mt-6">
-          <Button onClick={handleSave} className="w-full">
+        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 mt-6">
+          <Button onClick={handleSave} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
             Save Prediction
           </Button>
         </div>
