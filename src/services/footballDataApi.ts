@@ -660,24 +660,71 @@ class FootballDataApiService {
     return response.standings[0]?.table || [];
   }
 
-  // Get head-to-head matches between two teams
+  // Get head-to-head matches between two teams using the direct API endpoint
   async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
     try {
       console.log(`🔍 Getting head-to-head between teams ${team1Id} and ${team2Id}`);
       
-      // Try to get more matches to increase chances of finding head-to-head
+      // First, get a recent match between these teams to use for the head2head endpoint
+      // We'll try to find any match involving either team and then use it for head2head
+      let matchId: number | null = null;
+      
+      try {
+        const team1Matches = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=20`);
+        console.log(`📊 Got ${team1Matches.matches.length} matches for team ${team1Id}`);
+        
+        // Find a match between these two teams
+        const directMatch = team1Matches.matches.find(match => 
+          (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+          (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+        );
+        
+        if (directMatch) {
+          matchId = directMatch.id;
+          console.log(`✅ Found direct match ID: ${matchId}`);
+        }
+      } catch (error) {
+        console.log('Could not find direct match, trying fallback approach');
+      }
+      
+      if (matchId) {
+        // Use the head2head endpoint for this match
+        try {
+          interface Head2HeadResponse {
+            matches: Match[];
+            head2head: {
+              numberOfMatches: number;
+              totalGoals: number;
+              homeTeam: { wins: number; draws: number; losses: number };
+              awayTeam: { wins: number; draws: number; losses: number };
+            };
+          }
+          
+          const h2hResponse = await this.makeRequest<Head2HeadResponse>(`/matches/${matchId}/head2head?limit=${limit}`);
+          console.log(`⚽ Head2head API returned ${h2hResponse.matches?.length || 0} matches`);
+          console.log('📊 Head2head stats:', h2hResponse.head2head);
+          
+          if (h2hResponse.matches && h2hResponse.matches.length > 0) {
+            console.log(`✅ Returning ${h2hResponse.matches.length} head-to-head matches from API`);
+            return h2hResponse.matches;
+          }
+        } catch (h2hError) {
+          console.log('Head2head endpoint failed, falling back to manual filtering');
+        }
+      }
+      
+      // Fallback: manual filtering (original approach)
+      console.log('🔄 Using fallback manual filtering approach');
       const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=100&status=FINISHED`);
       console.log(`📊 Got ${response.matches.length} total matches for team ${team1Id}`);
       
-      // Filter matches where both teams played against each other
       const headToHeadMatches = response.matches.filter(match => 
         (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
         (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
       );
       
-      console.log(`⚽ Found ${headToHeadMatches.length} head-to-head matches`);
+      console.log(`⚽ Found ${headToHeadMatches.length} head-to-head matches via filtering`);
       
-      // Return the most recent ones, limited by the limit parameter
       const result = headToHeadMatches
         .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
         .slice(0, limit);
