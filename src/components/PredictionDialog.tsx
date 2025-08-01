@@ -429,7 +429,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                         key={team.position}
                         className={`${
                           isHighlighted
-                            ? 'h-8 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-md'
+                            ? 'h-8 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg overflow-hidden'
                             : 'h-10 hover:bg-muted/50'
                         }`}
                       >
