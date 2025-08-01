@@ -297,6 +297,21 @@ serve(async (req) => {
       competitions = await syncCompetitions();
     } else if (competitionIds) {
       competitions = competitionIds;
+    } else {
+      // Ако синхронизираме standings, teams или fixtures, първо вземаме списъка с турнири
+      console.log('📋 Зареждане на списък с турнири от кеша...');
+      const { data: cachedCompetitions, error } = await supabase
+        .from('cached_competitions')
+        .select('id')
+        .order('id');
+      
+      if (error || !cachedCompetitions) {
+        console.log('⚠️ Няма турнири в кеша, зареждаме от API...');
+        competitions = await syncCompetitions();
+      } else {
+        competitions = cachedCompetitions.map(c => c.id);
+        console.log(`📋 Заредени ${competitions.length} турнира от кеша`);
+      }
     }
 
     // Синхронизиране на данни за избраните турнири
