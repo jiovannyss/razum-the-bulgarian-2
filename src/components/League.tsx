@@ -279,9 +279,9 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
     <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-purple-700 purple-glow">
       {/* League Header */}
       <div className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-purple-700/50">
-        {/* Left part - Clickable */}
+        {/* Left part - Clickable area extended to include navigation */}
         <div 
-          className="flex items-center gap-2 lg:gap-3 cursor-pointer hover:bg-accent/10 transition-colors rounded-lg p-2 -m-2"
+          className="flex items-center gap-2 lg:gap-3 cursor-pointer transition-colors rounded-lg p-2 -m-2 flex-1"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {leagueLogo ? (
@@ -289,37 +289,37 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
           ) : (
             <Trophy className="w-6 h-6 lg:w-8 lg:h-8 text-primary" />
           )}
-          <div>
+          <div className="flex-1">
             <h3 className="font-semibold text-sm lg:text-lg">
               {leagueName}{areaName && `, ${areaName}`}
             </h3>
           </div>
-        </div>
-
-        {/* Right part - Functional controls */}
-        <div className="flex items-center gap-1 lg:gap-2">
+          
+          {/* Game Week Navigation inside clickable area but with event prevention */}
           {!isCollapsed && (
-            <GameWeekNavigation
-              currentGameWeek={currentGameWeek}
-              onGameWeekChange={handleGameWeekChange}
-              maxGameWeek={totalRounds}
-            />
+            <div onClick={(e) => e.stopPropagation()}>
+              <GameWeekNavigation
+                currentGameWeek={currentGameWeek}
+                onGameWeekChange={handleGameWeekChange}
+                maxGameWeek={totalRounds}
+              />
+            </div>
           )}
-
-          {/* Collapse/Expand Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-accent/20"
-          >
-            {isCollapsed ? (
-              <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4" />
-            ) : (
-              <ChevronUp className="h-3 w-3 lg:h-4 lg:w-4" />
-            )}
-          </Button>
         </div>
+
+        {/* Right part - Collapse/Expand Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-accent/20"
+        >
+          {isCollapsed ? (
+            <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4" />
+          ) : (
+            <ChevronUp className="h-3 w-3 lg:h-4 lg:w-4" />
+          )}
+        </Button>
       </div>
 
       {/* Matches List */}
