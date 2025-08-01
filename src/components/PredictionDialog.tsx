@@ -243,7 +243,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     alt={match.homeTeam.name}
                     className="w-12 h-12 md:w-16 md:h-16 object-contain"
                   />
-                  <div className="absolute -top-1 -right-1 w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-yellow-500 rounded-full flex items-center justify-center">
                     <span className="text-black font-bold text-xs md:text-sm">{matchInfo?.homePosition || '?'}</span>
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     alt={match.awayTeam.name}
                     className="w-12 h-12 md:w-16 md:h-16 object-contain"
                   />
-                  <div className="absolute -top-1 -left-1 w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <div className="absolute -top-1 -left-1 w-5 h-5 md:w-6 md:h-6 bg-yellow-500 rounded-full flex items-center justify-center">
                     <span className="text-black font-bold text-xs md:text-sm">{matchInfo?.awayPosition || '?'}</span>
                   </div>
                 </div>
