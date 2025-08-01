@@ -444,10 +444,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                          <TableCell className="py-1">
                            <div className="flex space-x-1">
                              {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
-                               <div
-                                 key={index}
-                                 className={`w-4 h-4 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
-                               >
+                                <div
+                                  key={index}
+                                  className={`w-4 h-5 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
+                                >
                                  {result}
                                </div>
                              ))}
