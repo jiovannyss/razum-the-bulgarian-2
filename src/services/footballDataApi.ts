@@ -450,8 +450,7 @@ class FootballDataApiService {
           away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
           competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
-        .order('utc_date', { ascending: true })
-        .limit(1000); // Увеличаваме лимита
+        .order('utc_date', { ascending: true });
 
       if (error) {
         console.error('❌ Error loading cached matches:', error);
