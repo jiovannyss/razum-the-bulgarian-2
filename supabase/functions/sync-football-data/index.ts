@@ -7,11 +7,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Интерфейси за API данните
 interface ApiCompetition {
   id: number;
   name: string;
   code: string;
+  type: string; // НОВO: LEAGUE, CUP, etc.
   area: {
     name: string;
     code: string;
@@ -34,6 +34,11 @@ interface ApiTeam {
   founded?: number;
   clubColors?: string;
   venue?: string;
+  coach?: { // НОВО
+    name: string;
+    nationality: string;
+  };
+  leagueRank?: number; // НОВО
 }
 
 interface ApiStanding {
@@ -65,6 +70,9 @@ interface ApiMatch {
   awayTeam: ApiTeam;
   utcDate: string;
   status: string;
+  minute?: number; // НОВО
+  injuryTime?: number; // НОВО
+  attendance?: number; // НОВО
   score: {
     winner?: string;
     duration?: string;
@@ -151,6 +159,7 @@ serve(async (req) => {
             id: comp.id,
             name: comp.name,
             code: comp.code,
+            type: comp.type, // НОВО
             area_name: comp.area.name,
             area_code: comp.area.code,
             emblem_url: comp.emblem,
@@ -186,6 +195,9 @@ serve(async (req) => {
               founded: team.founded,
               club_colors: team.clubColors,
               venue: team.venue,
+              coach_name: team.coach?.name, // НОВО
+              coach_nationality: team.coach?.nationality, // НОВО
+              league_rank: team.leagueRank, // НОВО
               last_updated: new Date().toISOString()
             });
           totalProcessed++;
@@ -258,6 +270,9 @@ serve(async (req) => {
               away_team_id: match.awayTeam.id,
               utc_date: match.utcDate,
               status: match.status,
+              minute: match.minute, // НОВО
+              injury_time: match.injuryTime, // НОВО
+              attendance: match.attendance, // НОВО
               home_score: match.score.fullTime.home,
               away_score: match.score.fullTime.away,
               winner: match.score.winner,

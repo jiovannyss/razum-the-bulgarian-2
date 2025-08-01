@@ -26,6 +26,7 @@ export type Database = {
           last_updated: string | null
           name: string
           plan: string | null
+          type: string | null
         }
         Insert: {
           area_code: string
@@ -38,6 +39,7 @@ export type Database = {
           last_updated?: string | null
           name: string
           plan?: string | null
+          type?: string | null
         }
         Update: {
           area_code?: string
@@ -50,11 +52,13 @@ export type Database = {
           last_updated?: string | null
           name?: string
           plan?: string | null
+          type?: string | null
         }
         Relationships: []
       }
       cached_fixtures: {
         Row: {
+          attendance: number | null
           away_score: number | null
           away_team_id: number
           competition_id: number
@@ -64,8 +68,10 @@ export type Database = {
           home_score: number | null
           home_team_id: number
           id: number
+          injury_time: number | null
           last_updated: string | null
           matchday: number | null
+          minute: number | null
           referee: string | null
           season_id: number | null
           stage: string | null
@@ -75,6 +81,7 @@ export type Database = {
           winner: string | null
         }
         Insert: {
+          attendance?: number | null
           away_score?: number | null
           away_team_id: number
           competition_id: number
@@ -84,8 +91,10 @@ export type Database = {
           home_score?: number | null
           home_team_id: number
           id: number
+          injury_time?: number | null
           last_updated?: string | null
           matchday?: number | null
+          minute?: number | null
           referee?: string | null
           season_id?: number | null
           stage?: string | null
@@ -95,6 +104,7 @@ export type Database = {
           winner?: string | null
         }
         Update: {
+          attendance?: number | null
           away_score?: number | null
           away_team_id?: number
           competition_id?: number
@@ -104,8 +114,10 @@ export type Database = {
           home_score?: number | null
           home_team_id?: number
           id?: number
+          injury_time?: number | null
           last_updated?: string | null
           matchday?: number | null
+          minute?: number | null
           referee?: string | null
           season_id?: number | null
           stage?: string | null
@@ -211,11 +223,14 @@ export type Database = {
         Row: {
           address: string | null
           club_colors: string | null
+          coach_name: string | null
+          coach_nationality: string | null
           created_at: string | null
           crest_url: string | null
           founded: number | null
           id: number
           last_updated: string | null
+          league_rank: number | null
           name: string
           short_name: string | null
           tla: string | null
@@ -225,11 +240,14 @@ export type Database = {
         Insert: {
           address?: string | null
           club_colors?: string | null
+          coach_name?: string | null
+          coach_nationality?: string | null
           created_at?: string | null
           crest_url?: string | null
           founded?: number | null
           id: number
           last_updated?: string | null
+          league_rank?: number | null
           name: string
           short_name?: string | null
           tla?: string | null
@@ -239,11 +257,14 @@ export type Database = {
         Update: {
           address?: string | null
           club_colors?: string | null
+          coach_name?: string | null
+          coach_nationality?: string | null
           created_at?: string | null
           crest_url?: string | null
           founded?: number | null
           id?: number
           last_updated?: string | null
+          league_rank?: number | null
           name?: string
           short_name?: string | null
           tla?: string | null
