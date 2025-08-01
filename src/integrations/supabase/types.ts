@@ -14,6 +14,244 @@ export type Database = {
   }
   public: {
     Tables: {
+      cached_competitions: {
+        Row: {
+          area_code: string
+          area_name: string
+          code: string
+          created_at: string | null
+          current_matchday: number | null
+          emblem_url: string | null
+          id: number
+          last_updated: string | null
+          name: string
+          plan: string | null
+        }
+        Insert: {
+          area_code: string
+          area_name: string
+          code: string
+          created_at?: string | null
+          current_matchday?: number | null
+          emblem_url?: string | null
+          id: number
+          last_updated?: string | null
+          name: string
+          plan?: string | null
+        }
+        Update: {
+          area_code?: string
+          area_name?: string
+          code?: string
+          created_at?: string | null
+          current_matchday?: number | null
+          emblem_url?: string | null
+          id?: number
+          last_updated?: string | null
+          name?: string
+          plan?: string | null
+        }
+        Relationships: []
+      }
+      cached_fixtures: {
+        Row: {
+          away_score: number | null
+          away_team_id: number
+          competition_id: number
+          created_at: string | null
+          duration: string | null
+          group_name: string | null
+          home_score: number | null
+          home_team_id: number
+          id: number
+          last_updated: string | null
+          matchday: number | null
+          referee: string | null
+          season_id: number | null
+          stage: string | null
+          status: string
+          utc_date: string
+          venue: string | null
+          winner: string | null
+        }
+        Insert: {
+          away_score?: number | null
+          away_team_id: number
+          competition_id: number
+          created_at?: string | null
+          duration?: string | null
+          group_name?: string | null
+          home_score?: number | null
+          home_team_id: number
+          id: number
+          last_updated?: string | null
+          matchday?: number | null
+          referee?: string | null
+          season_id?: number | null
+          stage?: string | null
+          status?: string
+          utc_date: string
+          venue?: string | null
+          winner?: string | null
+        }
+        Update: {
+          away_score?: number | null
+          away_team_id?: number
+          competition_id?: number
+          created_at?: string | null
+          duration?: string | null
+          group_name?: string | null
+          home_score?: number | null
+          home_team_id?: number
+          id?: number
+          last_updated?: string | null
+          matchday?: number | null
+          referee?: string | null
+          season_id?: number | null
+          stage?: string | null
+          status?: string
+          utc_date?: string
+          venue?: string | null
+          winner?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cached_fixtures_away_team_id_fkey"
+            columns: ["away_team_id"]
+            isOneToOne: false
+            referencedRelation: "cached_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cached_fixtures_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "cached_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cached_fixtures_home_team_id_fkey"
+            columns: ["home_team_id"]
+            isOneToOne: false
+            referencedRelation: "cached_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cached_standings: {
+        Row: {
+          competition_id: number
+          created_at: string | null
+          draw: number | null
+          form: string | null
+          goal_difference: number | null
+          goals_against: number | null
+          goals_for: number | null
+          id: string
+          last_updated: string | null
+          lost: number | null
+          played_games: number | null
+          points: number | null
+          position: number
+          team_id: number
+          won: number | null
+        }
+        Insert: {
+          competition_id: number
+          created_at?: string | null
+          draw?: number | null
+          form?: string | null
+          goal_difference?: number | null
+          goals_against?: number | null
+          goals_for?: number | null
+          id?: string
+          last_updated?: string | null
+          lost?: number | null
+          played_games?: number | null
+          points?: number | null
+          position: number
+          team_id: number
+          won?: number | null
+        }
+        Update: {
+          competition_id?: number
+          created_at?: string | null
+          draw?: number | null
+          form?: string | null
+          goal_difference?: number | null
+          goals_against?: number | null
+          goals_for?: number | null
+          id?: string
+          last_updated?: string | null
+          lost?: number | null
+          played_games?: number | null
+          points?: number | null
+          position?: number
+          team_id?: number
+          won?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cached_standings_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "cached_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cached_standings_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "cached_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cached_teams: {
+        Row: {
+          address: string | null
+          club_colors: string | null
+          created_at: string | null
+          crest_url: string | null
+          founded: number | null
+          id: number
+          last_updated: string | null
+          name: string
+          short_name: string | null
+          tla: string | null
+          venue: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          club_colors?: string | null
+          created_at?: string | null
+          crest_url?: string | null
+          founded?: number | null
+          id: number
+          last_updated?: string | null
+          name: string
+          short_name?: string | null
+          tla?: string | null
+          venue?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          club_colors?: string | null
+          created_at?: string | null
+          crest_url?: string | null
+          founded?: number | null
+          id?: number
+          last_updated?: string | null
+          name?: string
+          short_name?: string | null
+          tla?: string | null
+          venue?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           admin_rating: number | null
@@ -292,6 +530,81 @@ export type Database = {
           name?: string
           start_date?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      sync_logs: {
+        Row: {
+          competition_id: number | null
+          completed_at: string | null
+          created_at: string | null
+          errors: string | null
+          id: string
+          records_processed: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+        }
+        Insert: {
+          competition_id?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          errors?: string | null
+          id?: string
+          records_processed?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+        }
+        Update: {
+          competition_id?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          errors?: string | null
+          id?: string
+          records_processed?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+        }
+        Relationships: []
+      }
+      user_competitions: {
+        Row: {
+          area_name: string | null
+          competition_code: string | null
+          competition_id: number
+          competition_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          joined_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area_name?: string | null
+          competition_code?: string | null
+          competition_id: number
+          competition_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          area_name?: string | null
+          competition_code?: string | null
+          competition_id?: number
+          competition_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
