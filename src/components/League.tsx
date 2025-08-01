@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PredictionDialog } from "./PredictionDialog";
+import { type Match } from "@/services/footballDataApi";
 
 interface ProcessedMatch {
   id: string;
@@ -25,6 +26,14 @@ interface ProcessedMatch {
   myPredictionCorrect?: boolean | null;
   round: string;
   adminRating?: number;
+  competition?: {
+    id: number;
+    name: string;
+    emblem?: string;
+    area?: {
+      name: string;
+    };
+  };
 }
 
 interface LeagueProps {
@@ -255,32 +264,42 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
   };
 
   // Convert ProcessedMatch to the format expected by PredictionDialog
-  const convertMatchForDialog = (match: ProcessedMatch) => {
+  const convertMatchForDialog = (match: ProcessedMatch): Match => {
     return {
       id: parseInt(match.id),
       homeTeam: {
-        id: 1, // Would come from API
+        id: parseInt(match.id) * 1000 + 1, // Generate unique ID based on match ID
         name: match.homeTeam,
         shortName: match.homeTeam,
         tla: match.homeTeam.substring(0, 3).toUpperCase(),
         crest: match.homeLogo || '/placeholder.svg'
       },
       awayTeam: {
-        id: 2, // Would come from API
+        id: parseInt(match.id) * 1000 + 2, // Generate unique ID based on match ID
         name: match.awayTeam,
         shortName: match.awayTeam,
         tla: match.awayTeam.substring(0, 3).toUpperCase(),
         crest: match.awayLogo || '/placeholder.svg'
       },
-      utcDate: match.time,
-      status: match.status,
-      venue: 'Stadium TBD', // Would come from API
+      utcDate: typeof match.time === 'string' && match.time.includes('T') ? match.time : new Date().toISOString(),
+      status: match.status === 'live' ? 'IN_PLAY' : match.status === 'finished' ? 'FINISHED' : 'SCHEDULED',
+      venue: 'Stadium TBD',
       score: {
         fullTime: {
           home: match.homeScore,
           away: match.awayScore
-        }
-      }
+        },
+        winner: match.homeScore !== null && match.awayScore !== null 
+          ? (match.homeScore > match.awayScore ? 'HOME_TEAM' : match.awayScore > match.homeScore ? 'AWAY_TEAM' : 'DRAW')
+          : null,
+        halfTime: { home: null, away: null }
+      },
+      competition: match.competition || {
+        id: 2013, // Fallback to Brazilian league
+        name: match.tournament || 'Unknown Competition'
+      },
+      season: { id: 2371 },
+      matchday: parseInt(match.round) || 1
     };
   };
 

@@ -245,7 +245,8 @@ class FootballDataApiService {
         .select(`
           *,
           home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
-          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*)
+          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
+          competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
         .eq('competition_id', competitionId)
         .order('utc_date')

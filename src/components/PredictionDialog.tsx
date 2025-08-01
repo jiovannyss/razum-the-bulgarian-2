@@ -18,38 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { footballDataApi, type MatchInfo, type Standing } from '@/services/footballDataApi';
-
-interface Team {
-  id: number;
-  name: string;
-  shortName: string;
-  tla: string;
-  crest: string;
-}
-
-interface Match {
-  id: number;
-  homeTeam: Team;
-  awayTeam: Team;
-  utcDate: string;
-  status: string;
-  venue?: string;
-  score: {
-    fullTime: {
-      home: number | null;
-      away: number | null;
-    };
-  };
-  competition?: {
-    id: number;
-    name: string;
-  };
-  season?: {
-    id: number;
-  };
-  matchday?: number;
-}
+import { footballDataApi, type MatchInfo, type Standing, type Match } from '@/services/footballDataApi';
 
 interface PredictionDialogProps {
   match: Match | null;
@@ -98,12 +67,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           
           console.log('🔍 CRITICAL DEBUG - Raw match object:', match);
           
-          // Add missing properties if not present - DO NOT override existing competition data!
+          // Use the match as-is without any fallback modifications
           const apiMatch = {
             ...match,
-            competition: match.competition || { id: 0, name: "Unknown Competition" },
-            season: match.season || { id: 0 },
-            matchday: match.matchday || 1,
             score: {
               ...match.score,
               halfTime: { home: null, away: null }
