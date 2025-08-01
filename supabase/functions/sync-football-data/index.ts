@@ -148,9 +148,8 @@ serve(async (req) => {
     const syncCompetitions = async () => {
       console.log('🏆 Синхронизиране на турнири...');
       const data = await makeApiRequest('/competitions');
-      const competitions: ApiCompetition[] = data.competitions.filter(
-        (comp: ApiCompetition) => comp.plan === 'TIER_ONE'
-      );
+      const competitions: ApiCompetition[] = data.competitions;
+      console.log(`🔍 Общо ${competitions.length} турнира от API:`, competitions.map(c => `${c.name} (${c.code}) - ${c.plan}`));
 
       for (const comp of competitions) {
         await supabase
