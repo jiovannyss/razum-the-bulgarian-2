@@ -519,6 +519,7 @@ class FootballDataApiService {
         venue: match.venue
       }));
       
+      console.log(`✅ Loaded ${fixtures.length} matches from cache`);
       console.log(`📊 Total matches from cache: ${allMatches.length}`);
       return allMatches;
     } catch (error) {
