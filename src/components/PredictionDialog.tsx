@@ -409,7 +409,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                       key={team.position}
                       className={`h-6 ${
                         team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name
-                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-md'
+                          ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl'
                           : ''
                       }`}
                     >

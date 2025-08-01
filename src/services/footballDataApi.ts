@@ -432,11 +432,19 @@ class FootballDataApiService {
   // Get comprehensive match information
   async getMatchInfo(match: Match): Promise<MatchInfo> {
     const info: MatchInfo = {
-      venue: match.venue || "TBD",
+      venue: "Stadium TBD",
       capacity: "N/A"
     };
 
     try {
+      // First try to get venue from match details
+      const matchDetails = await this.getMatchDetails(match.id);
+      if (matchDetails) {
+        console.log('Raw match details:', matchDetails);
+        info.venue = matchDetails.venue || `${match.homeTeam.name} Stadium` || "Stadium TBD";
+        info.capacity = matchDetails.venue && matchDetails.venue !== "Stadium TBD" ? "N/A" : "N/A";
+        console.log('Extracted venue info:', { venue: info.venue, capacity: info.capacity });
+      }
       // Get standings to find team positions and form
       const standings = await this.getStandings(match.competition.id);
       info.standings = standings;
