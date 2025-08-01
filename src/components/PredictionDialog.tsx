@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Dialog,
   DialogContent,
@@ -494,17 +495,20 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardContent>
           </Card>
         </div>
-
-        {/* Save Button в горе в DialogContent */}
-        <div className="p-4 border-t border-border bg-background">
+      </DialogContent>
+      
+      {/* Fixed Save Button използвайки Portal за да е винаги в долната част на екрана */}
+      {isOpen && createPortal(
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-md">
           <Button 
             onClick={handleSave} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xl"
           >
             Save Prediction
           </Button>
-        </div>
-      </DialogContent>
+        </div>,
+        document.body
+      )}
     </Dialog>
   );
 };
