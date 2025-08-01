@@ -441,7 +441,7 @@ class FootballDataApiService {
     try {
       console.log('⚽ Loading ALL matches from cached database...');
       
-      // Get ALL cached matches with competition names
+      // Get ALL cached matches with competition names (включително завършени)
       const { data: fixtures, error } = await supabase
         .from('cached_fixtures' as any)
         .select(`
@@ -450,7 +450,6 @@ class FootballDataApiService {
           away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
           competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
         `)
-        .gte('utc_date', new Date().toISOString()) // Само бъдещи мачове
         .order('utc_date', { ascending: true })
         .limit(1000); // Увеличаваме лимита
 
