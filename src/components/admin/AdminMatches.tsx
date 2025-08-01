@@ -352,13 +352,29 @@ export function AdminMatches() {
                     </div>
                   </CollapsibleTrigger>
                   <div className="flex items-center gap-3">
-                    {!collapsedCompetitions.has(competitionName) && (
-                      <GameWeekNavigation
-                        currentGameWeek={currentGameWeek}
-                        onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
-                        maxGameWeek={38}
-                      />
-                    )}
+                    {!collapsedCompetitions.has(competitionName) && (() => {
+                      // Calculate max gameweek from available matches for this competition
+                      const competitionMatches = currentMatches;
+                      const maxRoundFromMatches = competitionMatches.length > 0 
+                        ? Math.max(...competitionMatches.map(m => m.matchday || 1))
+                        : 0;
+                      
+                      // Use smart gameweek if available, otherwise calculated max or 38 fallback
+                      const smartGW = smartGameWeeks[competitionName];
+                      const maxGameWeek = smartGW && smartGW > maxRoundFromMatches
+                        ? smartGW
+                        : maxRoundFromMatches > 0 
+                          ? maxRoundFromMatches 
+                          : 38;
+                      
+                      return (
+                        <GameWeekNavigation
+                          currentGameWeek={currentGameWeek}
+                          onGameWeekChange={(gw) => handleGameWeekChange(competitionName, gw)}
+                          maxGameWeek={maxGameWeek}
+                        />
+                      );
+                    })()}
                     <Badge variant="outline" className="border-purple-600 text-purple-200">
                       {currentMatches.length} мача
                     </Badge>

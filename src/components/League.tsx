@@ -57,8 +57,17 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
   
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
   
-  // Use a fixed range of 1-38 for navigation, regardless of loaded matches
-  const totalRounds = 38; // Standard for most leagues
+  // Calculate max rounds based on available data, fallback to current matchday or 38
+  const maxRoundFromMatches = availableRounds.length > 0 
+    ? Math.max(...availableRounds.map(r => parseInt(r)))
+    : 0;
+  
+  // Use current matchday if available and higher than max found round, otherwise use data max or 38 fallback
+  const totalRounds = currentMatchday && currentMatchday > maxRoundFromMatches
+    ? currentMatchday
+    : maxRoundFromMatches > 0 
+      ? maxRoundFromMatches 
+      : 38;
   
   // Initialize with the current matchday if available, otherwise first round
   const [currentGameWeek, setCurrentGameWeek] = useState(() => {
