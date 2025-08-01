@@ -174,11 +174,22 @@ export function AdminMatches() {
         if (competitionData.matches.length > 0) {
           try {
             const competitionId = competitionData.matches[0].competition.id;
-            const smartMatchday = await footballDataApi.getSmartCurrentMatchday(competitionId, competitionData.currentMatchday);
+            
+            // Get the official current matchday from API
+            const officialCurrentMatchday = await footballDataApi.getCurrentMatchday(competitionId);
+            console.log(`🏆 ${competitionName}: Official current matchday: ${officialCurrentMatchday}`);
+            
+            // Then get smart matchday based on official one
+            const smartMatchday = await footballDataApi.getSmartCurrentMatchday(competitionId, officialCurrentMatchday);
+            console.log(`🧠 ${competitionName}: Smart matchday: ${smartMatchday}`);
+            
             newSmartGameWeeks[competitionName] = smartMatchday;
           } catch (error) {
             console.error(`Error getting smart matchday for ${competitionName}:`, error);
-            newSmartGameWeeks[competitionName] = competitionData.currentMatchday;
+            // Fallback to highest matchday number from available matches
+            const matchdays = competitionData.matches.map(m => m.matchday).filter(Boolean);
+            const maxMatchday = Math.max(...matchdays);
+            newSmartGameWeeks[competitionName] = maxMatchday || 1;
           }
         }
       }
