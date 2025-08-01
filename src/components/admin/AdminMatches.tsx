@@ -64,27 +64,27 @@ export function AdminMatches() {
       }
 
       // Check which matches already exist in database
-      const externalIds = mappedMatches.map(m => m.id.toString());
+      const externalIds = mappedMatches.map(m => m.id);
       console.log('Looking for external_ids:', externalIds);
       
       const existingMatches = await supabase
-        .from('matches')
-        .select('external_id, admin_rating, id')
-        .in('external_id', externalIds);
+        .from('cached_fixtures')
+        .select('id, admin_rating')
+        .in('id', externalIds);
 
       if (existingMatches.data) {
         console.log('Found existing matches in DB:', existingMatches.data.length);
         console.log('Existing matches data:', existingMatches.data);
         // Update ratings from database
         mappedMatches.forEach(apiMatch => {
-          const existing = existingMatches.data.find(db => db.external_id === apiMatch.id.toString());
+          const existing = existingMatches.data.find(db => db.id === apiMatch.id);
           console.log(`Looking for match ${apiMatch.id} (${apiMatch.homeTeam.name} vs ${apiMatch.awayTeam.name})`);
           if (existing) {
             console.log(`Found existing match ${apiMatch.id}: rating ${existing.admin_rating}, db_id ${existing.id}`);
             console.log(`Before update: apiMatch.admin_rating = ${apiMatch.admin_rating}`);
             apiMatch.admin_rating = existing.admin_rating || 1;
             console.log(`After update: apiMatch.admin_rating = ${apiMatch.admin_rating}`);
-            apiMatch.db_id = existing.id;
+            apiMatch.db_id = existing.id.toString();
           } else {
             console.log(`No existing match found for ${apiMatch.id}`);
           }
@@ -123,51 +123,19 @@ export function AdminMatches() {
 
   const updateApiMatchRating = async (apiMatch: ApiMatchDisplay, newRating: number) => {
     try {
-      const matchData = {
-        home_team: apiMatch.homeTeam.name,
-        away_team: apiMatch.awayTeam.name,
-        competition: apiMatch.competition.name,
-        match_date: apiMatch.utcDate,
-        home_score: apiMatch.score.fullTime.home,
-        away_score: apiMatch.score.fullTime.away,
-        status: apiMatch.status.toLowerCase(),
-        admin_rating: newRating,
-        external_id: apiMatch.id.toString(),
-      };
-
       console.log('Updating match rating:', { 
-        external_id: apiMatch.id.toString(), 
+        match_id: apiMatch.id, 
         newRating, 
         hasDbId: !!apiMatch.db_id 
       });
 
-      if (apiMatch.db_id) {
-        // Update existing match by external_id (more reliable)
-        const { error } = await supabase
-          .from('matches')
-          .update({ admin_rating: newRating })
-          .eq('external_id', apiMatch.id.toString());
-        if (error) throw error;
-      } else {
-        // Try to update by external_id first, if not found then insert
-        const { error: updateError } = await supabase
-          .from('matches')
-          .update({ admin_rating: newRating })
-          .eq('external_id', apiMatch.id.toString());
+      // Update the rating in cached_fixtures table
+      const { error } = await supabase
+        .from('cached_fixtures')
+        .update({ admin_rating: newRating })
+        .eq('id', apiMatch.id);
         
-        if (updateError) {
-          // If update failed, insert new match
-          const { data, error } = await supabase
-            .from('matches')
-            .insert(matchData)
-            .select()
-            .single();
-          if (error) throw error;
-          
-          // Update local state with db_id
-          apiMatch.db_id = data.id;
-        }
-      }
+      if (error) throw error;
 
       // Update local state
       setApiMatches(prev => prev.map(match => 

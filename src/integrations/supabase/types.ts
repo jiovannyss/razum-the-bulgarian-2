@@ -58,6 +58,7 @@ export type Database = {
       }
       cached_fixtures: {
         Row: {
+          admin_rating: number | null
           attendance: number | null
           away_score: number | null
           away_team_id: number
@@ -81,6 +82,7 @@ export type Database = {
           winner: string | null
         }
         Insert: {
+          admin_rating?: number | null
           attendance?: number | null
           away_score?: number | null
           away_team_id: number
@@ -104,6 +106,7 @@ export type Database = {
           winner?: string | null
         }
         Update: {
+          admin_rating?: number | null
           attendance?: number | null
           away_score?: number | null
           away_team_id?: number
