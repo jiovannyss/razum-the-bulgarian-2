@@ -432,8 +432,8 @@ class FootballDataApiService {
   // Get team form from recent matches if standings don't provide it
   private async getTeamForm(teamId: number): Promise<string[]> {
     try {
-      // Get last 5 matches for the team
-      const response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=5&status=FINISHED`);
+      // Get last 5 finished matches for the team from any competition
+      const response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=10&status=FINISHED`);
       
       const form: string[] = [];
       for (const match of response.matches.slice(0, 5)) {
