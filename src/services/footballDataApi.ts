@@ -442,7 +442,23 @@ class FootballDataApiService {
       if (matchDetails) {
         console.log('Raw match details:', matchDetails);
         info.venue = matchDetails.venue || `${match.homeTeam.name} Stadium` || "Stadium TBD";
-        info.capacity = matchDetails.venue && matchDetails.venue !== "Stadium TBD" ? "N/A" : "N/A";
+        
+        // Try to get capacity from venue info
+        if (matchDetails.venue && matchDetails.venue !== "Stadium TBD") {
+          // Mock capacity data based on team - in real app this would come from API
+          const capacityMap: { [key: string]: string } = {
+            'Mirassol FC Stadium': '15,000',
+            'Arena Castelão': '63,903',
+            'Maracanã': '78,838',
+            'Neo Química Arena': '49,205',
+            'Allianz Parque': '43,713',
+            'Morumbi': '67,052',
+            'Mineirão': '62,547',
+            'Arena do Grêmio': '55,662'
+          };
+          info.capacity = capacityMap[matchDetails.venue] || "N/A";
+        }
+        
         console.log('Extracted venue info:', { venue: info.venue, capacity: info.capacity });
       }
       // Get standings to find team positions and form
