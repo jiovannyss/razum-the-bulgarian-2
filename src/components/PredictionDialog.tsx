@@ -96,10 +96,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             competition: match.competition
           });
           
-          // Add missing properties if not present
+          // Add missing properties if not present - use REAL competition data from match
           const apiMatch = {
             ...match,
-            competition: match.competition || { id: 2013, name: "Campeonato Brasileiro Série A" },
+            competition: match.competition || { id: 2013, name: "Unknown Competition" },
             season: match.season || { id: 2371 },
             matchday: match.matchday || 18,
             score: {
@@ -107,6 +107,12 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               halfTime: { home: null, away: null }
             }
           };
+          
+          console.log('🔍 Match competition details:', {
+            competitionFromMatch: match.competition,
+            finalCompetitionId: apiMatch.competition.id,
+            finalCompetitionName: apiMatch.competition.name
+          });
           
           console.log('API match object:', apiMatch);
           const info = await footballDataApi.getMatchInfo(apiMatch);
