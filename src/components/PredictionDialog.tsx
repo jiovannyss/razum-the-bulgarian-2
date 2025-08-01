@@ -427,10 +427,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     return (
                       <TableRow 
                         key={team.position}
-                        className={`relative ${
+                        className={`${
                           isHighlighted
-                            ? 'h-5 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg'
-                            : 'h-8 hover:bg-muted/50'
+                            ? 'h-8 bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 rounded-md'
+                            : 'h-10 hover:bg-muted/50'
                         }`}
                       >
                         <TableCell className={`font-medium py-1 text-xs ${isHighlighted ? 'hidden md:table-cell' : ''}`}>{team.position}</TableCell>
@@ -443,10 +443,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                         <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
                         <TableCell className={`py-1 ${isHighlighted ? 'hidden md:table-cell' : ''}`}>
                           <div className="flex space-x-1">
-                            {(team.form || 'WWWWW').split('').slice(-5).reverse().map((result, index) => (
+                            {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
                               <div
                                 key={index}
-                                className={`w-3 h-3 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
+                                className={`w-4 h-4 rounded-sm flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
                               >
                                 {result}
                               </div>
@@ -459,7 +459,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                   {(!matchInfo?.standings || matchInfo.standings.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-4 text-muted-foreground">
-                        No standings data available
+                        Няма налична информация за класирането в тази лига
                       </TableCell>
                     </TableRow>
                   )}
@@ -470,14 +470,12 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Fixed Save Button */}
-        <div className="sticky bottom-4 flex justify-center z-50">
-          <Button 
-            onClick={handleSave} 
-            className="w-[calc(100%-2rem)] bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg"
-          >
-            Save Prediction
-          </Button>
-        </div>
+        <Button 
+          onClick={handleSave} 
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg z-50"
+        >
+          Save Prediction
+        </Button>
       </DialogContent>
     </Dialog>
   );
