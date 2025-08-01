@@ -246,7 +246,13 @@ serve(async (req) => {
           .eq('competition_id', competitionId);
 
         for (const standing of standings) {
-          console.log(`🔍 Team ${standing.team.name}: form="${standing.form}", position=${standing.position}`);
+          console.log(`🔍 Team ${standing.team?.name}: form="${standing.form}", team_id=${standing.team?.id}, type of team_id: ${typeof standing.team?.id}`);
+          
+          // Проверяваме дали team.id съществува
+          if (!standing.team?.id) {
+            console.warn(`⚠️ Missing team_id for team: ${standing.team?.name}`);
+            continue;
+          }
           
           await supabase
             .from('cached_standings')
