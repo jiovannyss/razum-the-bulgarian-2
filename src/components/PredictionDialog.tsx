@@ -392,7 +392,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                   ))
                 ) : (
                   <div className="text-center py-4 text-muted-foreground">
-                    No recent head-to-head matches found
+                    No recent head-to-head matches found. Teams may not have shared history or the season hasn't started yet.
                   </div>
                 )}
               </div>
@@ -463,7 +463,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                   {(!matchInfo?.standings || matchInfo.standings.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-4 text-muted-foreground">
-                        No standings information available for this league
+                        No standings information available for this league. The season may not have started yet.
                       </TableCell>
                     </TableRow>
                   )}

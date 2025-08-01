@@ -683,7 +683,7 @@ class FootballDataApiService {
       const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=${limit * 3}&_t=${timestamp}`);
       
       if (!response.matches || response.matches.length === 0) {
-        console.log(`⚠️ [H2H] No matches found for team ${team1Id}, trying direct H2H API`);
+        console.log(`⚠️ [H2H] No finished matches found for team ${team1Id} - may be a new season or team with no history`);
         
         // Try with the Football Data API head2head endpoint format
         try {
@@ -693,8 +693,10 @@ class FootballDataApiService {
             return h2hResponse.matches.slice(0, limit);
           }
         } catch (h2hError) {
-          console.log(`⚠️ [H2H] Direct H2H API failed, falling back to manual filtering`);
+          console.log(`⚠️ [H2H] Direct H2H API also returned no data or failed - teams may have no shared history`);
         }
+        
+        return []; // Return empty array if no matches found
       }
       
       // Filter for direct head-to-head matches
@@ -733,6 +735,12 @@ class FootballDataApiService {
       const response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=10&status=FINISHED`);
       console.log(`🔍 FORM DEBUG: API response for team ${teamId}:`, response.matches?.length || 0, 'matches');
       
+      // Check if there are actually any matches
+      if (!response.matches || response.matches.length === 0) {
+        console.log(`⚠️ FORM DEBUG: No finished matches found for team ${teamId} - season may not have started yet`);
+        return []; // Return empty array instead of question marks for teams with no matches
+      }
+      
       const form: string[] = [];
       for (const match of response.matches.slice(0, 5)) {
         console.log(`🔍 FORM DEBUG: Processing match: ${match.homeTeam.name} vs ${match.awayTeam.name}, winner: ${match.score.winner}`);
@@ -759,10 +767,10 @@ class FootballDataApiService {
       }
       
       console.log(`🔍 FORM DEBUG: Final form for team ${teamId}:`, form);
-      return form.length > 0 ? form : ['?', '?', '?', '?', '?'];
+      return form;
     } catch (error) {
       console.error(`❌ FORM DEBUG: Error fetching team form for ${teamId}:`, error);
-      return ['?', '?', '?', '?', '?'];
+      return []; // Return empty array on error
     }
   }
   async getMatchInfo(match: Match): Promise<MatchInfo> {
@@ -835,23 +843,25 @@ class FootballDataApiService {
         info.awayPosition = awayTeamStanding?.position;
 
         // Extract form from standings or fetch from recent matches
-        if (homeTeamStanding?.form) {
+        if (homeTeamStanding?.form && homeTeamStanding.form.trim() !== '') {
           info.homeForm = homeTeamStanding.form.split('').slice(-5);
+          console.log(`🔍 FORM DEBUG: Using cached form for home team ${match.homeTeam.name}:`, info.homeForm);
         } else {
-      // Get form from recent matches if standings don't provide it
-      console.log(`🔍 FORM DEBUG: Getting form for home team ${match.homeTeam.id} (${match.homeTeam.name})`);
-      info.homeForm = await this.getTeamForm(match.homeTeam.id);
-      console.log(`🔍 FORM DEBUG: Home team form result:`, info.homeForm);
-    }
-    
-    if (awayTeamStanding?.form) {
-      info.awayForm = awayTeamStanding.form.split('').slice(-5);
-    } else {
-      // Get form from recent matches if standings don't provide it
-      console.log(`🔍 FORM DEBUG: Getting form for away team ${match.awayTeam.id} (${match.awayTeam.name})`);
-      info.awayForm = await this.getTeamForm(match.awayTeam.id);
-      console.log(`🔍 FORM DEBUG: Away team form result:`, info.awayForm);
-    }
+          // Get form from recent matches if standings don't provide it
+          console.log(`🔍 FORM DEBUG: Getting form for home team ${match.homeTeam.id} (${match.homeTeam.name})`);
+          info.homeForm = await this.getTeamForm(match.homeTeam.id);
+          console.log(`🔍 FORM DEBUG: Home team form result:`, info.homeForm);
+        }
+        
+        if (awayTeamStanding?.form && awayTeamStanding.form.trim() !== '') {
+          info.awayForm = awayTeamStanding.form.split('').slice(-5);
+          console.log(`🔍 FORM DEBUG: Using cached form for away team ${match.awayTeam.name}:`, info.awayForm);
+        } else {
+          // Get form from recent matches if standings don't provide it
+          console.log(`🔍 FORM DEBUG: Getting form for away team ${match.awayTeam.id} (${match.awayTeam.name})`);
+          info.awayForm = await this.getTeamForm(match.awayTeam.id);
+          console.log(`🔍 FORM DEBUG: Away team form result:`, info.awayForm);
+        }
       }
 
       // Get head-to-head matches (limited API calls)
