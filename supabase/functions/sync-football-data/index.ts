@@ -215,10 +215,22 @@ serve(async (req) => {
       try {
         const data = await makeApiRequest(`/competitions/${competitionId}/standings`);
         
+        console.log(`🔍 Debug: За турнир ${competitionId} получихме ${data.standings?.length || 0} standings tables`);
+        
+        // Логваме всички standings types
+        if (data.standings) {
+          data.standings.forEach((standing: any, index: number) => {
+            console.log(`  Table ${index}: type="${standing.type}", stage="${standing.stage}", entries=${standing.table?.length || 0}`);
+          });
+        }
+        
         // Търсим TOTAL standings table (не HOME/AWAY), защото само там има form данни
         const totalStanding = data.standings?.find((s: any) => 
           s.type === 'TOTAL' || !s.type || s.stage === 'REGULAR_SEASON'
         );
+        
+        console.log(`🎯 Избрахме standing: type="${totalStanding?.type}", table entries=${totalStanding?.table?.length || 0}`);
+        
         const standings: ApiStanding[] = totalStanding?.table || [];
 
         // Първо изтриваме старите записи за този турнир
@@ -228,6 +240,8 @@ serve(async (req) => {
           .eq('competition_id', competitionId);
 
         for (const standing of standings) {
+          console.log(`🔍 Team ${standing.team.name}: form="${standing.form}", position=${standing.position}`);
+          
           await supabase
             .from('cached_standings')
             .insert({
