@@ -805,33 +805,35 @@ class FootballDataApiService {
     try {
       console.log(`🔍 Getting form for team ${teamId}`);
       
-      // Get recent finished matches for the team
-      const response = await this.makeRequest<MatchesResponse>(`/teams/${teamId}/matches?status=FINISHED&limit=10`);
-      
-      if (!response.matches || response.matches.length === 0) {
-        console.log(`⚠️ No finished matches found for team ${teamId}`);
-        return [];
+      // First try to get from cached team form table
+      const { data: cachedForm, error: formError } = await supabase
+        .from('cached_team_form' as any)
+        .select('*')
+        .eq('team_id', teamId)
+        .single();
+
+      if (cachedForm && !formError) {
+        console.log(`✅ Found cached form for team ${teamId}`);
+        const form = [
+          (cachedForm as any).match1_result,
+          (cachedForm as any).match2_result,
+          (cachedForm as any).match3_result,
+          (cachedForm as any).match4_result,
+          (cachedForm as any).match5_result
+        ].filter(Boolean); // Remove null values
+        
+        console.log(`✅ Team ${teamId} cached form: ${form.join('')}`);
+        return form;
+      }
+
+      if (formError) {
+        console.log(`⚠️ Cached form error for team ${teamId}:`, formError);
+      } else {
+        console.log(`ℹ️ No cached form found for team ${teamId}`);
       }
       
-      // Sort by date (most recent first) and take last 5
-      const recentMatches = response.matches
-        .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
-        .slice(0, 5);
-      
-      const form = recentMatches.map(match => {
-        if (match.homeTeam.id === teamId) {
-          if (match.score.winner === 'HOME_TEAM') return 'W';
-          if (match.score.winner === 'AWAY_TEAM') return 'L';
-          return 'D';
-        } else {
-          if (match.score.winner === 'AWAY_TEAM') return 'W';
-          if (match.score.winner === 'HOME_TEAM') return 'L';
-          return 'D';
-        }
-      });
-      
-      console.log(`✅ Team ${teamId} form: ${form.join('')}`);
-      return form;
+      console.log(`ℹ️ No form data available for team ${teamId}`);
+      return [];
     } catch (error) {
       console.error(`❌ Error fetching form for team ${teamId}:`, error);
       return [];
