@@ -671,81 +671,51 @@ class FootballDataApiService {
     return response.standings[0]?.table || [];
   }
 
-  // Get head-to-head matches between two teams using direct API endpoint
+  // Get head-to-head matches between two teams
   async getHeadToHead(team1Id: number, team2Id: number, limit: number = 5): Promise<Match[]> {
     try {
-      console.log(`🔍 [H2H] Getting head-to-head between teams ${team1Id} and ${team2Id} using direct API`);
-      console.log(`🔍 [H2H DEBUG] Team ID types: ${typeof team1Id}, ${typeof team2Id}`);
-      console.log(`🔍 [H2H DEBUG] Team IDs are numbers: ${Number.isInteger(team1Id)}, ${Number.isInteger(team2Id)}`);
+      console.log(`🔍 [H2H] Getting head-to-head between teams ${team1Id} and ${team2Id}`);
       
-      // Try multiple approaches to get head-to-head data
-      const timestamp = Date.now();
-      let response;
-      let foundMatches = false;
+      // First try to get matches from team1 to find any match between these teams
+      const response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=30`);
       
-      // First try: Get finished matches for team1 without competition restrictions
-      try {
-        response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?status=FINISHED&limit=30&_t=${timestamp}`);
-        if (response.matches && response.matches.length > 0) {
-          foundMatches = true;
-          console.log(`🔍 [H2H] Found ${response.matches.length} finished matches for team ${team1Id}`);
-        }
-      } catch (error) {
-        console.log(`⚠️ [H2H] Failed to get finished matches for team ${team1Id}:`, error);
+      if (!response.matches || response.matches.length === 0) {
+        console.log(`⚠️ [H2H] No matches found for team ${team1Id}`);
+        return [];
       }
       
-      // Second try: Get all matches for team1 and filter
-      if (!foundMatches) {
-        try {
-          response = await this.makeRequest<MatchesResponse>(`/teams/${team1Id}/matches?limit=50&_t=${timestamp + 1}`);
-          if (response.matches && response.matches.length > 0) {
-            // Filter only finished matches
-            response.matches = response.matches.filter(match => match.status === 'FINISHED');
-            foundMatches = response.matches.length > 0;
-            console.log(`🔍 [H2H] Found ${response.matches.length} finished matches from all matches for team ${team1Id}`);
-          }
-        } catch (error) {
-          console.log(`⚠️ [H2H] Failed to get any matches for team ${team1Id}:`, error);
-        }
-      }
+      // Find a match between these teams to use for head2head endpoint
+      const matchBetweenTeams = response.matches.find(match => 
+        (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+        (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+      );
       
-      if (!foundMatches) {
-        console.log(`⚠️ [H2H] No finished matches found for either team - trying direct H2H API`);
-        
-        // Try with the Football Data API head2head endpoint format
+      if (matchBetweenTeams) {
+        // Use the /matches/{id}/head2head endpoint as per documentation
         try {
-          const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/teams/${team1Id}/head2head/${team2Id}?limit=${limit}&_t=${timestamp + 2}`);
+          console.log(`🔍 [H2H] Found match ${matchBetweenTeams.id}, using head2head endpoint`);
+          const h2hResponse = await this.makeRequest<{ matches: Match[] }>(`/matches/${matchBetweenTeams.id}/head2head`);
+          
           if (h2hResponse.matches && h2hResponse.matches.length > 0) {
-            console.log(`✅ [H2H] Found ${h2hResponse.matches.length} matches via direct H2H API`);
+            console.log(`✅ [H2H] Found ${h2hResponse.matches.length} matches via /matches/{id}/head2head`);
             return h2hResponse.matches.slice(0, limit);
           }
         } catch (h2hError) {
-          console.log(`⚠️ [H2H] Direct H2H API also failed - teams may have no shared history or API limitations`);
+          console.log(`⚠️ [H2H] head2head endpoint failed, falling back to manual filtering`);
         }
-        
-        return []; // Return empty array if no matches found
       }
       
-      // Filter for direct head-to-head matches from the response
-      const headToHeadMatches = response.matches.filter(match => {
-        const isDirectH2H = (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
-                           (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id);
-        
-        if (isDirectH2H) {
-          console.log(`✅ [H2H] Found H2H match: ${match.homeTeam.name} vs ${match.awayTeam.name} (${new Date(match.utcDate).toLocaleDateString()})`);
-        }
-        
-        return isDirectH2H;
-      });
+      // Fallback: manually filter matches between these teams
+      const headToHeadMatches = response.matches.filter(match => 
+        (match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+        (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id)
+      );
       
-      console.log(`⚽ [H2H] Found ${headToHeadMatches.length} direct head-to-head matches between ${team1Id} and ${team2Id}`);
-      
-      // Sort by date (most recent first) and limit results
       const result = headToHeadMatches
         .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
         .slice(0, limit);
         
-      console.log(`✅ [H2H] Returning ${result.length} recent head-to-head matches`);
+      console.log(`✅ [H2H] Returning ${result.length} head-to-head matches (manual filter)`);
       return result;
     } catch (error) {
       console.error('❌ [H2H] Error getting head-to-head:', error);
@@ -756,74 +726,38 @@ class FootballDataApiService {
   // Get team form from recent matches if standings don't provide it
   private async getTeamForm(teamId: number): Promise<string[]> {
     try {
-      console.log(`🔍 FORM DEBUG: Fetching recent matches for team ${teamId}...`);
+      console.log(`🔍 Getting form for team ${teamId}`);
       
-      // Try different approaches to get historical matches
-      let response;
-      let foundMatches = false;
+      // Get recent finished matches for the team
+      const response = await this.makeRequest<MatchesResponse>(`/teams/${teamId}/matches?status=FINISHED&limit=10`);
       
-      // First try: Get finished matches without competition filter
-      try {
-        response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?status=FINISHED&limit=15`);
-        if (response.matches && response.matches.length > 0) {
-          foundMatches = true;
-          console.log(`🔍 FORM DEBUG: Found ${response.matches.length} finished matches for team ${teamId}`);
-        }
-      } catch (error) {
-        console.log(`⚠️ FORM DEBUG: Failed to get finished matches for team ${teamId}:`, error);
+      if (!response.matches || response.matches.length === 0) {
+        console.log(`⚠️ No finished matches found for team ${teamId}`);
+        return [];
       }
       
-      // Second try: Get all recent matches if no finished ones found
-      if (!foundMatches) {
-        try {
-          response = await this.makeRequest<{matches: Match[]}>(`/teams/${teamId}/matches?limit=15`);
-          if (response.matches && response.matches.length > 0) {
-            // Filter only finished matches from the response
-            response.matches = response.matches.filter(match => match.status === 'FINISHED');
-            foundMatches = response.matches.length > 0;
-            console.log(`🔍 FORM DEBUG: Found ${response.matches.length} finished matches from all matches for team ${teamId}`);
-          }
-        } catch (error) {
-          console.log(`⚠️ FORM DEBUG: Failed to get any matches for team ${teamId}:`, error);
-        }
-      }
+      // Sort by date (most recent first) and take last 5
+      const recentMatches = response.matches
+        .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
+        .slice(0, 5);
       
-      // Check if we found any finished matches
-      if (!foundMatches || !response.matches || response.matches.length === 0) {
-        console.log(`⚠️ FORM DEBUG: No finished matches found for team ${teamId} - this may indicate API limitations or very new team`);
-        return []; // Return empty array instead of question marks for teams with no matches
-      }
-      
-      const form: string[] = [];
-      for (const match of response.matches.slice(0, 5)) {
-        console.log(`🔍 FORM DEBUG: Processing match: ${match.homeTeam.name} vs ${match.awayTeam.name}, winner: ${match.score.winner}`);
-        
+      const form = recentMatches.map(match => {
         if (match.homeTeam.id === teamId) {
-          // Team is home
-          if (match.score.winner === 'HOME_TEAM') {
-            form.push('W');
-          } else if (match.score.winner === 'AWAY_TEAM') {
-            form.push('L');
-          } else {
-            form.push('D');
-          }
+          if (match.score.winner === 'HOME_TEAM') return 'W';
+          if (match.score.winner === 'AWAY_TEAM') return 'L';
+          return 'D';
         } else {
-          // Team is away
-          if (match.score.winner === 'AWAY_TEAM') {
-            form.push('W');
-          } else if (match.score.winner === 'HOME_TEAM') {
-            form.push('L');
-          } else {
-            form.push('D');
-          }
+          if (match.score.winner === 'AWAY_TEAM') return 'W';
+          if (match.score.winner === 'HOME_TEAM') return 'L';
+          return 'D';
         }
-      }
+      });
       
-      console.log(`🔍 FORM DEBUG: Final form for team ${teamId}:`, form);
+      console.log(`✅ Team ${teamId} form: ${form.join('')}`);
       return form;
     } catch (error) {
-      console.error(`❌ FORM DEBUG: Error fetching team form for ${teamId}:`, error);
-      return []; // Return empty array on error
+      console.error(`❌ Error fetching form for team ${teamId}:`, error);
+      return [];
     }
   }
   async getMatchInfo(match: Match): Promise<MatchInfo> {
