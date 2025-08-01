@@ -56,13 +56,17 @@ export function AdminMatches() {
 
       if (existingMatches.data) {
         console.log('Found existing matches in DB:', existingMatches.data.length);
+        console.log('Existing matches data:', existingMatches.data);
         // Update ratings from database
         mappedMatches.forEach(apiMatch => {
           const existing = existingMatches.data.find(db => db.external_id === apiMatch.id.toString());
+          console.log(`Looking for match ${apiMatch.id} (${apiMatch.homeTeam.name} vs ${apiMatch.awayTeam.name})`);
           if (existing) {
-            console.log(`Setting rating for match ${apiMatch.id}: ${existing.admin_rating}`);
+            console.log(`Found existing match ${apiMatch.id}: rating ${existing.admin_rating}, db_id ${existing.id}`);
             apiMatch.admin_rating = existing.admin_rating || 1;
             apiMatch.db_id = existing.id;
+          } else {
+            console.log(`No existing match found for ${apiMatch.id}`);
           }
         });
       }
