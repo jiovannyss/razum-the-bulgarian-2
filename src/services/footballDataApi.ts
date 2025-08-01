@@ -442,31 +442,50 @@ class FootballDataApiService {
       console.log('⚽ Loading ALL matches from cached database...');
       
       // Get ALL cached matches with competition names (включително завършени)
-      const { data: fixtures, error } = await supabase
-        .from('cached_fixtures' as any)
-        .select(`
-          *,
-          home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
-          away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
-          competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
-        `)
-        .order('utc_date', { ascending: true })
-        .limit(10000); // Добавяме голям лимит
+      // Използваме цикъл за да заредим всички мачове, тъй като Supabase има лимит
+      let allFixtures: any[] = [];
+      let offset = 0;
+      const batchSize = 1000;
+      
+      while (true) {
+        const { data: fixtures, error } = await supabase
+          .from('cached_fixtures' as any)
+          .select(`
+            *,
+            home_team:cached_teams!cached_fixtures_home_team_id_fkey(*),
+            away_team:cached_teams!cached_fixtures_away_team_id_fkey(*),
+            competition:cached_competitions!cached_fixtures_competition_id_fkey(*)
+          `)
+          .order('utc_date', { ascending: true })
+          .range(offset, offset + batchSize - 1);
 
-      if (error) {
-        console.error('❌ Error loading cached matches:', error);
-        throw error;
+        if (error) {
+          console.error('❌ Error loading cached matches:', error);
+          throw error;
+        }
+
+        if (!fixtures || fixtures.length === 0) {
+          break;
+        }
+
+        allFixtures = allFixtures.concat(fixtures);
+        
+        if (fixtures.length < batchSize) {
+          break; // Последна страница
+        }
+        
+        offset += batchSize;
       }
 
-      if (!fixtures || fixtures.length === 0) {
+      if (!allFixtures || allFixtures.length === 0) {
         console.log('⚽ No cached matches found in database');
         return [];
       }
 
-      console.log(`✅ Loaded ${fixtures.length} matches from cache`);
+      console.log(`✅ Loaded ${allFixtures.length} matches from cache`);
 
       // Transform cached data to Match interface with REAL competition names
-      const allMatches = fixtures.map((match: any) => ({
+      const allMatches = allFixtures.map((match: any) => ({
         id: match.id,
         competition: {
           id: match.competition_id,
@@ -519,7 +538,6 @@ class FootballDataApiService {
         venue: match.venue
       }));
       
-      console.log(`✅ Loaded ${fixtures.length} matches from cache`);
       console.log(`📊 Total matches from cache: ${allMatches.length}`);
       return allMatches;
     } catch (error) {
