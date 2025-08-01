@@ -66,7 +66,9 @@ export function AdminMatches() {
           console.log(`Looking for match ${apiMatch.id} (${apiMatch.homeTeam.name} vs ${apiMatch.awayTeam.name})`);
           if (existing) {
             console.log(`Found existing match ${apiMatch.id}: rating ${existing.admin_rating}, db_id ${existing.id}`);
+            console.log(`Before update: apiMatch.admin_rating = ${apiMatch.admin_rating}`);
             apiMatch.admin_rating = existing.admin_rating || 1;
+            console.log(`After update: apiMatch.admin_rating = ${apiMatch.admin_rating}`);
             apiMatch.db_id = existing.id;
           } else {
             console.log(`No existing match found for ${apiMatch.id}`);
