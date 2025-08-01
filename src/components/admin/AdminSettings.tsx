@@ -69,7 +69,7 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
     }
   };
 
-  const handleSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures') => {
+  const handleSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures' | 'brazil-standings') => {
     setIsLoading(true);
     try {
       await triggerFootballDataSync(syncType);
@@ -194,6 +194,14 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
               variant="outline"
             >
               Мачове
+            </Button>
+            {/* Временен бутон за бразилската лига */}
+            <Button 
+              onClick={() => handleSync('brazil-standings')}
+              disabled={isLoading}
+              className="bg-green-600 hover:bg-green-700 text-white col-span-2 md:col-span-3"
+            >
+              🇧🇷 Бразилска Série A (временно)
             </Button>
           </div>
           {isLoading && (
