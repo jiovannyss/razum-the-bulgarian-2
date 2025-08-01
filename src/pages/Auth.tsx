@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Eye, EyeOff, Upload, User, Camera } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Upload, User, Camera, Check } from 'lucide-react';
 import avatar1 from '@/assets/avatars/avatar-1.png';
 import avatar2 from '@/assets/avatars/avatar-2.png';
 import avatar3 from '@/assets/avatars/avatar-3.png';
@@ -16,6 +16,8 @@ import avatar4 from '@/assets/avatars/avatar-4.png';
 import avatar5 from '@/assets/avatars/avatar-5.png';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { footballDataApi, Competition } from '@/services/footballDataApi';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Countries data
 const countries = [
@@ -277,6 +279,11 @@ export default function Auth() {
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showAvatarSelection, setShowAvatarSelection] = useState(false);
+  const [signupStep, setSignupStep] = useState<'form' | 'competitions' | 'confirmation'>('form');
+  const [availableCompetitions, setAvailableCompetitions] = useState<Competition[]>([]);
+  const [selectedCompetitions, setSelectedCompetitions] = useState<Set<number>>(new Set());
+  const [competitionsLoading, setCompetitionsLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -345,7 +352,41 @@ export default function Auth() {
     checkUser();
   }, [navigate]);
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  // Load available competitions
+  const loadCompetitions = async () => {
+    setCompetitionsLoading(true);
+    try {
+      const competitions = await footballDataApi.getCompetitions();
+      setAvailableCompetitions(competitions);
+      
+      // For specific users, pre-select competitions
+      if (formData.email === 'admin@razum.bg') {
+        // Admin gets all competitions by default
+        const allIds = new Set(competitions.map(c => c.id));
+        setSelectedCompetitions(allIds);
+      } else if (formData.email === 'jiovannyss@gmail.com') {
+        // Pre-select specific competitions for this user
+        const targetCompetitions = ['Campeonato Brasileiro Série A', 'Primera Division', 'Championship', 'Premier League'];
+        const selectedIds = new Set(
+          competitions
+            .filter(c => targetCompetitions.some(target => c.name.includes(target)))
+            .map(c => c.id)
+        );
+        setSelectedCompetitions(selectedIds);
+      } else {
+        // Default: select all competitions for other users
+        const allIds = new Set(competitions.map(c => c.id));
+        setSelectedCompetitions(allIds);
+      }
+    } catch (error) {
+      console.error('Error loading competitions:', error);
+      setError('Failed to load competitions');
+    } finally {
+      setCompetitionsLoading(false);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -370,6 +411,26 @@ export default function Auth() {
         return;
       }
 
+      // Go to competitions step
+      setSignupStep('competitions');
+      await loadCompetitions();
+    } catch (error: any) {
+      console.error('Error during form validation:', error);
+      setError(error.message || 'An error occurred during form validation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompetitionsNext = () => {
+    setSignupStep('confirmation');
+  };
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
       // Clean up existing state
       cleanupAuthState();
       
@@ -402,7 +463,6 @@ export default function Auth() {
       });
 
       if (error) {
-        // Better error message for existing email
         if (error.message.includes('User already registered')) {
           setError('A user with this email already exists. Please try signing in.');
         } else {
@@ -412,6 +472,9 @@ export default function Auth() {
       }
 
       if (data.user) {
+        // Save selected competitions to database
+        await saveUserCompetitions(data.user.id);
+        
         if (data.user.email_confirmed_at) {
           toast({
             title: "Registration successful!",
@@ -431,6 +494,38 @@ export default function Auth() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveUserCompetitions = async (userId: string) => {
+    const competitionsToSave = availableCompetitions
+      .filter(comp => selectedCompetitions.has(comp.id))
+      .map(comp => ({
+        user_id: userId,
+        competition_id: comp.id,
+        competition_name: comp.name,
+        competition_code: comp.code,
+        area_name: comp.area.name
+      }));
+
+    if (competitionsToSave.length > 0) {
+      const { error } = await (supabase as any)
+        .from('user_competitions')
+        .insert(competitionsToSave);
+
+      if (error) {
+        console.error('Error saving user competitions:', error);
+      }
+    }
+  };
+
+  const toggleCompetition = (competitionId: number) => {
+    const newSelected = new Set(selectedCompetitions);
+    if (newSelected.has(competitionId)) {
+      newSelected.delete(competitionId);
+    } else {
+      newSelected.add(competitionId);
+    }
+    setSelectedCompetitions(newSelected);
   };
 
   const handlePasswordReset = async () => {
@@ -627,361 +722,467 @@ export default function Auth() {
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-4 mt-4">
-                {/* Social Auth Buttons */}
-                <div className="space-y-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Quick Sign Up
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleSocialAuth('google')}
-                      disabled={socialLoading !== ''}
-                      className="w-full"
-                    >
-                      {socialLoading === 'google' ? (
-                        'Connecting...'
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                          </svg>
-                          Continue with Google
-                        </>
-                      )}
-                    </Button>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleSocialAuth('apple')}
-                      disabled={socialLoading !== ''}
-                      className="w-full"
-                    >
-                      {socialLoading === 'apple' ? (
-                        'Connecting...'
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                          </svg>
-                          Continue with Apple
-                        </>
-                      )}
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleSocialAuth('facebook')}
-                      disabled={socialLoading !== ''}
-                      className="w-full"
-                    >
-                      {socialLoading === 'facebook' ? (
-                        'Connecting...'
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                          </svg>
-                          Continue with Facebook
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or complete manually
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSignUp} className="space-y-4">
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-fullname">Full Name *</Label>
-                    <Input
-                      id="signup-fullname"
-                      type="text"
-                      placeholder="Your full name"
-                      value={formData.fullName}
-                      onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                       required
-                       title="Please fill out this field"
-                     />
-                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-username">Username *</Label>
-                    <Input
-                      id="signup-username"
-                      type="text"
-                      placeholder="username"
-                      value={formData.username}
-                      onChange={(e) => setFormData({...formData, username: e.target.value})}
-                       required
-                       title="Please fill out this field"
-                     />
-                   </div>
-
-                   <div className="space-y-2">
-                     <Label htmlFor="signup-email">Email Address *</Label>
-                     <Input
-                       id="signup-email"
-                       type="email"
-                       placeholder="name@example.com"
-                       value={formData.email}
-                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                       required
-                       title="Please fill out this field"
-                     />
-                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-nationality">Nationality *</Label>
-                    <Select value={formData.nationality} onValueChange={(value) => setFormData({...formData, nationality: value})} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select nationality" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-48">
-                        {countries.map((country) => (
-                          <SelectItem key={country.code} value={country.name}>
-                            {country.flag} {country.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Phone Number *</Label>
-                    <div className="flex gap-2">
-                      <Select value={formData.countryCode} onValueChange={(value) => setFormData({...formData, countryCode: value})}>
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-48">
-                          {countries.map((country) => (
-                            <SelectItem key={country.code} value={country.phone}>
-                              {country.flag} {country.phone}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="tel"
-                        placeholder="888 123 456"
-                        value={formData.phone}
-                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                         required
-                         title="Please fill out this field"
-                         className="flex-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-gender">Gender *</Label>
-                    <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Date of Birth *</Label>
-                    <div className="flex gap-2">
-                      <Select value={formData.birthDay} onValueChange={(value) => setFormData({...formData, birthDay: value})} required>
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Day" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-48">
-                          {days.map((day) => (
-                            <SelectItem key={day} value={day.toString().padStart(2, '0')}>
-                              {day}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={formData.birthMonth} onValueChange={(value) => setFormData({...formData, birthMonth: value})} required>
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Month" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-48">
-                          {months.map((month) => (
-                            <SelectItem key={month.value} value={month.value}>
-                              {month.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={formData.birthYear} onValueChange={(value) => setFormData({...formData, birthYear: value})} required>
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Year" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-48">
-                          {years.map((year) => (
-                            <SelectItem key={year} value={year.toString()}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <p className="text-sm text-muted-foreground">You must be at least 18 years old</p>
-                  </div>
-
-                  {/* Avatar Selection */}
-                  <div className="space-y-2">
-                    <Label>Avatar (Optional)</Label>
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={formData.avatarUrl} />
-                        <AvatarFallback>
-                          <User className="h-8 w-8" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex gap-2">
+                {signupStep === 'form' && (
+                  <>
+                    {/* Social Auth Buttons */}
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">
+                            Quick Sign Up
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid gap-2">
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
-                          onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                          onClick={() => handleSocialAuth('google')}
+                          disabled={socialLoading !== ''}
+                          className="w-full"
                         >
-                          <User className="h-4 w-4 mr-2" />
-                          Presets
+                          {socialLoading === 'google' ? (
+                            'Connecting...'
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                              </svg>
+                              Continue with Google
+                            </>
+                          )}
                         </Button>
+                        
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
-                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          onClick={() => handleSocialAuth('apple')}
+                          disabled={socialLoading !== ''}
+                          className="w-full"
                         >
-                          <Camera className="h-4 w-4 mr-2" />
-                          Upload
+                          {socialLoading === 'apple' ? (
+                            'Connecting...'
+                          ) : (
+                            <>
+                              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                              </svg>
+                              Continue with Apple
+                            </>
+                          )}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleSocialAuth('facebook')}
+                          disabled={socialLoading !== ''}
+                          className="w-full"
+                        >
+                          {socialLoading === 'facebook' ? (
+                            'Connecting...'
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                              </svg>
+                              Continue with Facebook
+                            </>
+                          )}
                         </Button>
                       </div>
+
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">
+                            Or complete manually
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <input
-                      id="avatar-upload"
-                      type="file"
-                      accept="image/*"
-                      capture="user"
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = URL.createObjectURL(file);
-                          setFormData({...formData, avatarUrl: url});
-                        }
-                      }}
-                    />
-                    
-                    {showAvatarSelection && (
-                      <div className="grid grid-cols-5 gap-2 p-4 border rounded-lg">
-                        {animatedAvatars.map((avatar, index) => (
-                          <Avatar 
-                            key={index}
-                            className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary"
-                            onClick={() => handleAvatarSelect(avatar)}
-                          >
-                            <AvatarImage src={avatar} />
-                            <AvatarFallback>{index + 1}</AvatarFallback>
+
+                    <form onSubmit={handleFormSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-fullname">Full Name *</Label>
+                        <Input
+                          id="signup-fullname"
+                          type="text"
+                          placeholder="Your full name"
+                          value={formData.fullName}
+                          onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-username">Username *</Label>
+                        <Input
+                          id="signup-username"
+                          type="text"
+                          placeholder="username"
+                          value={formData.username}
+                          onChange={(e) => setFormData({...formData, username: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email">Email Address *</Label>
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="name@example.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-nationality">Nationality *</Label>
+                        <Select value={formData.nationality} onValueChange={(value) => setFormData({...formData, nationality: value})} required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select nationality" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-48">
+                            {countries.map((country) => (
+                              <SelectItem key={country.code} value={country.name}>
+                                {country.flag} {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Phone Number *</Label>
+                        <div className="flex gap-2">
+                          <Select value={formData.countryCode} onValueChange={(value) => setFormData({...formData, countryCode: value})}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48">
+                              {countries.map((country) => (
+                                <SelectItem key={country.code} value={country.phone}>
+                                  {country.flag} {country.phone}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            type="tel"
+                            placeholder="888 123 456"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            required
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-gender">Gender *</Label>
+                        <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})} required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Date of Birth *</Label>
+                        <div className="flex gap-2">
+                          <Select value={formData.birthDay} onValueChange={(value) => setFormData({...formData, birthDay: value})} required>
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Day" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48">
+                              {days.map((day) => (
+                                <SelectItem key={day} value={day.toString().padStart(2, '0')}>
+                                  {day}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={formData.birthMonth} onValueChange={(value) => setFormData({...formData, birthMonth: value})} required>
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Month" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48">
+                              {months.map((month) => (
+                                <SelectItem key={month.value} value={month.value}>
+                                  {month.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={formData.birthYear} onValueChange={(value) => setFormData({...formData, birthYear: value})} required>
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Year" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48">
+                              {years.map((year) => (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <p className="text-sm text-muted-foreground">You must be at least 18 years old</p>
+                      </div>
+
+                      {/* Avatar Selection */}
+                      <div className="space-y-2">
+                        <Label>Avatar (Optional)</Label>
+                        <div className="flex items-center gap-4">
+                          <Avatar className="h-16 w-16">
+                            <AvatarImage src={formData.avatarUrl} />
+                            <AvatarFallback>
+                              <User className="h-8 w-8" />
+                            </AvatarFallback>
                           </Avatar>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Presets
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => document.getElementById('avatar-upload')?.click()}
+                            >
+                              <Camera className="h-4 w-4 mr-2" />
+                              Upload
+                            </Button>
+                          </div>
+                        </div>
+                        <input
+                          id="avatar-upload"
+                          type="file"
+                          accept="image/*"
+                          capture="user"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const url = URL.createObjectURL(file);
+                              setFormData({...formData, avatarUrl: url});
+                            }
+                          }}
+                        />
+                        
+                        {showAvatarSelection && (
+                          <div className="grid grid-cols-5 gap-2 p-4 border rounded-lg">
+                            {animatedAvatars.map((avatar, index) => (
+                              <Avatar 
+                                key={index}
+                                className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary"
+                                onClick={() => handleAvatarSelect(avatar)}
+                              >
+                                <AvatarImage src={avatar} />
+                                <AvatarFallback>{index + 1}</AvatarFallback>
+                              </Avatar>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-password">Password *</Label>
+                        <div className="relative">
+                          <Input
+                            id="signup-password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="At least 8 characters, numbers, uppercase and lowercase"
+                            value={formData.password}
+                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            required
+                            minLength={8}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-confirm-password">Confirm Password *</Label>
+                        <div className="relative">
+                          <Input
+                            id="signup-confirm-password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Repeat password"
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="text-xs text-muted-foreground">
+                        * Required fields
+                      </div>
+
+                      <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? 'Loading competitions...' : 'Next'}
+                      </Button>
+                    </form>
+                  </>
+                )}
+
+                {signupStep === 'competitions' && (
+                  <div className="space-y-4">
+                    <div className="text-center space-y-2">
+                      <h3 className="text-lg font-semibold">Choose Your Leagues</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Select the leagues you want to follow. By joining these leagues, you'll automatically be added to their Global Rooms where you can compete with other users.
+                      </p>
+                    </div>
+
+                    {competitionsLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                        <p className="text-sm text-muted-foreground mt-2">Loading available leagues...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {availableCompetitions.map((competition) => (
+                          <div key={competition.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent">
+                            <Checkbox
+                              id={`comp-${competition.id}`}
+                              checked={selectedCompetitions.has(competition.id)}
+                              onCheckedChange={() => toggleCompetition(competition.id)}
+                            />
+                            <label htmlFor={`comp-${competition.id}`} className="flex-1 cursor-pointer">
+                              <div className="font-medium">{competition.name}</div>
+                              <div className="text-sm text-muted-foreground">{competition.area.name}</div>
+                            </label>
+                          </div>
                         ))}
                       </div>
                     )}
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password *</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="At least 8 characters, numbers, uppercase and lowercase"
-                        value={formData.password}
-                         onChange={(e) => setFormData({...formData, password: e.target.value})}
-                         required
-                         title="Please fill out this field"
-                         minLength={8}
-                      />
+                    <div className="flex gap-2">
                       <Button
                         type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
+                        variant="outline"
+                        onClick={() => setSignupStep('form')}
+                        className="flex-1"
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        Back
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleCompetitionsNext}
+                        disabled={selectedCompetitions.size === 0}
+                        className="flex-1"
+                      >
+                        Next
                       </Button>
                     </div>
                   </div>
+                )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirm Password *</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Repeat password"
-                        value={formData.confirmPassword}
-                         onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                         required
-                         title="Please fill out this field"
-                       />
+                {signupStep === 'confirmation' && (
+                  <div className="space-y-4">
+                    <div className="text-center space-y-2">
+                      <h3 className="text-lg font-semibold">Confirm Your Selection</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Here are the leagues you've selected. The highlighted ones will be your active leagues.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {availableCompetitions.map((competition) => {
+                        const isSelected = selectedCompetitions.has(competition.id);
+                        return (
+                          <div 
+                            key={competition.id} 
+                            className={`flex items-center justify-between p-3 border rounded-lg ${
+                              isSelected 
+                                ? 'bg-primary/10 border-primary text-primary' 
+                                : 'bg-muted/50 text-muted-foreground'
+                            }`}
+                          >
+                            <div>
+                              <div className="font-medium">{competition.name}</div>
+                              <div className="text-sm">{competition.area.name}</div>
+                            </div>
+                            {isSelected && <Check className="h-5 w-5" />}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                      Selected {selectedCompetitions.size} out of {availableCompetitions.length} leagues
+                    </div>
+
+                    <div className="flex gap-2">
                       <Button
                         type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        variant="outline"
+                        onClick={() => setSignupStep('competitions')}
+                        className="flex-1"
                       >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        Back
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleSignUp}
+                        disabled={loading}
+                        className="flex-1"
+                      >
+                        {loading ? 'Creating account...' : 'Confirm and Create Account'}
                       </Button>
                     </div>
                   </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    * Required fields
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </form>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
