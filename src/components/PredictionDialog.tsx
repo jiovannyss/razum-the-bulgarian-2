@@ -420,27 +420,33 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 </TableHeader>
                 <TableBody>
                   {(matchInfo?.standings || []).map((team) => {
-                    const isHighlighted = team.team.name === match.homeTeam.name || team.team.name === match.awayTeam.name;
+                    const isHomeTeam = team.team.name === match.homeTeam.name;
+                    const isAwayTeam = team.team.name === match.awayTeam.name;
+                    const isHighlighted = isHomeTeam || isAwayTeam;
+                    
                     return (
                       <TableRow 
                         key={team.position}
                         className={`h-6 relative ${
                           isHighlighted
-                            ? 'bg-yellow-100/80 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl'
+                            ? 'bg-yellow-100/80 dark:bg-yellow-900/30'
                             : 'hover:bg-muted/50'
                         }`}
                       >
-                        <TableCell className="font-medium py-1 text-xs">{team.position}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.won}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.draw}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.lost}</TableCell>
-                        <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                        <TableCell className="font-medium py-1 text-xs">{team.points}</TableCell>
-                        <TableCell className="py-1">
+                        {isHighlighted && (
+                          <div className="absolute inset-0 border-2 border-yellow-400 dark:border-yellow-500 rounded-lg pointer-events-none" />
+                        )}
+                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.position}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.team.name}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.playedGames}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.won}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.draw}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.lost}</TableCell>
+                        <TableCell className="py-1 text-xs relative z-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                        <TableCell className="font-medium py-1 text-xs relative z-10">{team.points}</TableCell>
+                        <TableCell className="py-1 relative z-10">
                           <div className="flex space-x-1">
-                            {(team.form || '').split('').slice(-5).map((result, index) => (
+                            {(team.form || 'WWWWW').split('').slice(-5).map((result, index) => (
                               <div
                                 key={index}
                                 className={`w-3 h-3 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
@@ -467,11 +473,12 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Fixed Save Button */}
-        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 mt-6">
-          <Button onClick={handleSave} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-            Save Prediction
-          </Button>
-        </div>
+        <Button 
+          onClick={handleSave} 
+          className="sticky bottom-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg z-50"
+        >
+          Save Prediction
+        </Button>
       </DialogContent>
     </Dialog>
   );
