@@ -746,7 +746,7 @@ class FootballDataApiService {
       // Use status=FINISHED filter and search previous seasons
       try {
         const currentYear = new Date().getFullYear();
-        const previousSeasons = [currentYear - 1, currentYear - 2, currentYear - 3];
+        const previousSeasons = Array.from({length: 10}, (_, i) => currentYear - 1 - i); // Search 10 years back
         
         for (const seasonYear of previousSeasons) {
           console.log(`🔍 [H2H] Searching season ${seasonYear} for finished matches...`);
