@@ -30,6 +30,7 @@ export function AdminMatches() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [collapsedCompetitions, setCollapsedCompetitions] = useState<Set<string>>(new Set());
   const [competitionGameWeeks, setCompetitionGameWeeks] = useState<Record<string, number>>({});
+  const [smartGameWeeks, setSmartGameWeeks] = useState<Record<string, number>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -164,6 +165,32 @@ export function AdminMatches() {
     return acc;
   }, {} as Record<string, CompetitionWithMatches>);
 
+  // Calculate smart game weeks when matches are loaded
+  useEffect(() => {
+    const calculateSmartGameWeeks = async () => {
+      const newSmartGameWeeks: Record<string, number> = {};
+      
+      for (const [competitionName, competitionData] of Object.entries(groupedMatches)) {
+        if (competitionData.matches.length > 0) {
+          try {
+            const competitionId = competitionData.matches[0].competition.id;
+            const smartMatchday = await footballDataApi.getSmartCurrentMatchday(competitionId, competitionData.currentMatchday);
+            newSmartGameWeeks[competitionName] = smartMatchday;
+          } catch (error) {
+            console.error(`Error getting smart matchday for ${competitionName}:`, error);
+            newSmartGameWeeks[competitionName] = competitionData.currentMatchday;
+          }
+        }
+      }
+      
+      setSmartGameWeeks(newSmartGameWeeks);
+    };
+
+    if (Object.keys(groupedMatches).length > 0) {
+      calculateSmartGameWeeks();
+    }
+  }, [apiMatches]);
+
   // Handle game week navigation for each competition
   const handleGameWeekChange = (competition: string, newGameWeek: number) => {
     setCompetitionGameWeeks(prev => ({
@@ -174,7 +201,17 @@ export function AdminMatches() {
 
   // Get current game week for a competition
   const getCurrentGameWeek = (competition: string, defaultMatchday: number) => {
-    return competitionGameWeeks[competition] || defaultMatchday;
+    // If user has manually selected a game week, use that
+    if (competitionGameWeeks[competition]) {
+      return competitionGameWeeks[competition];
+    }
+    
+    // Use smart matchday if available
+    if (smartGameWeeks[competition]) {
+      return smartGameWeeks[competition];
+    }
+    
+    return defaultMatchday;
   };
 
   // Filter matches by current game week for each competition
