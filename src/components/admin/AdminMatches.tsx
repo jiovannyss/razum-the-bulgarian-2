@@ -110,23 +110,31 @@ export function AdminMatches() {
       });
 
       if (apiMatch.db_id) {
-        // Update existing match
+        // Update existing match by external_id (more reliable)
         const { error } = await supabase
           .from('matches')
           .update({ admin_rating: newRating })
-          .eq('id', apiMatch.db_id);
+          .eq('external_id', apiMatch.id.toString());
         if (error) throw error;
       } else {
-        // Insert new match
-        const { data, error } = await supabase
+        // Try to update by external_id first, if not found then insert
+        const { error: updateError } = await supabase
           .from('matches')
-          .insert(matchData)
-          .select()
-          .single();
-        if (error) throw error;
+          .update({ admin_rating: newRating })
+          .eq('external_id', apiMatch.id.toString());
         
-        // Update local state with db_id
-        apiMatch.db_id = data.id;
+        if (updateError) {
+          // If update failed, insert new match
+          const { data, error } = await supabase
+            .from('matches')
+            .insert(matchData)
+            .select()
+            .single();
+          if (error) throw error;
+          
+          // Update local state with db_id
+          apiMatch.db_id = data.id;
+        }
       }
 
       // Update local state
