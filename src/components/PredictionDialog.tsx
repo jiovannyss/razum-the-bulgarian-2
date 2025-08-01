@@ -249,7 +249,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 <div className="w-8 h-8 md:w-12 md:h-12 bg-yellow-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-xs md:text-base">{matchInfo?.homePosition || '?'}</span>
                 </div>
-                <span className="text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
+                <div className="flex flex-col items-center space-y-1">
+                  <span className="text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
+                  {adminRating && adminRating >= 2 && (
+                    <div className="flex items-center space-x-1 bg-yellow-500 text-black px-2 py-1 rounded-full">
+                      <Star className="h-4 w-4 md:h-6 md:w-6 fill-current" />
+                      <span className="text-sm md:text-lg font-bold">{adminRating}</span>
+                    </div>
+                  )}
+                </div>
                 <div className="w-8 h-8 md:w-12 md:h-12 bg-yellow-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-xs md:text-base">{matchInfo?.awayPosition || '?'}</span>
                 </div>
