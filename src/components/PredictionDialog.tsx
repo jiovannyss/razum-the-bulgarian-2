@@ -430,7 +430,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     
                      return (
                        <TableRow 
-                         key={team.position}
+                         key={`${team.team.id}-${team.position}`}
                          className={`h-8 hover:bg-muted/50 ${
                            isHighlighted
                              ? 'bg-yellow-100/80 dark:bg-yellow-900/30'
