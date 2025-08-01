@@ -231,6 +231,12 @@ serve(async (req) => {
         
         console.log(`🎯 Избрахме standing: type="${totalStanding?.type}", table entries=${totalStanding?.table?.length || 0}`);
         
+        // Добавяме проверка за първите 2 записа
+        if (totalStanding?.table?.length > 0) {
+          const firstTeam = totalStanding.table[0];
+          console.log(`🔍 First team example: ${firstTeam.team?.name}, form="${firstTeam.form}", type of form: ${typeof firstTeam.form}`);
+        }
+        
         const standings: ApiStanding[] = totalStanding?.table || [];
 
         // Първо изтриваме старите записи за този турнир
