@@ -220,7 +220,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               <DialogTitle className="text-lg font-semibold">Match Details</DialogTitle>
               {adminRating && adminRating >= 2 && (
                 <div className="relative flex items-center justify-center">
-                  <Star className="h-6 w-6 md:h-8 md:w-8 fill-yellow-500 text-yellow-500" />
+                  <Star className="h-7 w-7 md:h-10 md:w-10 fill-yellow-500 text-yellow-500" />
                   <span className="absolute text-black text-xs md:text-sm font-bold">{adminRating}</span>
                 </div>
               )}
@@ -253,9 +253,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               <div className="flex flex-col items-center space-y-1">
                 <span className="text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
                 {adminRating && adminRating >= 2 && (
-                  <div className="relative flex items-center justify-center">
-                    <Star className="h-6 w-6 md:h-8 md:w-8 fill-yellow-500 text-yellow-500" />
-                    <span className="absolute text-black text-xs md:text-sm font-bold">{adminRating}</span>
+                    <div className="relative flex items-center justify-center">
+                      <Star className="h-7 w-7 md:h-10 md:w-10 fill-yellow-500 text-yellow-500" />
+                      <span className="absolute text-black text-xs md:text-sm font-bold">{adminRating}</span>
                   </div>
                 )}
               </div>
