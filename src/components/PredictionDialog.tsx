@@ -496,12 +496,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Fixed Save Button */}
-        <Button 
-          onClick={handleSave} 
-          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg z-50"
-        >
-          Save Prediction
-        </Button>
+        <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center">
+          <Button 
+            onClick={handleSave} 
+            className="w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg"
+          >
+            Save Prediction
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
