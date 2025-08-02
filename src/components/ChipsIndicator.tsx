@@ -10,6 +10,21 @@ export const ChipsIndicator = () => {
   useEffect(() => {
     if (user) {
       loadChips();
+      
+      // Обновяване на чиповете когато прозорецът получи фокус
+      const handleFocus = () => {
+        loadChips();
+      };
+      
+      window.addEventListener('focus', handleFocus);
+      
+      // Обновяване на чиповете на всеки 30 секунди
+      const interval = setInterval(loadChips, 30000);
+      
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+        clearInterval(interval);
+      };
     }
   }, [user]);
 

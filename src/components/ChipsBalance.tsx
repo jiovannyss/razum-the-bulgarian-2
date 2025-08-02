@@ -42,6 +42,21 @@ export function ChipsBalance({ className = "" }: ChipsBalanceProps) {
 
   useEffect(() => {
     fetchBalance();
+    
+    // Обновяване на баланса когато прозорецът получи фокус
+    const handleFocus = () => {
+      fetchBalance();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    // Обновяване на баланса на всеки 30 секунди
+    const interval = setInterval(fetchBalance, 30000);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, [user]);
 
   // Не показвай нищо ако потребителят не е логнат
