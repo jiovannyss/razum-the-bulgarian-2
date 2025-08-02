@@ -101,7 +101,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   if (isLoadingMatchInfo) {
     return (
       <div 
-        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+        className="fixed inset-0 z-50 bg-background flex items-center justify-center"
         onClick={onClose}
       >
         {/* Content */}
@@ -212,7 +212,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+      className="fixed inset-0 z-50 bg-background flex items-center justify-center"
       onClick={onClose}
     >
       {/* Content */}
