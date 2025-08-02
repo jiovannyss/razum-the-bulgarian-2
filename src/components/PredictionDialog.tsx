@@ -442,14 +442,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             <CardContent className="pt-0">
               {/* Mobile view - table format */}
               <div className="block sm:hidden overflow-x-auto -mx-3">
-                <Table className="w-full min-w-[400px]">
+                <Table className="w-full min-w-[350px]">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="w-6 py-1 text-xs pl-2">#</TableHead>
-                      <TableHead className="py-1 text-xs min-w-[120px]">Team</TableHead>
+                      <TableHead className="w-6 py-1 text-xs pl-1">#</TableHead>
+                      <TableHead className="py-1 text-xs min-w-[100px]">Team</TableHead>
                       <TableHead className="w-8 py-1 text-xs">MP</TableHead>
-                      <TableHead className="w-12 py-1 text-xs">Goals</TableHead>
-                      <TableHead className="w-8 py-1 text-xs pr-2">PTS</TableHead>
+                      <TableHead className="w-10 py-1 text-xs">Goals</TableHead>
+                      <TableHead className="w-8 py-1 text-xs pr-1">PTS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -465,15 +465,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-6 pl-2">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs min-w-[120px]">
+                          <TableCell className="py-1 font-medium text-xs w-6 pl-1">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs min-w-[100px]">
                             <span className="truncate block text-left" title={team.team.name}>
-                              {team.team.name.length > 12 ? `${team.team.name.substring(0, 12)}..` : team.team.name}
+                              {team.team.name.length > 10 ? `${team.team.name.substring(0, 10)}..` : team.team.name}
                             </span>
                           </TableCell>
                           <TableCell className="py-1 text-xs w-8">{team.playedGames}</TableCell>
-                          <TableCell className="py-1 text-xs w-12">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs w-8 pr-2">{team.points}</TableCell>
+                          <TableCell className="py-1 text-xs w-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-8 pr-1">{team.points}</TableCell>
                         </TableRow>
                       );
                     })}
