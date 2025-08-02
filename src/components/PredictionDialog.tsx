@@ -441,15 +441,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardHeader>
             <CardContent className="pt-0">
               {/* Mobile view - table format */}
-              <div className="block sm:hidden overflow-x-auto -mx-6 -my-3 border-2 border-red-500">
+              <div className="block sm:hidden overflow-x-auto -mx-6 -my-3">
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="py-1 text-xs w-[7%] text-center border border-black">#</TableHead>
-                      <TableHead className="py-1 text-xs w-[55%] px-1 border border-black">Team</TableHead>
-                      <TableHead className="py-1 text-xs w-[8%] text-center border border-black">MP</TableHead>
-                      <TableHead className="py-1 text-xs w-[15%] text-center border border-black">Goals</TableHead>
-                      <TableHead className="py-1 text-xs w-[15%] text-center border border-black">PTS</TableHead>
+                      <TableHead className="py-1 text-xs w-[7%] text-center">#</TableHead>
+                      <TableHead className="py-1 text-xs w-[55%] px-1">Team</TableHead>
+                      <TableHead className="py-1 text-xs w-[8%] text-center">MP</TableHead>
+                      <TableHead className="py-1 text-xs w-[15%] text-center">Goals</TableHead>
+                      <TableHead className="py-1 text-xs w-[15%] text-center">PTS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -465,15 +465,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-[7%] text-center border border-black">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs w-[55%] px-1 border border-black">
+                          <TableCell className="py-1 font-medium text-xs w-[7%] text-center">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs w-[55%] px-1">
                             <span className="truncate block text-left" title={team.team.name}>
                               {team.team.name.length > 17 ? `${team.team.name.substring(0, 17)}..` : team.team.name}
                             </span>
                           </TableCell>
-                          <TableCell className="py-1 text-xs w-[8%] text-center border border-black">{team.playedGames}</TableCell>
-                          <TableCell className="py-1 text-xs w-[15%] text-center border border-black">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs w-[15%] text-center border border-black">{team.points}</TableCell>
+                          <TableCell className="py-1 text-xs w-[8%] text-center">{team.playedGames}</TableCell>
+                          <TableCell className="py-1 text-xs w-[15%] text-center">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-[15%] text-center">{team.points}</TableCell>
                         </TableRow>
                       );
                     })}
