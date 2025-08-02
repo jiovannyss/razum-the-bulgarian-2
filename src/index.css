@@ -12,11 +12,11 @@
     --primary-hover: 230 82% 50%;
     --primary-glow: 230 82% 60%;
 
-    /* Secondary - Dark Olive Green */
-    --secondary: 85 55% 25%;
-    --secondary-foreground: 0 0% 98%;
-    --secondary-hover: 85 55% 30%;
-    --secondary-glow: 85 55% 35%;
+    /* Secondary - Football Gold Yellow */
+    --secondary: 45 93% 58%;
+    --secondary-foreground: 45 93% 8%;
+    --secondary-hover: 45 93% 63%;
+    --secondary-glow: 45 93% 68%;
 
     /* Background - Light theme */
     --background: 0 0% 100%;
@@ -96,11 +96,11 @@
     --primary-hover: 230 82% 50%;
     --primary-glow: 230 82% 60%;
 
-    /* Secondary - Electric Football Green for dark */
-    --secondary: 160 84% 39%;
-    --secondary-foreground: 160 84% 5%;
-    --secondary-hover: 160 84% 44%;
-    --secondary-glow: 160 84% 49%;
+    /* Secondary - Football Gold Yellow for dark */
+    --secondary: 45 93% 58%;
+    --secondary-foreground: 45 93% 8%;
+    --secondary-hover: 45 93% 63%;
+    --secondary-glow: 45 93% 68%;
 
     /* Background - Dark theme */
     --background: 222 84% 4%;
