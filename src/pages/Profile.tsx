@@ -376,9 +376,9 @@ export default function Profile() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => navigate(-1)}
-              className="gap-2"
+              className="gap-2 bg-background hover:bg-accent hover:text-accent-foreground border-border"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -410,28 +410,29 @@ export default function Profile() {
                           }
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowAvatarSelection(!showAvatarSelection)}
-                          className="gap-2"
-                        >
-                          <Camera className="h-4 w-4" />
-                          Change Avatar
-                        </Button>
-                        {profileData.avatar_url && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleRemoveAvatar}
-                          >
-                            Remove
-                          </Button>
-                        )}
-                      </div>
+                       <div className="flex flex-col gap-2 sm:flex-row">
+                         <Button
+                           type="button"
+                           variant="outline"
+                           size="sm"
+                           onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                           className="gap-2"
+                         >
+                           <Camera className="h-4 w-4" />
+                           Change Avatar
+                         </Button>
+                         {profileData.avatar_url && (
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             onClick={handleRemoveAvatar}
+                             className="whitespace-nowrap"
+                           >
+                             Remove
+                           </Button>
+                         )}
+                       </div>
                     </div>
 
                     {/* Avatar Selection Grid */}
