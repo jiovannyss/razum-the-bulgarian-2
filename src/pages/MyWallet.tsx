@@ -64,9 +64,9 @@ export default function MyWallet() {
           const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((difference % (1000 * 60)) / 1000);
           
-          newTimeLeft[offer.id] = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
+          newTimeLeft[offer.id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         } else {
-          newTimeLeft[offer.id] = 'Изтекла';
+          newTimeLeft[offer.id] = 'Expired';
         }
       });
       setTimeLeft(newTimeLeft);
@@ -109,8 +109,8 @@ export default function MyWallet() {
     } catch (error) {
       console.error('Error loading wallet data:', error);
       toast({
-        title: 'Грешка',
-        description: 'Възникна грешка при зареждането на данните.',
+        title: 'Error',
+        description: 'An error occurred while loading the data.',
         variant: 'destructive',
       });
     } finally {
@@ -120,11 +120,11 @@ export default function MyWallet() {
 
   const formatTransactionType = (type: string) => {
     switch (type) {
-      case 'bonus': return 'Бонус';
-      case 'win': return 'Печалба';
-      case 'bet': return 'Залог';
-      case 'purchase': return 'Покупка';
-      case 'refund': return 'Възстановяване';
+      case 'bonus': return 'Bonus';
+      case 'win': return 'Win';
+      case 'bet': return 'Bet';
+      case 'purchase': return 'Purchase';
+      case 'refund': return 'Refund';
       default: return type;
     }
   };
@@ -157,20 +157,20 @@ export default function MyWallet() {
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Назад
+              Back
             </Button>
             <div className="flex items-center gap-2">
               <Coins className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-bold">Моят Портфейл</h1>
+              <h1 className="text-2xl font-bold">My Wallet</h1>
             </div>
           </div>
 
-          {/* Current Balance */}
+          {/* Текуща наличност */}
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-5 w-5" />
-                Текуща наличност
+                Current Balance
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -185,20 +185,20 @@ export default function MyWallet() {
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="history" className="gap-2">
                 <History className="h-4 w-4" />
-                История
+                History
               </TabsTrigger>
               <TabsTrigger value="offers" className="gap-2">
                 <ShoppingBag className="h-4 w-4" />
-                Купи Монети
+                Buy Coins
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="history" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>История на транзакциите</CardTitle>
+                  <CardTitle>Transaction History</CardTitle>
                   <CardDescription>
-                    Преглед на всички входящи и изходящи транзакции
+                    Overview of all incoming and outgoing transactions
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -208,7 +208,7 @@ export default function MyWallet() {
                     </div>
                   ) : transactions.length === 0 ? (
                     <p className="text-center text-muted-foreground py-4">
-                      Няма транзакции за показване
+                      No transactions to display
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -234,7 +234,7 @@ export default function MyWallet() {
                             </div>
                           </div>
                           <div className={`font-medium ${getTransactionColor(transaction.amount)}`}>
-                            {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString()} монети
+                            {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString()} coins
                           </div>
                         </div>
                       ))}
@@ -254,7 +254,7 @@ export default function MyWallet() {
                   <CardContent className="text-center py-8">
                     <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
-                      Няма активни оферти в момента
+                      No active offers at the moment
                     </p>
                   </CardContent>
                 </Card>
@@ -275,29 +275,29 @@ export default function MyWallet() {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-2xl font-bold text-primary">
-                              {offer.coin_amount.toLocaleString()} монети
+                              {offer.coin_amount.toLocaleString()} coins
                             </span>
                           </div>
                           
                           <div className="flex items-center gap-2">
                             <span className="text-lg font-semibold">
-                              {offer.offer_price.toFixed(2)} лв
+                              ${offer.offer_price.toFixed(2)}
                             </span>
                             <span className="text-sm text-muted-foreground line-through">
-                              {offer.original_price.toFixed(2)} лв
+                              ${offer.original_price.toFixed(2)}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Clock className="h-4 w-4" />
-                            <span>Остава: {timeLeft[offer.id] || 'Изчислява се...'}</span>
+                            <span>Time left: {timeLeft[offer.id] || 'Calculating...'}</span>
                           </div>
 
                           <Button 
                             className="w-full" 
-                            disabled={timeLeft[offer.id] === 'Изтекла'}
+                            disabled={timeLeft[offer.id] === 'Expired'}
                           >
-                            {timeLeft[offer.id] === 'Изтекла' ? 'Офертата е изтекла' : 'Купи сега'}
+                            {timeLeft[offer.id] === 'Expired' ? 'Offer expired' : 'Buy now'}
                           </Button>
                         </div>
                       </CardContent>
