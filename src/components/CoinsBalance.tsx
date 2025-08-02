@@ -75,8 +75,8 @@ export function CoinsBalance({ className = "" }: CoinsBalanceProps) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Coins className="w-6 h-6 text-yellow-500" />
-      <span className="text-sm font-medium text-foreground">
+      <Coins className={`text-yellow-500 ${className.includes('text-3xl') ? 'w-10 h-10' : 'w-6 h-6'}`} />
+      <span className={`font-medium text-foreground ${className.includes('text-3xl') ? 'text-3xl' : 'text-sm'}`}>
         {balance?.toLocaleString() || '0'}
       </span>
     </div>

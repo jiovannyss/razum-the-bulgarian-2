@@ -174,8 +174,21 @@ export default function MyWallet() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center">
-                <CoinsBalance className="justify-center text-lg" />
+              <div className="flex items-center justify-between">
+                <CoinsBalance className="text-3xl font-bold" />
+                <Button 
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 gap-2"
+                  onClick={() => {
+                    // Navigate to Buy Coins tab
+                    const buyCoinsTab = document.querySelector('[value="offers"]');
+                    if (buyCoinsTab) {
+                      (buyCoinsTab as HTMLElement).click();
+                    }
+                  }}
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  Buy Coins
+                </Button>
               </div>
             </CardContent>
           </Card>
