@@ -207,10 +207,10 @@ const LiveScore = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Loading Football-Data.org matches...');
+      console.log('🔍 Loading cached matches from database...');
 
-      // Get upcoming matches from Football-Data.org (this calls getCompetitions internally)
-      const upcomingMatches = await footballDataApi.getUpcomingMatches();
+      // Get all cached matches from database
+      const allMatches = await footballDataApi.getUpcomingMatches();
       
       // Get competitions for storing state
       const competitions = await footballDataApi.getCompetitions();
@@ -218,15 +218,17 @@ const LiveScore = () => {
         ...comp, 
         currentMatchday: comp.currentSeason.currentMatchday
       }));
-      console.log(`📊 Found ${upcomingMatches.length} total matches`);
+      console.log(`📊 Found ${allMatches.length} total cached matches`);
       
       // Filter matches based on user's selected competitions
-      let filteredMatches = upcomingMatches;
+      let filteredMatches = allMatches;
       if (userCompetitions.size > 0) {
-        filteredMatches = upcomingMatches.filter(match => 
+        filteredMatches = allMatches.filter(match => 
           userCompetitions.has(match.competition.id)
         );
-        console.log(`🎯 Filtered to ${filteredMatches.length} matches based on user competitions`);
+        console.log(`🎯 Filtered to ${filteredMatches.length} matches based on user competitions:`, Array.from(userCompetitions));
+      } else {
+        console.log('⚠️ No user competitions set, showing all matches');
       }
       
       // Log rounds from the matches
@@ -235,14 +237,12 @@ const LiveScore = () => {
 
       if (filteredMatches.length === 0) {
         console.log('⚠️ No matches found for user competitions');
-        // Let the normal error handling take care of it
       }
 
       const transformedMatches = filteredMatches.map(apiMatch => 
         transformMatch(apiMatch)
       );
       console.log(`🏁 Transformed ${transformedMatches.length} matches`);
-      console.log(`📅 Competitions with current matchday:`, competitionsWithCurrentMatchday);
       setMatches(transformedMatches);
       setCompetitionsWithCurrentMatchday(competitionsWithCurrentMatchday);
         
