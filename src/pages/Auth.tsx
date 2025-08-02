@@ -318,15 +318,46 @@ export default function Auth() {
   useEffect(() => {
     const checkAutoFill = () => {
       const passwordInput = document.getElementById('signin-password') as HTMLInputElement;
+      const emailInput = document.getElementById('signin-email') as HTMLInputElement;
+      
       if (passwordInput && passwordInput.value) {
         // Force re-render to ensure toggle button is visible
         setFormData(prev => ({ ...prev, password: passwordInput.value }));
       }
+      
+      if (emailInput && emailInput.value) {
+        // Update email field as well
+        setFormData(prev => ({ ...prev, email: emailInput.value }));
+      }
     };
 
-    // Check after a short delay to allow browser autofill
-    const timer = setTimeout(checkAutoFill, 500);
-    return () => clearTimeout(timer);
+    // Check multiple times to catch autofill
+    const timers = [
+      setTimeout(checkAutoFill, 100),
+      setTimeout(checkAutoFill, 500),
+      setTimeout(checkAutoFill, 1000)
+    ];
+
+    // Also listen for input events
+    const passwordInput = document.getElementById('signin-password');
+    const emailInput = document.getElementById('signin-email');
+    
+    if (passwordInput) {
+      passwordInput.addEventListener('input', checkAutoFill);
+    }
+    if (emailInput) {
+      emailInput.addEventListener('input', checkAutoFill);
+    }
+
+    return () => {
+      timers.forEach(clearTimeout);
+      if (passwordInput) {
+        passwordInput.removeEventListener('input', checkAutoFill);
+      }
+      if (emailInput) {
+        emailInput.removeEventListener('input', checkAutoFill);
+      }
+    };
   }, []);
 
   // Password validation
@@ -571,10 +602,22 @@ export default function Auth() {
         // Continue even if this fails
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      // Check if input looks like email or username
+      const isEmail = formData.email.includes('@');
+      let signInData;
+
+      if (isEmail) {
+        // Sign in with email
+        signInData = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+      } else {
+        // Username login is not supported yet - show error
+        throw new Error('Please use your email address to sign in');
+      }
+
+      const { data, error } = signInData;
 
       if (error) throw error;
 
