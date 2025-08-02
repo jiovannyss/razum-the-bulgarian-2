@@ -221,8 +221,7 @@ const Header = () => {
                       }`}
                   >
                     <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="text-xs opacity-80 hidden sm:block">{tab.label}</span>
-                    <span className="text-xs opacity-80 sm:hidden">{tab.label.slice(0, 3)}</span>
+                    <span className="text-xs opacity-80">{tab.label}</span>
                     {isActive && (
                       <div className="absolute inset-0 bg-secondary/5 pointer-events-none" />
                     )}
