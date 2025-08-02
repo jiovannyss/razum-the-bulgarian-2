@@ -23,7 +23,7 @@ interface WalletData {
 
 interface WalletStats {
   totalUsers: number;
-  totalChips: number;
+  totalCoins: number;
   glowterBalance: number;
   averageBalance: number;
 }
@@ -32,7 +32,7 @@ export function AdminWallets() {
   const [wallets, setWallets] = useState<WalletData[]>([]);
   const [stats, setStats] = useState<WalletStats>({
     totalUsers: 0,
-    totalChips: 0,
+    totalCoins: 0,
     glowterBalance: 0,
     averageBalance: 0
   });
@@ -75,7 +75,7 @@ export function AdminWallets() {
 
       // Изчисляване на статистики
       const userWallets = walletsWithProfiles.filter(w => !w.is_glowter_wallet);
-      const totalChips = walletsWithProfiles.reduce((sum, w) => sum + w.balance, 0);
+      const totalCoins = walletsWithProfiles.reduce((sum, w) => sum + w.balance, 0);
       const glowterWallet = walletsWithProfiles.find(w => w.is_glowter_wallet);
       const glowterBalance = glowterWallet?.balance || 0;
       const averageBalance = userWallets.length > 0 
@@ -84,7 +84,7 @@ export function AdminWallets() {
 
       setStats({
         totalUsers: userWallets.length,
-        totalChips,
+        totalCoins,
         glowterBalance,
         averageBalance: Math.round(averageBalance)
       });
@@ -131,7 +131,7 @@ export function AdminWallets() {
         <div>
           <h2 className="text-2xl font-bold">Управление на Портфейли</h2>
           <p className="text-muted-foreground">
-            Преглед и управление на чипове в системата
+            Преглед и управление на монети в системата
           </p>
         </div>
         <Button onClick={fetchWallets} disabled={loading}>
@@ -154,11 +154,11 @@ export function AdminWallets() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Общо Чипове</CardTitle>
+            <CardTitle className="text-sm font-medium">Общо Монети</CardTitle>
             <Coins className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalChips.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.totalCoins.toLocaleString()}</div>
           </CardContent>
         </Card>
 

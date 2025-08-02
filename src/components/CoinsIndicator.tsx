@@ -3,23 +3,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { Coins } from 'lucide-react';
 
-export const ChipsIndicator = () => {
-  const [chips, setChips] = useState<number>(0);
+export const CoinsIndicator = () => {
+  const [coins, setCoins] = useState<number>(0);
   const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
-      loadChips();
+      loadCoins();
       
-      // Обновяване на чиповете когато прозорецът получи фокус
+      // Обновяване на монетите когато прозорецът получи фокус
       const handleFocus = () => {
-        loadChips();
+        loadCoins();
       };
       
       window.addEventListener('focus', handleFocus);
       
-      // Обновяване на чиповете на всеки 30 секунди
-      const interval = setInterval(loadChips, 30000);
+      // Обновяване на монетите на всеки 30 секунди
+      const interval = setInterval(loadCoins, 30000);
       
       return () => {
         window.removeEventListener('focus', handleFocus);
@@ -28,7 +28,7 @@ export const ChipsIndicator = () => {
     }
   }, [user]);
 
-  const loadChips = async () => {
+  const loadCoins = async () => {
     try {
       const { data, error } = await supabase
         .from('wallets')
@@ -37,13 +37,13 @@ export const ChipsIndicator = () => {
         .single();
 
       if (error) {
-        console.error('Error loading chips:', error);
+        console.error('Error loading coins:', error);
         return;
       }
 
-      setChips(data?.balance || 0);
+      setCoins(data?.balance || 0);
     } catch (error) {
-      console.error('Error loading chips:', error);
+      console.error('Error loading coins:', error);
     }
   };
 
@@ -53,7 +53,7 @@ export const ChipsIndicator = () => {
     <div className="flex items-center gap-2">
       <Coins className="w-6 h-6 text-yellow-500" />
       <span className="text-sm font-medium text-foreground">
-        {chips.toLocaleString()}
+        {coins.toLocaleString()}
       </span>
     </div>
   );
