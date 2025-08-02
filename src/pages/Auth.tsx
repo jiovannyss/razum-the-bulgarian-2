@@ -613,8 +613,22 @@ export default function Auth() {
           password: formData.password,
         });
       } else {
-        // Username login is not supported yet - show error
-        throw new Error('Please use your email address to sign in');
+        // Sign in with username - find the email first
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', formData.email)
+          .single();
+
+        if (profileError || !profileData?.email) {
+          throw new Error('Invalid username or password');
+        }
+
+        // Sign in with the found email
+        signInData = await supabase.auth.signInWithPassword({
+          email: profileData.email,
+          password: formData.password,
+        });
       }
 
       const { data, error } = signInData;
