@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
-import glowterCoin from '@/assets/glowter-coin-final.png';
+import glowterCoin from '@/assets/glowter-coin-transparent-final.png';
 
 interface ChipsBalanceProps {
   className?: string;
