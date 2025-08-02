@@ -100,12 +100,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   // Show loading state while fetching match info
   if (isLoadingMatchInfo) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        {/* Overlay */}
-        <div className="fixed inset-0 bg-black/80" onClick={onClose} />
-        
+      <div 
+        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+        onClick={onClose}
+      >
         {/* Content */}
-        <div className="relative bg-background border rounded-lg shadow-lg max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div 
+          className="relative bg-background border rounded-lg shadow-lg max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <div className="flex items-center space-x-3">
@@ -208,12 +211,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/80" onClick={onClose} />
-      
+    <div 
+      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+      onClick={onClose}
+    >
       {/* Content */}
-      <div className="relative bg-background border rounded-lg shadow-lg max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+      <div 
+        className="relative bg-background border rounded-lg shadow-lg max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-6 border-b">
           <div className="flex items-center space-x-2 sm:space-x-3">
