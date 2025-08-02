@@ -467,12 +467,12 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                        {(() => {
                          const predictionDisplay = getPredictionDisplay(match);
                          return (
-                            <Badge 
-                              className={cn(
-                                "text-sm font-bold min-w-[28px] sm:min-w-[24px] h-8 sm:h-8 flex items-center justify-center",
-                                predictionDisplay.bgColor,
-                                predictionDisplay.textColor
-                              )}
+                             <Badge 
+                               className={cn(
+                                 "text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center",
+                                 predictionDisplay.bgColor,
+                                 predictionDisplay.textColor
+                               )}
                             >
                              {predictionDisplay.text}
                         </Badge>
