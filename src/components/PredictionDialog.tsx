@@ -502,15 +502,19 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                        const isHomeTeam = team.team.name === match.homeTeam.name;
                        const isAwayTeam = team.team.name === match.awayTeam.name;
                        const isHighlighted = isHomeTeam || isAwayTeam;
-                      const teamForm = getRealisticForm(team);
-                      
-                      return (
-                        <TableRow 
-                          key={`${team.team.id}-${team.position}`}
+                       const teamForm = getRealisticForm(team);
+                       
+                       if (team.team.name === 'SC Recife') {
+                         console.log('SC Recife desktop - isHighlighted:', isHighlighted);
+                       }
+                       
+                       return (
+                         <TableRow 
+                           key={`${team.team.id}-${team.position}`}
                            className={`h-8 hover:bg-muted/50 ${
-                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-8 border-l-yellow-400' : ''
+                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 !border-l-8 !border-l-yellow-400' : ''
                            }`}
-                        >
+                         >
                            <TableCell className="py-1 font-medium text-xs">{team.position}</TableCell>
                            <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
                            <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
