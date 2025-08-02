@@ -27,13 +27,13 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
     loadDataCounts();
   }, []);
 
-  // Monitor sync progress when loading
-  useEffect(() => {
-    if (isLoading) {
-      const interval = setInterval(loadCurrentSyncProgress, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
+  // Monitor sync progress when loading - DISABLED FOR DEBUGGING
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     const interval = setInterval(loadCurrentSyncProgress, 2000);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [isLoading]);
 
   const loadSyncInfo = async () => {
     try {
@@ -268,27 +268,10 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
           >
             🔄 Пълна синхронизация
           </Button>
-          {/* Progress indicator */}
+          {/* Simple loading indicator */}
           {isLoading && (
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-purple-300">⏳ Синхронизация в ход...</span>
-                {syncProgress?.sync_type && (
-                  <span className="text-purple-400">
-                    {syncProgress.sync_type} | {syncProgress.records_processed || 0} записа
-                  </span>
-                )}
-              </div>
-              {syncProgress?.records_processed && Number.isInteger(syncProgress.records_processed) && (
-                <div className="w-full bg-purple-900/30 rounded-full h-2">
-                  <div 
-                    className="bg-purple-500 h-2 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${Math.min((syncProgress.records_processed / 1000) * 100, 100)}%`
-                    }}
-                  />
-                </div>
-              )}
+            <div className="mt-4">
+              <p className="text-purple-300 text-sm">⏳ Синхронизацията стартира...</p>
             </div>
           )}
         </CardContent>
