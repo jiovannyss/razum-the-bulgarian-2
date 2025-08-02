@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
-import glowterCoin from '@/assets/glowter-coin-transparent-final.png';
+import { Coins } from 'lucide-react';
 
 export const ChipsIndicator = () => {
   const [chips, setChips] = useState<number>(0);
@@ -36,11 +36,7 @@ export const ChipsIndicator = () => {
 
   return (
     <div className="flex items-center gap-2">
-      <img 
-        src={glowterCoin} 
-        alt="Glowter Chips" 
-        className="w-5 h-5 drop-shadow-sm"
-      />
+      <Coins className="w-5 h-5 text-yellow-500" />
       <span className="text-sm font-medium text-foreground">
         {chips.toLocaleString()}
       </span>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
-import glowterCoin from '@/assets/glowter-coin-transparent-final.png';
+import { Coins } from 'lucide-react';
 
 interface ChipsBalanceProps {
   className?: string;
@@ -52,11 +52,7 @@ export function ChipsBalance({ className = "" }: ChipsBalanceProps) {
   if (loading) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        <img 
-          src={glowterCoin} 
-          alt="Glowter Chips" 
-          className="w-6 h-6 animate-pulse"
-        />
+        <Coins className="w-5 h-5 text-yellow-500" />
         <span className="text-sm text-muted-foreground">...</span>
       </div>
     );
@@ -64,11 +60,7 @@ export function ChipsBalance({ className = "" }: ChipsBalanceProps) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img 
-        src={glowterCoin} 
-        alt="Glowter Chips" 
-        className="w-6 h-6 drop-shadow-sm"
-      />
+      <Coins className="w-5 h-5 text-yellow-500" />
       <span className="text-sm font-medium text-foreground">
         {balance?.toLocaleString() || '0'}
       </span>
