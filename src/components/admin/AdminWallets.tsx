@@ -4,9 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { RefreshCw, User, Building2, TrendingUp, Users } from 'lucide-react';
+import { RefreshCw, User, Building2, TrendingUp, Users, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import glowterCoin from '@/assets/glowter-coin-transparent.png';
 
 interface WalletData {
   id: string;
@@ -156,7 +155,7 @@ export function AdminWallets() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Общо Чипове</CardTitle>
-            <img src={glowterCoin} alt="Chips" className="h-4 w-4" />
+            <Coins className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalChips.toLocaleString()}</div>
@@ -223,7 +222,7 @@ export function AdminWallets() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <img src={glowterCoin} alt="Chips" className="h-4 w-4" />
+                        <Coins className="h-4 w-4 text-yellow-500" />
                         <span className="font-mono">
                           {wallet.balance.toLocaleString()}
                         </span>
