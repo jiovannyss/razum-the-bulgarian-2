@@ -98,6 +98,11 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
     }
   }, [currentMatchday, leagueName]); // Removed availableRounds from dependencies
   
+  // Update collapsed state when specialMode changes
+  useEffect(() => {
+    setIsCollapsed(!specialMode);
+  }, [specialMode]);
+  
   // Get matches to display - in special mode show all, otherwise show current round
   const currentMatches = specialMode ? matches : (matchesByRound[currentGameWeek.toString()] || []);
 
