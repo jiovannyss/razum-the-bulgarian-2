@@ -161,7 +161,7 @@ export default function MyWallet() {
             </Button>
             <div className="flex items-center gap-2">
               <Coins className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Wallet</h1>
+              <h1 className="text-2xl font-bold text-black">My Wallet</h1>
             </div>
           </div>
 
