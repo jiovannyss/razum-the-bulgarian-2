@@ -468,6 +468,18 @@ export default function Profile() {
                     )}
                   </div>
 
+                  {/* Email (Read-only) */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      value={user?.email || ''}
+                      readOnly
+                      disabled
+                      className="bg-muted text-muted-foreground cursor-not-allowed"
+                    />
+                  </div>
+
                   {/* Username */}
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
