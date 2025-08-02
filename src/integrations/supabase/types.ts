@@ -876,6 +876,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      find_user_profile: {
+        Args: { search_term: string }
+        Returns: {
+          user_id: string
+          email: string
+          username: string
+          full_name: string
+        }[]
+      }
       get_glowter_wallet_id: {
         Args: Record<PropertyKey, never>
         Returns: string
