@@ -223,7 +223,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 pb-24">
+        <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 pb-20">
           {/* Match Header */}
           <div className="text-center space-y-3 sm:space-y-4">
             <div className="text-xs sm:text-sm text-muted-foreground">
@@ -510,17 +510,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </Card>
         </div>
 
-        {/* Save Button - Sticky Footer */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
-          <div className="max-w-4xl mx-auto">
-            <Button 
-              onClick={handleSave}
-              disabled={!selectedPrediction}
-              className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Save Prediction
-            </Button>
-          </div>
+        {/* Save Button - Sticky Footer inside dialog */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+          <Button 
+            onClick={handleSave}
+            disabled={!selectedPrediction}
+            className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            Save Prediction
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
