@@ -178,27 +178,46 @@ const LiveScore = () => {
 
   // Load user's selected competitions
   const loadUserCompetitions = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('❌ No user found, cannot load competitions');
+      return;
+    }
     
     try {
+      console.log(`🔍 Loading competitions for user: ${user.id}, role: ${userRole}`);
+      
       // For super admin, get all available competitions
       if (userRole === 'super_admin') {
+        console.log('👑 Super admin detected, loading all competitions');
         const competitions = await footballDataApi.getCompetitions();
         setUserCompetitions(new Set(competitions.map(c => c.id)));
+        console.log(`✅ Super admin set to ${competitions.length} competitions:`, competitions.map(c => c.id));
       } else {
         // For regular users, get their selected competitions
-        const { data } = await supabase
+        console.log('👤 Regular user, loading selected competitions from database');
+        const { data, error } = await supabase
           .from('user_competitions')
           .select('competition_id')
           .eq('user_id', user.id)
           .eq('is_active', true);
 
+        if (error) {
+          console.error('❌ Error loading user competitions:', error);
+          return;
+        }
+
+        console.log('📊 Raw competition data from DB:', data);
         if (data) {
-          setUserCompetitions(new Set(data.map((item: any) => item.competition_id)));
+          const competitionIds = data.map((item: any) => item.competition_id);
+          setUserCompetitions(new Set(competitionIds));
+          console.log(`✅ User competitions set to:`, competitionIds);
+        } else {
+          console.log('⚠️ No competition data found for user');
+          setUserCompetitions(new Set());
         }
       }
     } catch (error) {
-      console.error('Error loading user competitions:', error);
+      console.error('❌ Error loading user competitions:', error);
     }
   };
 
