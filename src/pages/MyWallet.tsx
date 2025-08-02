@@ -229,7 +229,16 @@ export default function MyWallet() {
                                 {transaction.description}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(transaction.created_at).toLocaleString('bg-BG')}
+                                {new Date(transaction.created_at).toLocaleDateString('en-GB', {
+                                  day: '2-digit',
+                                  month: '2-digit', 
+                                  year: 'numeric'
+                                }).replace(/\//g, '.')} {new Date(transaction.created_at).toLocaleTimeString('en-GB', {
+                                  hour12: false,
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  second: '2-digit'
+                                })}
                               </p>
                             </div>
                           </div>
