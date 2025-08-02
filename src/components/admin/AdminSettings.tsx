@@ -175,12 +175,12 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
 
 
           {/* Specific sync buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-3 gap-3 mb-4">
             <Button 
               onClick={() => handleSync('competitions')}
               disabled={isLoading}
               variant="outline"
-              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30 text-sm"
             >
               🏆 Турнири
             </Button>
@@ -188,7 +188,7 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
               onClick={() => handleSync('teams')}
               disabled={isLoading}
               variant="outline"
-              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30 text-sm"
             >
               ⚽ Отбори
             </Button>
@@ -196,7 +196,7 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
               onClick={() => handleSync('fixtures')}
               disabled={isLoading}
               variant="outline"
-              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30 text-sm"
             >
               📅 Мачове
             </Button>
@@ -204,9 +204,25 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
               onClick={() => handleSync('standings')}
               disabled={isLoading}
               variant="outline"
-              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30 text-sm"
             >
               📊 Класирания
+            </Button>
+            <Button 
+              onClick={() => handleSync('h2h')}
+              disabled={isLoading}
+              variant="outline"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30 text-sm"
+            >
+              🥊 H2H
+            </Button>
+            <Button 
+              onClick={() => handleSync('form')}
+              disabled={isLoading}
+              variant="outline"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30 text-sm"
+            >
+              📈 Форма
             </Button>
           </div>
 
