@@ -320,45 +320,81 @@ export default function Auth() {
       const passwordInput = document.getElementById('signin-password') as HTMLInputElement;
       const emailInput = document.getElementById('signin-email') as HTMLInputElement;
       
-      if (passwordInput && passwordInput.value) {
+      if (passwordInput && passwordInput.value && passwordInput.value !== formData.password) {
         // Force re-render to ensure toggle button is visible
         setFormData(prev => ({ ...prev, password: passwordInput.value }));
       }
       
-      if (emailInput && emailInput.value) {
+      if (emailInput && emailInput.value && emailInput.value !== formData.email) {
         // Update email field as well
         setFormData(prev => ({ ...prev, email: emailInput.value }));
       }
     };
 
-    // Check multiple times to catch autofill
+    // Check multiple times to catch autofill at different intervals
     const timers = [
+      setTimeout(checkAutoFill, 50),
       setTimeout(checkAutoFill, 100),
+      setTimeout(checkAutoFill, 250),
       setTimeout(checkAutoFill, 500),
-      setTimeout(checkAutoFill, 1000)
+      setTimeout(checkAutoFill, 1000),
+      setTimeout(checkAutoFill, 2000)
     ];
 
-    // Also listen for input events
-    const passwordInput = document.getElementById('signin-password');
-    const emailInput = document.getElementById('signin-email');
-    
-    if (passwordInput) {
-      passwordInput.addEventListener('input', checkAutoFill);
-    }
-    if (emailInput) {
-      emailInput.addEventListener('input', checkAutoFill);
-    }
+    // Create a more aggressive observer for password field changes
+    const observeChanges = () => {
+      const passwordInput = document.getElementById('signin-password');
+      const emailInput = document.getElementById('signin-email');
+      
+      if (passwordInput) {
+        // Listen for various events that might indicate autofill
+        ['input', 'change', 'animationstart', 'focus', 'blur'].forEach(eventType => {
+          passwordInput.addEventListener(eventType, checkAutoFill);
+        });
+        
+        // Use MutationObserver to detect value changes
+        const observer = new MutationObserver(checkAutoFill);
+        observer.observe(passwordInput, { attributes: true, attributeFilter: ['value'] });
+        
+        // Store observer for cleanup
+        (passwordInput as any).__observer = observer;
+      }
+      
+      if (emailInput) {
+        ['input', 'change', 'animationstart', 'focus', 'blur'].forEach(eventType => {
+          emailInput.addEventListener(eventType, checkAutoFill);
+        });
+      }
+    };
+
+    // Wait a bit for the DOM to be ready
+    setTimeout(observeChanges, 10);
 
     return () => {
       timers.forEach(clearTimeout);
+      
+      // Clean up event listeners
+      const passwordInput = document.getElementById('signin-password');
+      const emailInput = document.getElementById('signin-email');
+      
       if (passwordInput) {
-        passwordInput.removeEventListener('input', checkAutoFill);
+        ['input', 'change', 'animationstart', 'focus', 'blur'].forEach(eventType => {
+          passwordInput.removeEventListener(eventType, checkAutoFill);
+        });
+        
+        // Clean up MutationObserver
+        if ((passwordInput as any).__observer) {
+          (passwordInput as any).__observer.disconnect();
+        }
       }
+      
       if (emailInput) {
-        emailInput.removeEventListener('input', checkAutoFill);
+        ['input', 'change', 'animationstart', 'focus', 'blur'].forEach(eventType => {
+          emailInput.removeEventListener(eventType, checkAutoFill);
+        });
       }
     };
-  }, []);
+  }, [formData.password, formData.email]);
 
   // Password validation
   const validatePassword = (password: string): string[] => {
