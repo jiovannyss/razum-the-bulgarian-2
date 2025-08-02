@@ -297,7 +297,7 @@ const LiveScore = () => {
     }
     
     // Set up realtime listener for matches table updates
-    const channel = supabase
+    const matchesChannel = supabase
       .channel('matches-updates')
       .on(
         'postgres_changes',
@@ -314,8 +314,28 @@ const LiveScore = () => {
       )
       .subscribe();
 
+    // Set up realtime listener for user competitions changes
+    const competitionsChannel = supabase
+      .channel('user-competitions-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_competitions',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('User competitions updated via realtime:', payload);
+          // Reload user competitions and then matches
+          loadUserCompetitions();
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(matchesChannel);
+      supabase.removeChannel(competitionsChannel);
     };
   }, [userRole, user, userCompetitions.size]);
 
