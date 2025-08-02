@@ -52,7 +52,7 @@ export function ChipsBalance({ className = "" }: ChipsBalanceProps) {
   if (loading) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        <Coins className="w-5 h-5 text-yellow-500" />
+        <Coins className="w-6 h-6 text-yellow-500" />
         <span className="text-sm text-muted-foreground">...</span>
       </div>
     );
@@ -60,7 +60,7 @@ export function ChipsBalance({ className = "" }: ChipsBalanceProps) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Coins className="w-5 h-5 text-yellow-500" />
+      <Coins className="w-6 h-6 text-yellow-500" />
       <span className="text-sm font-medium text-foreground">
         {balance?.toLocaleString() || '0'}
       </span>

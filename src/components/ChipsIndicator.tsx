@@ -36,7 +36,7 @@ export const ChipsIndicator = () => {
 
   return (
     <div className="flex items-center gap-2">
-      <Coins className="w-5 h-5 text-yellow-500" />
+      <Coins className="w-6 h-6 text-yellow-500" />
       <span className="text-sm font-medium text-foreground">
         {chips.toLocaleString()}
       </span>
