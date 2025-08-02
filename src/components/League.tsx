@@ -290,26 +290,27 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
   return (
     <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-purple-700 purple-glow">
       {/* League Header */}
-      <div className="flex items-center justify-between p-3 lg:p-4 bg-section-background border-b border-purple-700/50">
+      <div className="flex items-center justify-between p-2 sm:p-3 lg:p-4 bg-section-background border-b border-purple-700/50">
         {/* Left part - Clickable area extended to include navigation */}
         <div 
-          className="flex items-center gap-2 lg:gap-3 cursor-pointer transition-colors rounded-lg p-2 -m-2 flex-1"
+          className="flex items-center gap-2 lg:gap-3 cursor-pointer transition-colors rounded-lg p-1 sm:p-2 -m-1 sm:-m-2 flex-1"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {leagueLogo ? (
-            <img src={leagueLogo} alt={leagueName} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
+            <img src={leagueLogo} alt={leagueName} className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-md" />
           ) : (
-            <Trophy className="w-6 h-6 lg:w-8 lg:h-8 text-primary" />
+            <Trophy className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-primary" />
           )}
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm lg:text-lg">
-              {leagueName}{areaName && `, ${areaName}`}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-xs sm:text-sm lg:text-lg truncate">
+              {leagueName}
+              <span className="hidden sm:inline">{areaName && `, ${areaName}`}</span>
             </h3>
           </div>
           
           {/* Game Week Navigation inside clickable area but with event prevention */}
           {!isCollapsed && (
-            <div onClick={(e) => e.stopPropagation()}>
+            <div onClick={(e) => e.stopPropagation()} className="hidden sm:block">
               <GameWeekNavigation
                 currentGameWeek={currentGameWeek}
                 onGameWeekChange={handleGameWeekChange}
@@ -324,7 +325,7 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
           variant="ghost"
           size="sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-accent/20"
+          className="h-6 w-6 lg:h-8 lg:w-8 p-0 hover:bg-accent/20 flex-shrink-0"
         >
           {isCollapsed ? (
             <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4" />
@@ -334,13 +335,24 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
         </Button>
       </div>
 
+      {/* Mobile Game Week Navigation - only visible when expanded on mobile */}
+      {!isCollapsed && (
+        <div className="sm:hidden p-2 border-b border-purple-700/30 bg-section-background">
+          <GameWeekNavigation
+            currentGameWeek={currentGameWeek}
+            onGameWeekChange={handleGameWeekChange}
+            maxGameWeek={totalRounds}
+          />
+        </div>
+      )}
+
       {/* Matches List */}
       {!isCollapsed && (
-        <div className="divide-y-[3px] divide-purple-700/30">
+        <div className="divide-y-[2px] sm:divide-y-[3px] divide-purple-700/30">
           {currentMatches.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Няма мачове за кръг {currentRound || currentGameWeek}</p>
+            <div className="p-6 sm:p-8 text-center text-muted-foreground">
+              <Trophy className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
+              <p className="text-sm sm:text-base">Няма мачове за кръг {currentRound || currentGameWeek}</p>
             </div>
           ) : (
              currentMatches.map((match) => {
@@ -350,20 +362,20 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                   <div
                     key={match.id}
                     className={cn(
-                      "p-3 lg:p-4 transition-colors",
+                      "p-2 sm:p-3 lg:p-4 transition-colors",
                       match.status === 'upcoming' 
                         ? "hover:bg-accent/10 cursor-pointer" 
                         : "hover:bg-accent/5"
                     )}
                     onClick={() => handleMatchClick(match)}
                   >
-                   <div className="flex items-center gap-4">
+                   <div className="flex items-center gap-2 sm:gap-4">
                      {/* Star area - always present */}
-                     <div className="flex-shrink-0 w-8 h-8 relative flex items-center justify-center">
+                     <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 relative flex items-center justify-center">
                        {match.rank && match.rank > 1 && (
                          <div className="relative">
                            <Star 
-                             className="w-6 h-6 text-yellow-400 fill-yellow-400" 
+                             className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-400 fill-yellow-400" 
                              strokeWidth={1.5}
                            />
                            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
@@ -376,27 +388,27 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                      <div className="flex-1 min-w-0">
                        {/* Home Team Row */}
                        <div className="flex items-center justify-between mb-1 lg:mb-2">
-                         <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
+                         <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 min-w-0 flex-1">
                            {match.homeLogo && (
                              <img 
                                src={match.homeLogo} 
                                alt={match.homeTeam}
-                               className="w-4 h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
+                               className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
                              />
                            )}
-                           <span className="font-medium text-sm lg:text-base truncate">{match.homeTeam}</span>
+                           <span className="font-medium text-xs sm:text-sm lg:text-base truncate">{match.homeTeam}</span>
                          </div>
-                         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2 sm:ml-4">
                            <span className={cn(
-                             "text-base lg:text-lg font-bold w-6 text-center",
+                             "text-sm sm:text-base lg:text-lg font-bold w-4 sm:w-6 text-center",
                              match.status === "live" ? "text-live" : 
                              match.status === "finished" ? "text-white" : ""
                            )}>
                              {match.homeScore !== null ? match.homeScore : '-'}
                            </span>
-                           <div className="w-12 text-center">
+                           <div className="w-8 sm:w-10 lg:w-12 text-center">
                               {match.status === "live" ? (
-                                <div className="text-sm font-bold text-live flex items-baseline justify-center">
+                                <div className="text-xs sm:text-sm font-bold text-live flex items-baseline justify-center">
                                   <span>{(() => {
                                     const now = new Date();
                                     const minutesSinceHour = now.getMinutes();
@@ -427,64 +439,53 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                        
                        {/* Away Team Row */}
                        <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
+                         <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 min-w-0 flex-1">
                            {match.awayLogo && (
                              <img 
                                src={match.awayLogo} 
                                alt={match.awayTeam}
-                               className="w-4 h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
+                               className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
                              />
                            )}
-                           <span className="font-medium text-sm lg:text-base truncate">{match.awayTeam}</span>
+                           <span className="font-medium text-xs sm:text-sm lg:text-base truncate">{match.awayTeam}</span>
                          </div>
-                            <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2 sm:ml-4">
                               <span className={cn(
-                                "text-base lg:text-lg font-bold w-6 text-center",
+                                "text-sm sm:text-base lg:text-lg font-bold w-4 sm:w-6 text-center",
                                 match.status === "live" ? "text-live" : 
                                 match.status === "finished" ? "text-white" : ""
                               )}>
                                 {match.awayScore !== null ? match.awayScore : '-'}
                               </span>
-                               <div className="w-12 text-center">
-                                 {match.status === "upcoming" && !timeInfo.isToday && (
-                                   <span className="text-xs text-muted-foreground">
-                                     {timeInfo.timeStr}
-                                   </span>
-                                 )}
-                               </div>
-                           </div>
-                         </div>
+                              <div className="w-8 sm:w-10 lg:w-12" />
+                            </div>
                        </div>
+                     </div>
 
-                        {/* Prediction - right side */}
-                        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                          {/* My Prediction */}
-                          {(() => {
-                            const predictionDisplay = getPredictionDisplay(match);
-                            
-                            // За предстоящи мачове без прогноза - показвай триъгълник
-                            if (match.status === 'upcoming' && !match.myPrediction) {
-                              return (
-                                <TriangleAlert 
-                                  className="w-6 h-6 text-black fill-yellow-500" 
-                                />
-                              );
-                            }
-                            
-                            return (
-                              <Badge
-                                variant="outline"
-                                className={cn(
-                                  "text-xs border-0 font-bold min-w-[24px] h-6 flex items-center justify-center",
-                                  predictionDisplay.bgColor,
-                                  predictionDisplay.textColor
-                                )}
-                              >
-                                {predictionDisplay.text}
-                              </Badge>
-                            );
-                          })()}
-                        </div>
+                     {/* My Prediction Button */}
+                     <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
+                       {(() => {
+                         const predictionDisplay = getPredictionDisplay(match);
+                         return (
+                           <Badge 
+                             className={cn(
+                               "text-xs font-bold min-w-[20px] sm:min-w-[24px] h-6 sm:h-8 flex items-center justify-center",
+                               predictionDisplay.bgColor,
+                               predictionDisplay.textColor
+                             )}
+                           >
+                             {predictionDisplay.text}
+                           </Badge>
+                         );
+                       })()}
+                       
+                       {match.predictions && (
+                         <div className="text-xs text-muted-foreground text-right hidden sm:block">
+                           <div>{match.predictions}</div>
+                           <div className="text-xs opacity-75">predictions</div>
+                         </div>
+                       )}
+                     </div>
                    </div>
                  </div>
                );

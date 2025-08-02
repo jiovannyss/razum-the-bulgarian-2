@@ -420,12 +420,12 @@ const LiveScore = () => {
   const accuracy = totalPredictions > 0 ? Math.round((correctPredictions / totalPredictions) * 100) : 0;
 
   return (
-    <main className="min-h-screen bg-gradient-subtle p-4 lg:p-6">
+    <main className="min-h-screen bg-gradient-subtle p-2 sm:p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-4 lg:mb-8">
           <div className="space-y-2 w-full lg:w-auto">
-            <div className="flex items-center gap-2 lg:gap-4 pt-2 flex-nowrap overflow-x-auto">
+            <div className="flex items-center gap-3 lg:gap-4 pt-2 flex-nowrap overflow-x-auto">
               <div className="flex items-center gap-2 text-xs lg:text-sm whitespace-nowrap">
                 <div className="w-2 h-2 bg-live rounded-full animate-pulse"></div>
                 <span className="text-muted-foreground font-medium">{liveMatchesCount} Live Matches</span>
@@ -441,27 +441,26 @@ const LiveScore = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-3 mt-2 lg:mt-0">
+          <div className="flex items-center gap-3 mt-2 lg:mt-0 w-full lg:w-auto">
             <Button 
               variant="outline" 
-              className="gap-2 card-hover text-xs lg:text-sm px-3 lg:px-4 h-8 lg:h-10"
+              className="gap-2 card-hover text-xs lg:text-sm px-3 lg:px-4 h-8 lg:h-10 flex-1 lg:flex-none"
               onClick={loadMatches}
               disabled={loading}
             >
               <RefreshCw className={`w-3 h-3 lg:w-4 lg:h-4 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Loading...' : 'Refresh'}</span>
             </Button>
-            
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="matches">Matches</TabsTrigger>
-              <TabsTrigger value="today">Today</TabsTrigger>
-              <TabsTrigger value="live">Live</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 h-10 lg:h-11">
+              <TabsTrigger value="matches" className="text-xs lg:text-sm">Matches</TabsTrigger>
+              <TabsTrigger value="today" className="text-xs lg:text-sm">Today</TabsTrigger>
+              <TabsTrigger value="live" className="text-xs lg:text-sm">Live</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

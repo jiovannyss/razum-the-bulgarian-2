@@ -62,15 +62,15 @@ const Header = () => {
     <>
       {/* Sticky Header with Title and Navigation */}
       <header className="sticky top-2 z-[9999] bg-section-background backdrop-blur-lg border-b border-purple-700/50 rounded-t-2xl border border-purple-700 border-b-0 purple-glow">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Left Section: User avatar and name */}
             <div className="flex items-center">
               {!loading && user && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="gap-2 flex items-center p-1 group">
-                      <Avatar className="w-8 h-8">
+                    <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 flex items-center p-1 group">
+                      <Avatar className="w-6 h-6 sm:w-8 sm:h-8">
                         <AvatarImage src={profile?.avatar_url} />
                         <AvatarFallback className="text-xs transition-all duration-200 group-hover:bg-black group-hover:text-white">
                           {profile?.full_name ? 
@@ -79,15 +79,15 @@ const Header = () => {
                           }
                         </AvatarFallback>
                       </Avatar>
-                      <div className="text-left">
-                        <div className="text-sm font-medium">
+                      <div className="text-left hidden sm:block">
+                        <div className="text-xs sm:text-sm font-medium">
                           {profile?.username || user.email?.split('@')[0]}
                         </div>
                       </div>
-                      <CoinsBalance />
+                      <CoinsBalance className="text-xs sm:text-sm" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuContent align="start" className="w-56 z-[10000]">
                     <DropdownMenuLabel>
                       <div>
                         <p className="text-sm font-medium">{user.email}</p>
@@ -155,32 +155,34 @@ const Header = () => {
             </div>
             
             {/* Right Section: Notifications */}
-            <div className="flex items-center gap-[1vw]">
+            <div className="flex items-center gap-1 sm:gap-2">
               {!loading && (
                 <>
                   {user ? (
                     <>
                       {/* Notifications - only for logged in users */}
-                      <Button variant="ghost" size="sm" className="relative">
-                        <Bell className="w-[4vw] h-[4vw] md:w-[3vw] md:h-[3vw] lg:w-[2vw] lg:h-[2vw]" />
-                        <div className="absolute -top-1 -right-1 w-[3vw] h-[3vw] md:w-[2.5vw] md:h-[2.5vw] lg:w-[1.5vw] lg:h-[1.5vw] min-w-[1.5vw] min-h-[1.5vw] bg-destructive rounded-full text-[2vw] md:text-[1.5vw] lg:text-[1vw] flex items-center justify-center text-white font-bold">
+                      <Button variant="ghost" size="sm" className="relative p-2">
+                        <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-destructive rounded-full text-xs flex items-center justify-center text-white font-bold">
                           3
                         </div>
                       </Button>
                     </>
                   ) : (
                     // Auth buttons for non-logged in users
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => navigate('/auth')}
+                        className="text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
                       >
                         Вход
                       </Button>
                       <Button 
                         size="sm"
                         onClick={() => navigate('/auth')}
+                        className="text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
                       >
                         Регистрация
                       </Button>
@@ -194,7 +196,7 @@ const Header = () => {
 
         {/* Navigation Tabs */}
         <div className="border-t border-purple-700/30">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-2 sm:px-4">
             <nav className="flex w-full">
               {[
                 { id: "home", label: "Home", icon: Home },
@@ -212,14 +214,15 @@ const Header = () => {
                       setActiveTab(tab.id);
                       if (tab.id === "home") navigate('/');
                     }}
-                    className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-medium transition-all relative
+                    className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 sm:py-3 px-1 sm:px-2 text-xs font-medium transition-all relative
                       ${isActive 
                         ? 'text-secondary border-b-2 border-secondary glow-secondary' 
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/10'
                       }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-xs opacity-80">{tab.label}</span>
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="text-xs opacity-80 hidden sm:block">{tab.label}</span>
+                    <span className="text-xs opacity-80 sm:hidden">{tab.label.slice(0, 3)}</span>
                     {isActive && (
                       <div className="absolute inset-0 bg-secondary/5 pointer-events-none" />
                     )}
@@ -232,9 +235,9 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-purple-700/30">
+          <div className="sm:hidden border-t border-purple-700/30">
             <div className="container mx-auto px-4 py-4">
-              <nav className="flex flex-col gap-3">
+              <nav className="flex flex-col gap-2">
                 {[
                   { id: "home", label: "Home", icon: Home },
                   { id: "rooms", label: "My Rooms", icon: Users },
@@ -252,7 +255,7 @@ const Header = () => {
                         if (tab.id === "home") navigate('/');
                         setIsMenuOpen(false);
                       }}
-                      className={`flex items-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all
+                      className={`flex items-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all
                         ${isActive 
                           ? 'text-secondary bg-secondary/10 glow-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/5'
