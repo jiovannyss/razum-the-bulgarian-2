@@ -453,18 +453,24 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {(matchInfo?.standings || []).map((team) => {
-                      const isHomeTeam = team.team.name === match.homeTeam.name;
-                      const isAwayTeam = team.team.name === match.awayTeam.name;
-                      const isHighlighted = isHomeTeam || isAwayTeam;
-                      
-                      return (
-                        <TableRow 
-                          key={`${team.team.id}-${team.position}`}
+                     {(matchInfo?.standings || []).map((team) => {
+                       const isHomeTeam = team.team.name === match.homeTeam.name;
+                       const isAwayTeam = team.team.name === match.awayTeam.name;
+                       const isHighlighted = isHomeTeam || isAwayTeam;
+                       
+                       if (team.team.name === 'SC Recife') {
+                         console.log('SC Recife mobile - isHighlighted:', isHighlighted);
+                         console.log('SC Recife mobile - homeTeam:', match.homeTeam.name);
+                         console.log('SC Recife mobile - awayTeam:', match.awayTeam.name);
+                       }
+                       
+                       return (
+                         <TableRow 
+                           key={`${team.team.id}-${team.position}`}
                            className={`h-8 hover:bg-muted/50 ${
-                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-8 border-l-yellow-400' : ''
+                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 !border-l-8 !border-l-yellow-400' : ''
                            }`}
-                        >
+                         >
                           <TableCell className="py-1 font-medium text-xs w-[7%] text-center">{team.position}</TableCell>
                           <TableCell className="py-1 text-xs w-[55%] px-1">
                             <span className="truncate block text-left" title={team.team.name}>
