@@ -13,6 +13,8 @@ export default function UserCompetitions() {
   const [loading, setLoading] = useState(false);
   const [availableCompetitions, setAvailableCompetitions] = useState<Competition[]>([]);
   const [userCompetitions, setUserCompetitions] = useState<Set<number>>(new Set());
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (user) {
@@ -44,59 +46,81 @@ export default function UserCompetitions() {
     }
   };
 
-  const toggleCompetition = async (competitionId: number) => {
+  const handleEditMode = () => {
+    if (isEditMode) {
+      // Save changes
+      savePendingChanges();
+    } else {
+      // Enter edit mode
+      setIsEditMode(true);
+      setPendingChanges(new Set(userCompetitions));
+    }
+  };
+
+  const toggleCompetitionInEditMode = (competitionId: number) => {
+    if (!isEditMode) return;
+    
+    const newPendingChanges = new Set(pendingChanges);
+    if (newPendingChanges.has(competitionId)) {
+      newPendingChanges.delete(competitionId);
+    } else {
+      newPendingChanges.add(competitionId);
+    }
+    setPendingChanges(newPendingChanges);
+  };
+
+  const savePendingChanges = async () => {
     if (!user) return;
-
-    const competition = availableCompetitions.find(c => c.id === competitionId);
-    if (!competition) return;
-
-    const isCurrentlySelected = userCompetitions.has(competitionId);
-
+    
+    setLoading(true);
     try {
-      if (isCurrentlySelected) {
-        // Remove competition
+      // Get competitions to add and remove
+      const toAdd = Array.from(pendingChanges).filter(id => !userCompetitions.has(id));
+      const toRemove = Array.from(userCompetitions).filter(id => !pendingChanges.has(id));
+
+      // Remove competitions
+      for (const competitionId of toRemove) {
         await (supabase as any)
           .from('user_competitions')
           .update({ is_active: false })
           .eq('user_id', user.id)
           .eq('competition_id', competitionId);
-      } else {
-        // Add competition
-        await (supabase as any)
-          .from('user_competitions')
-          .upsert({
-            user_id: user.id,
-            competition_id: competitionId,
-            competition_name: competition.name,
-            competition_code: competition.code,
-            area_name: competition.area.name,
-            is_active: true
-          });
+      }
+
+      // Add competitions
+      for (const competitionId of toAdd) {
+        const competition = availableCompetitions.find(c => c.id === competitionId);
+        if (competition) {
+          await (supabase as any)
+            .from('user_competitions')
+            .upsert({
+              user_id: user.id,
+              competition_id: competitionId,
+              competition_name: competition.name,
+              competition_code: competition.code,
+              area_name: competition.area.name,
+              is_active: true
+            });
+        }
       }
 
       // Update local state
-      const newSelected = new Set(userCompetitions);
-      if (isCurrentlySelected) {
-        newSelected.delete(competitionId);
-        toast({
-          title: "League removed",
-          description: `You've left ${competition.name}`,
-        });
-      } else {
-        newSelected.add(competitionId);
-        toast({
-          title: "League joined",
-          description: `You've joined ${competition.name}`,
-        });
-      }
-      setUserCompetitions(newSelected);
+      setUserCompetitions(new Set(pendingChanges));
+      setIsEditMode(false);
+      
+      toast({
+        title: "Changes saved",
+        description: "Your league preferences have been updated",
+      });
     } catch (error) {
-      console.error('Error updating competition:', error);
+      console.error('Error saving changes:', error);
       toast({
         title: "Error",
-        description: "Failed to update league subscription",
+        description: "Failed to save changes",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,28 +138,54 @@ export default function UserCompetitions() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>My Leagues</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {availableCompetitions.map((competition) => {
-          const isSelected = userCompetitions.has(competition.id);
-          return (
-            <div key={competition.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-              <Checkbox
-                id={`user-comp-${competition.id}`}
-                checked={isSelected}
-                onCheckedChange={() => toggleCompetition(competition.id)}
-              />
-              <label htmlFor={`user-comp-${competition.id}`} className="flex-1 cursor-pointer">
-                <div className="font-medium">{competition.name}</div>
-                <div className="text-sm text-muted-foreground">{competition.area.name}</div>
-              </label>
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+    <div className="relative">
+      <Card>
+        <CardHeader>
+          <CardTitle>My Leagues</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 pb-20">
+          {availableCompetitions.map((competition) => {
+            const isSelected = isEditMode 
+              ? pendingChanges.has(competition.id)
+              : userCompetitions.has(competition.id);
+            
+            return (
+              <div 
+                key={competition.id} 
+                className={`flex items-center space-x-3 p-3 border rounded-lg transition-colors ${
+                  isEditMode ? 'bg-background' : 'bg-muted/50'
+                }`}
+              >
+                <Checkbox
+                  id={`user-comp-${competition.id}`}
+                  checked={isSelected}
+                  disabled={!isEditMode}
+                  onCheckedChange={() => toggleCompetitionInEditMode(competition.id)}
+                />
+                <label 
+                  htmlFor={`user-comp-${competition.id}`} 
+                  className={`flex-1 ${isEditMode ? 'cursor-pointer' : 'cursor-default'}`}
+                >
+                  <div className="font-medium">{competition.name}</div>
+                  <div className="text-sm text-muted-foreground">{competition.area.name}</div>
+                </label>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+      
+      {/* Sticky Change/Save button */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+        <Button 
+          onClick={handleEditMode}
+          disabled={loading}
+          size="lg"
+          className="shadow-lg"
+        >
+          {isEditMode ? 'Save' : 'Change'}
+        </Button>
+      </div>
+    </div>
   );
 }
