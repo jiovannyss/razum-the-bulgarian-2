@@ -442,14 +442,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             <CardContent className="pt-0">
               {/* Mobile view - table format */}
               <div className="block sm:hidden overflow-x-auto -mx-3">
-                <Table className="w-full">
+                <Table className="w-full min-w-[400px]">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="w-8 py-1 text-xs pl-4">#</TableHead>
-                      <TableHead className="py-1 text-xs flex-1">Team</TableHead>
+                      <TableHead className="w-6 py-1 text-xs pl-2">#</TableHead>
+                      <TableHead className="py-1 text-xs min-w-[120px]">Team</TableHead>
                       <TableHead className="w-8 py-1 text-xs">MP</TableHead>
                       <TableHead className="w-12 py-1 text-xs">Goals</TableHead>
-                      <TableHead className="w-8 py-1 text-xs pr-4">PTS</TableHead>
+                      <TableHead className="w-8 py-1 text-xs pr-2">PTS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -465,15 +465,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-8 pl-4">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs flex-1 min-w-0">
+                          <TableCell className="py-1 font-medium text-xs w-6 pl-2">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs min-w-[120px]">
                             <span className="truncate block text-left" title={team.team.name}>
-                              {team.team.name.length > 15 ? `${team.team.name.substring(0, 15)}..` : team.team.name}
+                              {team.team.name.length > 12 ? `${team.team.name.substring(0, 12)}..` : team.team.name}
                             </span>
                           </TableCell>
                           <TableCell className="py-1 text-xs w-8">{team.playedGames}</TableCell>
                           <TableCell className="py-1 text-xs w-12">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs w-8 pr-4">{team.points}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-8 pr-2">{team.points}</TableCell>
                         </TableRow>
                       );
                     })}
@@ -488,13 +488,13 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     <TableRow className="h-8">
                       <TableHead className="w-8 py-1">#</TableHead>
                       <TableHead className="py-1">Team</TableHead>
-                      <TableHead className="w-8 py-1 hidden sm:table-cell lg:table-cell">MP</TableHead>
-                      <TableHead className="w-8 py-1 hidden lg:table-cell">W</TableHead>
-                      <TableHead className="w-8 py-1 hidden lg:table-cell">D</TableHead>
-                      <TableHead className="w-8 py-1 hidden lg:table-cell">L</TableHead>
-                      <TableHead className="w-12 py-1">Goals</TableHead>
-                      <TableHead className="w-8 py-1">PTS</TableHead>
-                      <TableHead className="py-1 hidden lg:table-cell">Form</TableHead>
+                       <TableHead className="w-8 py-1">MP</TableHead>
+                       <TableHead className="w-8 py-1">W</TableHead>
+                       <TableHead className="w-8 py-1">D</TableHead>
+                       <TableHead className="w-8 py-1">L</TableHead>
+                       <TableHead className="w-12 py-1">Goals</TableHead>
+                       <TableHead className="w-8 py-1">PTS</TableHead>
+                       <TableHead className="py-1">Form</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -513,13 +513,13 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                         >
                            <TableCell className="py-1 font-medium text-xs">{team.position}</TableCell>
                            <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
-                           <TableCell className="py-1 text-xs hidden sm:table-cell lg:table-cell">{team.playedGames}</TableCell>
-                           <TableCell className="py-1 text-xs hidden lg:table-cell">{team.won}</TableCell>
-                           <TableCell className="py-1 text-xs hidden lg:table-cell">{team.draw}</TableCell>
-                           <TableCell className="py-1 text-xs hidden lg:table-cell">{team.lost}</TableCell>
+                           <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
+                           <TableCell className="py-1 text-xs">{team.won}</TableCell>
+                           <TableCell className="py-1 text-xs">{team.draw}</TableCell>
+                           <TableCell className="py-1 text-xs">{team.lost}</TableCell>
                            <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
                            <TableCell className="py-1 font-medium text-xs">{team.points}</TableCell>
-                          <TableCell className="py-1 hidden lg:table-cell">
+                          <TableCell className="py-1">
                             <div className="flex space-x-1">
                               {teamForm.split('').reverse().map((result, index) => (
                                 <div
