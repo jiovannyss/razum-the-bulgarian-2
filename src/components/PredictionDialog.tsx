@@ -200,7 +200,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 left-[50%] translate-x-[-50%]">
         <DialogHeader className="p-3 sm:p-6 pb-0">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <Button 
@@ -410,7 +410,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardHeader>
             <CardContent className="pt-0">
               {/* Mobile view - table format */}
-              <div className="block sm:hidden -mx-4">
+              <div className="block sm:hidden overflow-x-auto -mx-3">
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow className="h-8">
