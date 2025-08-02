@@ -365,7 +365,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     <span className="font-medium text-xs sm:text-sm truncate">{match.homeTeam.name}</span>
                   </div>
                   <div className="flex space-x-1">
-                    {(matchInfo?.homeForm || ['?', '?', '?', '?', '?']).reverse().map((result, index) => (
+                    {[...(matchInfo?.homeForm || ['?', '?', '?', '?', '?'])].reverse().map((result, index) => (
                       <div
                         key={index}
                         className={`w-5 h-5 sm:w-6 sm:h-6 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
@@ -383,7 +383,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     <span className="font-medium text-xs sm:text-sm truncate">{match.awayTeam.name}</span>
                   </div>
                   <div className="flex space-x-1">
-                    {(matchInfo?.awayForm || ['?', '?', '?', '?', '?']).reverse().map((result, index) => (
+                    {[...(matchInfo?.awayForm || ['?', '?', '?', '?', '?'])].reverse().map((result, index) => (
                       <div
                         key={index}
                         className={`w-5 h-5 sm:w-6 sm:h-6 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
