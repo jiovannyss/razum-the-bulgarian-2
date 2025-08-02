@@ -309,7 +309,9 @@ const LiveScore = () => {
 
   // Load user competitions and matches when component mounts or user changes
   useEffect(() => {
+    console.log('🔥 useEffect triggered - user:', user?.id, 'userRole:', userRole);
     if (user && userRole !== null) {
+      console.log('🔥 Calling loadUserCompetitions...');
       loadUserCompetitions();
     }
   }, [user, userRole]);
