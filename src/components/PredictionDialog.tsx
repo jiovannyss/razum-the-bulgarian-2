@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Users, Trophy, Loader2, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Users, Trophy, Loader2, Star, X } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -101,14 +95,19 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
     }
   }, [isOpen, match]);
 
-  if (!match) return null;
+  if (!isOpen || !match) return null;
 
   // Show loading state while fetching match info
   if (isLoadingMatchInfo) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-6 pb-0">
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        {/* Overlay */}
+        <div className="fixed inset-0 bg-black/80" onClick={onClose} />
+        
+        {/* Content */}
+        <div className="relative bg-background border rounded-lg shadow-lg max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b">
             <div className="flex items-center space-x-3">
               <Button 
                 variant="ghost" 
@@ -118,17 +117,27 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <DialogTitle className="text-lg font-semibold">Match Details</DialogTitle>
+              <h2 className="text-lg font-semibold">Match Details</h2>
             </div>
-          </DialogHeader>
-          <div className="p-6 pt-0">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {/* Loading content */}
+          <div className="p-6">
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin" />
               <span className="ml-2">Loading match details...</span>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
     );
   }
 
@@ -199,9 +208,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 mx-auto">
-        <DialogHeader className="p-3 sm:p-6 pb-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Overlay */}
+      <div className="fixed inset-0 bg-black/80" onClick={onClose} />
+      
+      {/* Content */}
+      <div className="relative bg-background border rounded-lg shadow-lg max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-3 sm:p-6 border-b">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <Button 
               variant="ghost" 
@@ -212,7 +226,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex items-center space-x-2">
-              <DialogTitle className="text-base sm:text-lg font-semibold">Match Details</DialogTitle>
+              <h2 className="text-base sm:text-lg font-semibold">Match Details</h2>
               {adminRating && adminRating >= 2 && (
                 <div className="relative flex items-center justify-center">
                   <Star className="h-6 w-6 sm:h-7 sm:w-7 md:h-10 md:w-10 fill-yellow-500 text-yellow-500" />
@@ -221,9 +235,18 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               )}
             </div>
           </div>
-        </DialogHeader>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         
-        <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 pb-6">
+        {/* Content */}
+        <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 pb-6">
           {/* Match Header */}
           <div className="text-center space-y-3 sm:space-y-4">
             <div className="text-xs sm:text-sm text-muted-foreground">
@@ -510,7 +533,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </Card>
         </div>
         
-        {/* Нов Save Prediction бутон - sticky най-отдолу в диалога */}
+        {/* Save Prediction Button - sticky at bottom */}
         <div className="sticky bottom-0 left-0 right-0 bg-transparent p-4 pt-2 flex justify-center">
           <button
             onClick={handleSave}
@@ -524,7 +547,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             Save Prediction
           </button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
