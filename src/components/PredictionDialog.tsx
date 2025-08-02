@@ -409,6 +409,13 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
+              {/* Mobile title header */}
+              <div className="block sm:hidden mb-3">
+                <div className="flex items-center space-x-2 text-sm font-semibold">
+                  <Trophy className="w-4 h-4" />
+                  <span>League Table</span>
+                </div>
+              </div>
               {/* Mobile view - simplified cards */}
               <div className="block sm:hidden space-y-1">
                 {(matchInfo?.standings || []).map((team) => {
@@ -430,12 +437,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2 flex-1 min-w-0">
-                          <span className="text-xs font-bold w-6 text-center">{team.position}</span>
-                          <span className="text-xs font-medium truncate flex-1">{team.team.name}</span>
+                          <span className="text-xs font-bold w-6 text-center flex-shrink-0">{team.position}</span>
+                          <span className="text-xs font-medium truncate flex-1 max-w-[120px]" title={team.team.name}>
+                            {team.team.name.length > 15 ? `${team.team.name.substring(0, 15)}..` : team.team.name}
+                          </span>
                         </div>
-                        <div className="flex items-center space-x-3 text-xs">
-                          <span className="text-center min-w-[24px]">{team.playedGames}</span>
-                          <span className="text-center min-w-[32px]">{team.goalsFor}:{team.goalsAgainst}</span>
+                        <div className="flex items-center space-x-3 text-xs flex-shrink-0">
+                          <span className="text-center min-w-[20px]">{team.playedGames}</span>
+                          <span className="text-center min-w-[40px]">{team.goalsFor}:{team.goalsAgainst}</span>
                           <span className="font-bold text-center min-w-[24px]">{team.points}</span>
                         </div>
                       </div>
@@ -505,12 +514,12 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Save Button - Sticky Footer */}
-        <div className="fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-sm border-t border-border z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border z-50">
           <div className="max-w-4xl mx-auto">
             <Button 
               onClick={handleSave}
               disabled={!selectedPrediction}
-              className="w-full h-11 text-base font-bold bg-yellow-500 hover:bg-yellow-600 text-black shadow-lg"
+              className="w-full h-12 text-lg font-bold bg-yellow-500 hover:bg-yellow-600 text-black"
             >
               Save Prediction
             </Button>
