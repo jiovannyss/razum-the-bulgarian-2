@@ -37,8 +37,8 @@ export default function MyLeagues() {
             <Button
               variant="ghost"
               onClick={() => {
-                console.log('Back button clicked, going back in history...');
-                window.history.back();
+                console.log('Back button clicked, navigating back...');
+                navigate(-1);
               }}
               className="gap-2"
             >
