@@ -141,7 +141,7 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
       });
       
       if (diffDays === 0) {
-        return { isToday: true, time: timeStr, date: null };
+        return { isToday: true, time: timeStr, date: "Today" };
       } else {
         const dateStr = date.toLocaleDateString('bg-BG', { 
           day: '2-digit', 
@@ -432,13 +432,13 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                                <span className="text-xs text-muted-foreground">
                                  {timeInfo.timeStr}
                                </span>
-                             ) : (
-                               !timeInfo.isToday && timeInfo.date && (
-                                 <span className="text-xs text-muted-foreground">
-                                   {timeInfo.date}
-                                 </span>
-                               )
-                             )}
+                              ) : (
+                                timeInfo.date && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {timeInfo.date}
+                                  </span>
+                                )
+                              )}
                            </div>
                          </div>
                        </div>
