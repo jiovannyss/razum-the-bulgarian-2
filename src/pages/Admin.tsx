@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Users, Calendar, Trophy, Settings, ArrowLeft } from 'lucide-react';
+import { AlertCircle, Users, Calendar, Trophy, Settings, ArrowLeft, Wallet } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AdminUsers } from '@/components/admin/AdminUsers';
 import { AdminMatches } from '@/components/admin/AdminMatches';
 import { AdminSpecialGames } from '@/components/admin/AdminSpecialGames';
 import { AdminRooms } from '@/components/admin/AdminRooms';
 import { AdminSettings } from '@/components/admin/AdminSettings';
+import { AdminWallets } from '@/components/admin/AdminWallets';
 
 interface UserRole {
   role: 'super_admin' | 'admin' | 'moderator' | 'user';
@@ -135,10 +136,14 @@ export default function Admin() {
           <Card>
             <CardContent className="p-0">
               <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="users" className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     Потребители
+                  </TabsTrigger>
+                  <TabsTrigger value="wallets" className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Портфейли
                   </TabsTrigger>
                   <TabsTrigger value="matches" className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
@@ -161,6 +166,10 @@ export default function Admin() {
                 <div className="p-6">
                   <TabsContent value="users" className="mt-0">
                     <AdminUsers userRole={userRole} />
+                  </TabsContent>
+
+                  <TabsContent value="wallets" className="mt-0">
+                    <AdminWallets />
                   </TabsContent>
 
                   <TabsContent value="matches" className="mt-0">
