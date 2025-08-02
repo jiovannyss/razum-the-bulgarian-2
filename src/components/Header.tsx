@@ -98,7 +98,7 @@ const Header = () => {
                       <User className="w-4 h-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2" onClick={() => navigate('/profile')}>
+                    <DropdownMenuItem className="gap-2" onClick={() => navigate('/my-leagues')}>
                       <Trophy className="w-4 h-4" />
                       <span>My Leagues</span>
                     </DropdownMenuItem>

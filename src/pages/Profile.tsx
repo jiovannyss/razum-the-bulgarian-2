@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Upload, User, Camera, Trophy } from 'lucide-react';
+import { ArrowLeft, Save, Upload, User, Camera } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -385,23 +385,11 @@ export default function Profile() {
             </Button>
           </div>
 
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="profile" className="gap-2">
-                <User className="h-4 w-4" />
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="leagues" className="gap-2">
-                <Trophy className="h-4 w-4" />
-                My Leagues
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Edit Profile</CardTitle>
-                </CardHeader>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Edit Profile</CardTitle>
+              </CardHeader>
                 <CardContent className="space-y-6">
                   {error && (
                     <Alert variant="destructive">
@@ -605,14 +593,9 @@ export default function Profile() {
                       {loading ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="leagues">
-              <UserCompetitions />
-            </TabsContent>
-          </Tabs>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
