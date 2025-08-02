@@ -465,15 +465,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-[10%] border border-black">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs w-[40%] border border-black">
+                          <TableCell className="py-1 font-medium text-xs w-[7%] text-center border border-black">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs w-[55%] px-1 border border-black">
                             <span className="truncate block text-left" title={team.team.name}>
                               {team.team.name.length > 10 ? `${team.team.name.substring(0, 10)}..` : team.team.name}
                             </span>
                           </TableCell>
-                          <TableCell className="py-1 text-xs w-[15%] border border-black">{team.playedGames}</TableCell>
-                          <TableCell className="py-1 text-xs w-[20%] border border-black">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs w-[15%] border border-black">{team.points}</TableCell>
+                          <TableCell className="py-1 text-xs w-[8%] text-center border border-black">{team.playedGames}</TableCell>
+                          <TableCell className="py-1 text-xs w-[15%] text-center border border-black">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-[15%] text-center border border-black">{team.points}</TableCell>
                         </TableRow>
                       );
                     })}
