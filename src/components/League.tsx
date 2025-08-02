@@ -370,20 +370,20 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                     onClick={() => handleMatchClick(match)}
                   >
                    <div className="flex items-center gap-2 sm:gap-4">
-                     {/* Star area - always present */}
-                     <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 relative flex items-center justify-center">
-                       {match.rank && match.rank > 1 && (
-                         <div className="relative">
-                           <Star 
-                             className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-400 fill-yellow-400" 
-                             strokeWidth={1.5}
-                           />
-                           <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
-                             {match.rank}
-                           </span>
-                         </div>
-                       )}
-                     </div>
+                      {/* Star area - always present */}
+                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 relative flex items-center justify-center">
+                        {match.adminRating && match.adminRating >= 2 && (
+                          <div className="relative">
+                            <Star 
+                              className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-400 fill-yellow-400" 
+                              strokeWidth={1.5}
+                            />
+                            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
+                              {match.adminRating}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                      {/* Teams, Scores, Date/Time - takes most space */}
                      <div className="flex-1 min-w-0">
                        {/* Home Team Row */}

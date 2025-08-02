@@ -223,7 +223,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 pb-20">
+        <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 pb-24">
           {/* Match Header */}
           <div className="text-center space-y-3 sm:space-y-4">
             <div className="text-xs sm:text-sm text-muted-foreground">
@@ -251,7 +251,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 <div className="flex flex-col items-center space-y-1">
                   <span className="text-base sm:text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
                   {adminRating && adminRating >= 2 && (
-                    <div className="relative flex items-center justify-center sm:hidden">
+                    <div className="relative flex items-center justify-center hidden sm:flex">
                       <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
                       <span className="absolute text-black text-xs font-bold">{adminRating}</span>
                     </div>
@@ -434,10 +434,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                         </div>
                         <span className="text-sm font-bold">{team.points} pts</span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{team.playedGames} MP • {team.won}W {team.draw}D {team.lost}L</span>
-                        <span>{team.goalsFor}:{team.goalsAgainst}</span>
-                      </div>
+                       <div className="flex items-center justify-between text-xs text-muted-foreground">
+                         <span>{team.playedGames} MP • {team.goalsFor}:{team.goalsAgainst} • {team.points} PTS</span>
+                       </div>
                       <div className="flex space-x-1 mt-2">
                         {teamForm.split('').reverse().map((result, index) => (
                           <div
@@ -460,7 +459,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     <TableRow className="h-8">
                       <TableHead className="w-8 py-1">#</TableHead>
                       <TableHead className="py-1">Team</TableHead>
-                      <TableHead className="w-8 py-1">MP</TableHead>
+                      <TableHead className="w-8 py-1 hidden sm:table-cell lg:table-cell">MP</TableHead>
                       <TableHead className="w-8 py-1 hidden lg:table-cell">W</TableHead>
                       <TableHead className="w-8 py-1 hidden lg:table-cell">D</TableHead>
                       <TableHead className="w-8 py-1 hidden lg:table-cell">L</TableHead>
@@ -483,14 +482,14 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
-                          <TableCell className="py-1 text-xs">{team.playedGames}</TableCell>
-                          <TableCell className="py-1 text-xs hidden lg:table-cell">{team.won}</TableCell>
-                          <TableCell className="py-1 text-xs hidden lg:table-cell">{team.draw}</TableCell>
-                          <TableCell className="py-1 text-xs hidden lg:table-cell">{team.lost}</TableCell>
-                          <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs">{team.points}</TableCell>
+                           <TableCell className="py-1 font-medium text-xs">{team.position}</TableCell>
+                           <TableCell className="py-1 text-xs">{team.team.name}</TableCell>
+                           <TableCell className="py-1 text-xs hidden sm:table-cell lg:table-cell">{team.playedGames}</TableCell>
+                           <TableCell className="py-1 text-xs hidden lg:table-cell">{team.won}</TableCell>
+                           <TableCell className="py-1 text-xs hidden lg:table-cell">{team.draw}</TableCell>
+                           <TableCell className="py-1 text-xs hidden lg:table-cell">{team.lost}</TableCell>
+                           <TableCell className="py-1 text-xs">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                           <TableCell className="py-1 font-medium text-xs">{team.points}</TableCell>
                           <TableCell className="py-1 hidden lg:table-cell">
                             <div className="flex space-x-1">
                               {teamForm.split('').reverse().map((result, index) => (
@@ -513,13 +512,13 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </Card>
         </div>
 
-        {/* Fixed Save Button at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 z-[60]">
-          <div className="max-w-md mx-auto">
+        {/* Save Button - Sticky Footer */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
+          <div className="max-w-4xl mx-auto">
             <Button 
-              onClick={handleSave} 
-              className="w-full h-12 text-base font-medium"
+              onClick={handleSave}
               disabled={!selectedPrediction}
+              className="w-full h-12 text-lg font-bold bg-yellow-500 hover:bg-yellow-600 text-black shadow-lg"
             >
               Save Prediction
             </Button>
