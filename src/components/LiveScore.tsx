@@ -540,6 +540,7 @@ const LiveScore = () => {
                 matches={leagueMatches}
                 currentMatchday={currentMatchday}
                 onLoadMatchday={loadMatchdayForLeague}
+                specialMode={activeTab === "matches" ? null : activeTab}
               />
             );
           })}

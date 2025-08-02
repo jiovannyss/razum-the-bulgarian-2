@@ -45,10 +45,11 @@ interface LeagueProps {
   leagueLogo?: string;
   currentMatchday?: number;
   onLoadMatchday?: (leagueName: string, matchday: number) => Promise<void>;
+  specialMode?: string | null; // "today", "live", or null for normal mode
 }
 
-const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, onLoadMatchday }: LeagueProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, onLoadMatchday, specialMode }: LeagueProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(!specialMode); // Auto-expand in special mode
   const [selectedMatch, setSelectedMatch] = useState<ProcessedMatch | null>(null);
   const [isPredictionDialogOpen, setIsPredictionDialogOpen] = useState(false);
   
@@ -97,9 +98,8 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
     }
   }, [currentMatchday, leagueName]); // Removed availableRounds from dependencies
   
-  // Get current round's matches
-  const currentRound = currentGameWeek.toString();
-  const currentMatches = matchesByRound[currentRound] || [];
+  // Get matches to display - in special mode show all, otherwise show current round
+  const currentMatches = specialMode ? matches : (matchesByRound[currentGameWeek.toString()] || []);
 
   const formatMatchTime = (timeString: string) => {
     try {
@@ -309,7 +309,7 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
           </div>
           
           {/* Game Week Navigation inside clickable area but with event prevention */}
-          {!isCollapsed && (
+          {!isCollapsed && !specialMode && (
             <div onClick={(e) => e.stopPropagation()} className="hidden sm:block">
               <GameWeekNavigation
                 currentGameWeek={currentGameWeek}
@@ -335,8 +335,8 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
         </Button>
       </div>
 
-      {/* Mobile Game Week Navigation - only visible when expanded on mobile */}
-      {!isCollapsed && (
+      {/* Mobile Game Week Navigation - only visible when expanded on mobile and not in special mode */}
+      {!isCollapsed && !specialMode && (
         <div className="sm:hidden p-2 border-b border-purple-700/30 bg-section-background">
           <GameWeekNavigation
             currentGameWeek={currentGameWeek}
@@ -350,10 +350,15 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
       {!isCollapsed && (
         <div className="divide-y-[2px] sm:divide-y-[3px] divide-purple-700/30">
           {currentMatches.length === 0 ? (
-            <div className="p-6 sm:p-8 text-center text-muted-foreground">
-              <Trophy className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-sm sm:text-base">Няма мачове за кръг {currentRound || currentGameWeek}</p>
-            </div>
+             <div className="p-6 sm:p-8 text-center text-muted-foreground">
+               <Trophy className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
+               <p className="text-sm sm:text-base">
+                 {specialMode 
+                   ? `Няма ${specialMode === 'today' ? 'днешни' : 'live'} мачове`
+                   : `Няма мачове за кръг ${currentGameWeek}`
+                 }
+               </p>
+             </div>
           ) : (
              currentMatches.map((match) => {
                const timeInfo = getTimeInfo(match.time);
