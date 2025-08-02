@@ -42,7 +42,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
   const [isLoadingMatchInfo, setIsLoadingMatchInfo] = useState(false);
 
   // Debug: Log adminRating
-  console.log('PredictionDialog adminRating:', adminRating, typeof adminRating);
+  
 
   useEffect(() => {
     if (isOpen && currentPrediction) {
@@ -65,7 +65,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             competition: match.competition
           });
           
-          console.log('🔍 CRITICAL DEBUG - Raw match object:', match);
+          
           
           // Use the match as-is without any fallback modifications
           const apiMatch = {
@@ -76,7 +76,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             }
           };
           
-          console.log('🔍 Match competition details:', {
+          console.log('Match competition details:', {
             competitionFromMatch: match.competition,
             homeTeamFromMatch: match.homeTeam,
             awayTeamFromMatch: match.awayTeam,
@@ -84,10 +84,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             finalCompetitionName: apiMatch.competition.name
           });
           
-          console.log('API match object:', apiMatch);
+          
           const info = await footballDataApi.getMatchInfo(apiMatch);
-          console.log('✅ Loaded match info successfully:', info);
-          console.log('📊 Head-to-head matches found:', info.headToHead?.length || 0);
           setMatchInfo(info);
         } catch (error) {
           console.error('Error loading match info:', error);

@@ -168,11 +168,9 @@ class FootballDataApiService {
       }
 
       const data = await response.json();
-      console.log(`✅ API response received:`, data);
       return data;
     } catch (error) {
       if (retryCount < 1 && error instanceof Error && error.message.includes('fetch')) {
-        console.log(`🔄 Network error, retrying... (${retryCount + 1}/1)`);
         await new Promise(resolve => setTimeout(resolve, 2000));
         return this.makeRequest<T>(endpoint, retryCount + 1);
       }
@@ -693,8 +691,6 @@ class FootballDataApiService {
         .limit(limit);
 
       if (!error && cachedMatches && cachedMatches.length > 0) {
-        console.log(`✅ [H2H] Found ${cachedMatches.length} matches in cached data`);
-        
         // Transform cached data to Match interface
         const h2hMatches = cachedMatches.map((match: any) => ({
           id: match.id,
@@ -736,7 +732,6 @@ class FootballDataApiService {
           venue: match.venue
         }));
 
-        console.log(`✅ [H2H] Returning ${h2hMatches.length} cached head-to-head matches`);
         return h2hMatches;
       }
 
@@ -766,7 +761,6 @@ class FootballDataApiService {
               );
               
               if (h2hMatches.length > 0) {
-                console.log(`✅ [H2H] Found ${h2hMatches.length} finished matches in season ${seasonYear}`);
                 allH2HMatches.push(...h2hMatches);
                 
                 // Stop if we have enough matches
@@ -782,7 +776,6 @@ class FootballDataApiService {
         }
         
         if (allH2HMatches.length > 0) {
-          console.log(`✅ [H2H] Collected ${allH2HMatches.length} total finished matches from API`);
           const result = allH2HMatches
             .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
             .slice(0, limit);
@@ -813,7 +806,6 @@ class FootballDataApiService {
         .single();
 
       if (cachedForm && !formError) {
-        console.log(`✅ Found cached form for team ${teamId}`);
         const form = [
           (cachedForm as any).match1_result,
           (cachedForm as any).match2_result,
@@ -822,7 +814,6 @@ class FootballDataApiService {
           (cachedForm as any).match5_result
         ].filter(Boolean); // Remove null values
         
-        console.log(`✅ Team ${teamId} cached form: ${form.join('')}`);
         return form;
       }
 

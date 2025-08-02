@@ -52,7 +52,7 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
   const [selectedMatch, setSelectedMatch] = useState<ProcessedMatch | null>(null);
   const [isPredictionDialogOpen, setIsPredictionDialogOpen] = useState(false);
   
-  console.log(`🏆 League: ${leagueName}, Matches count: ${matches.length}`, matches);
+  
   
   // Group matches by round and get available rounds
   const matchesByRound = matches.reduce((acc, match) => {
@@ -64,7 +64,7 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
     return acc;
   }, {} as Record<string, ProcessedMatch[]>);
   
-  console.log(`📊 Matches by round:`, matchesByRound);
+  
   
   const availableRounds = Object.keys(matchesByRound).sort((a, b) => parseInt(a) - parseInt(b));
   
@@ -82,39 +82,24 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
   
   // Initialize with the current matchday if available, otherwise first round
   const [currentGameWeek, setCurrentGameWeek] = useState(() => {
-    console.log(`🏗️ Initializing League ${leagueName}:`);
-    console.log(`   - currentMatchday prop: ${currentMatchday}`);
-    console.log(`   - availableRounds: [${availableRounds.join(', ')}]`);
-    
     // If we have a current matchday from API, use it regardless of available rounds
     if (currentMatchday) {
-      console.log(`🎯 Using API current matchday: ${currentMatchday}`);
       return currentMatchday;
     }
     const fallback = availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1;
-    console.log(`🎯 Using fallback matchday: ${fallback}`);
     return fallback;
   });
   
   // Update currentGameWeek when currentMatchday prop changes (but not when user navigates)
   useEffect(() => {
-    console.log(`🔄 useEffect triggered for ${leagueName}:`);
-    console.log(`   - currentMatchday: ${currentMatchday}`);
-    
-    // Only update if this is initial load and we don't have a manually set game week
     if (currentMatchday && currentGameWeek === (availableRounds.length > 0 ? parseInt(availableRounds[0]) : 1)) {
-      console.log(`🔄 Initial load: Updating GW to API current: ${currentMatchday}`);
       setCurrentGameWeek(currentMatchday);
     }
   }, [currentMatchday, leagueName]); // Removed availableRounds from dependencies
   
-  console.log(`🎯 Available rounds: [${availableRounds.join(', ')}], Current GW: ${currentGameWeek}, API Current: ${currentMatchday}`);
-  
   // Get current round's matches
   const currentRound = currentGameWeek.toString();
   const currentMatches = matchesByRound[currentRound] || [];
-  
-  console.log(`⚽ Current GW: ${currentGameWeek}, Round: ${currentRound}, Matches: ${currentMatches.length}`);
 
   const formatMatchTime = (timeString: string) => {
     try {
@@ -230,16 +215,14 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
   };
 
   const handleGameWeekChange = async (newGameWeek: number) => {
-    console.log(`🎯 Changing from GW ${currentGameWeek} to GW ${newGameWeek}`);
     setCurrentGameWeek(newGameWeek);
     
     // Always load matches for this gameweek if callback provided
     if (onLoadMatchday) {
-      console.log(`📥 Loading matches for GW ${newGameWeek}...`);
       try {
         await onLoadMatchday(leagueName, newGameWeek);
       } catch (error) {
-        console.error(`❌ Failed to load GW ${newGameWeek}:`, error);
+        console.error(`Failed to load GW ${newGameWeek}:`, error);
       }
     }
   };
@@ -254,7 +237,6 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
 
   const handleSavePrediction = (matchId: number, prediction: string | null) => {
     // Here you would normally save to backend/state
-    console.log(`Saving prediction for match ${matchId}: ${prediction}`);
     
     // For now, just update local state (in real app, this would update your matches state)
     // You'd typically call an API here and then update the matches state

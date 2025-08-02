@@ -1,4 +1,4 @@
-console.log('🔥 LiveScore.tsx file loaded at:', new Date().toISOString());
+
 import { useState, useEffect } from "react";
 import { 
   RefreshCw,
@@ -52,7 +52,6 @@ interface ProcessedMatch {
 
 const LiveScore = () => {
   const { user, userRole } = useAuth();
-  console.log('🚀 LiveScore rendered - user:', user?.id, 'role:', userRole);
   
   const [activeTab, setActiveTab] = useState("matches");
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
@@ -113,12 +112,11 @@ const LiveScore = () => {
   // Function to load matches for a specific league and matchday
   const loadMatchdayForLeague = async (leagueName: string, matchday: number) => {
     try {
-      console.log(`📥 Loading matchday ${matchday} for ${leagueName}...`);
+      
       
       // Find the competition by name
       const competition = competitionsWithCurrentMatchday.find(comp => comp.name === leagueName);
       if (!competition) {
-        console.log(`❌ Competition not found: ${leagueName}`);
         return;
       }
       
@@ -128,7 +126,6 @@ const LiveScore = () => {
       );
       
       if (existingMatchesForRound.length > 0) {
-        console.log(`✅ Already have ${existingMatchesForRound.length} matches for ${leagueName} GW${matchday}`);
         return;
       }
       
@@ -146,14 +143,12 @@ const LiveScore = () => {
           return [...prevMatches, ...uniqueNewMatches];
         });
         
-        console.log(`✅ Loaded ${newMatches.length} matches for ${leagueName} GW${matchday}`);
-        
         toast({
           title: "Matches loaded",
           description: `Loaded ${newMatches.length} matches for ${leagueName} GW${matchday}`,
         });
       } else {
-        console.log(`⚠️ No matches found for ${leagueName} GW${matchday}`);
+        
         toast({
           title: "No matches",
           description: `No matches found for Round ${matchday}`,
@@ -161,7 +156,6 @@ const LiveScore = () => {
         });
       }
     } catch (error: any) {
-      console.log(`❌ Error loading matchday ${matchday} for ${leagueName}:`, error);
       
       // Handle rate limiting specifically
       if (error.message.includes('429')) {
@@ -183,22 +177,21 @@ const LiveScore = () => {
   // Load user's selected competitions
   const loadUserCompetitions = async () => {
     if (!user) {
-      console.log('❌ No user found, cannot load competitions');
       return;
     }
     
     try {
-      console.log(`🔍 Loading competitions for user: ${user.id}, role: ${userRole}`);
+      
       
       // For super admin, get all available competitions
       if (userRole === 'super_admin') {
-        console.log('👑 Super admin detected, loading all competitions');
+        
         const competitions = await footballDataApi.getCompetitions();
         setUserCompetitions(new Set(competitions.map(c => c.id)));
-        console.log(`✅ Super admin set to ${competitions.length} competitions:`, competitions.map(c => c.id));
+        
       } else {
         // For regular users, get their selected competitions
-        console.log('👤 Regular user, loading selected competitions from database');
+        
         const { data, error } = await supabase
           .from('user_competitions')
           .select('competition_id')
@@ -210,13 +203,12 @@ const LiveScore = () => {
           return;
         }
 
-        console.log('📊 Raw competition data from DB:', data);
+        
         if (data) {
           const competitionIds = data.map((item: any) => item.competition_id);
           setUserCompetitions(new Set(competitionIds));
-          console.log(`✅ User competitions set to:`, competitionIds);
         } else {
-          console.log('⚠️ No competition data found for user');
+          
           setUserCompetitions(new Set());
         }
       }
@@ -230,7 +222,7 @@ const LiveScore = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Loading cached matches from database...');
+      
 
       // Get all cached matches from database
       const allMatches = await footballDataApi.getUpcomingMatches();
@@ -241,43 +233,41 @@ const LiveScore = () => {
         ...comp, 
         currentMatchday: comp.currentSeason.currentMatchday
       }));
-      console.log(`📊 Found ${allMatches.length} total cached matches`);
+      
       
       // Filter matches based on user's selected competitions
       let filteredMatches = allMatches;
-      console.log(`🔍 User competitions size: ${userCompetitions.size}`);
-      console.log(`🔍 User competitions:`, Array.from(userCompetitions));
       
       if (userCompetitions.size > 0) {
-        console.log(`🔍 Filtering ${allMatches.length} total matches...`);
+        
         filteredMatches = allMatches.filter(match => {
           const hasMatch = userCompetitions.has(match.competition.id);
           if (hasMatch) {
-            console.log(`✅ Match included: ${match.homeTeam.name} vs ${match.awayTeam.name} (${match.competition.name})`);
+            // Match is included
           }
           return hasMatch;
         });
-        console.log(`🎯 Filtered to ${filteredMatches.length} matches based on user competitions:`, Array.from(userCompetitions));
+        
       } else {
-        console.log('⚠️ No user competitions set, showing all matches');
+        
       }
       
       // Log competition names in filtered matches
       const competitionNames = [...new Set(filteredMatches.map(m => m.competition.name))];
-      console.log(`🏆 Competitions in filtered matches:`, competitionNames);
+      
       
       // Log rounds from the matches
       const roundsInMatches = [...new Set(filteredMatches.map(m => m.matchday))];
-      console.log(`📋 Rounds in filtered matches: [${roundsInMatches.sort((a, b) => a - b).join(', ')}]`);
+      
 
       if (filteredMatches.length === 0) {
-        console.log('⚠️ No matches found for user competitions');
+        
       }
 
       const transformedMatches = filteredMatches.map(apiMatch => 
         transformMatch(apiMatch)
       );
-      console.log(`🏁 Transformed ${transformedMatches.length} matches`);
+      
       setMatches(transformedMatches);
       setCompetitionsWithCurrentMatchday(competitionsWithCurrentMatchday);
         
@@ -313,11 +303,8 @@ const LiveScore = () => {
 
   // Step 1: Load user competitions first
   useEffect(() => {
-    console.log('🔥 Initial useEffect - user:', user?.id, 'userRole:', userRole);
     if (user && userRole !== null) {
-      console.log('🔥 Loading user competitions...');
       loadUserCompetitions().then(() => {
-        console.log('✅ User competitions loaded, setting flag');
         setCompetitionsLoaded(true);
       });
     }
@@ -325,9 +312,7 @@ const LiveScore = () => {
 
   // Step 2: Load matches only after competitions are loaded
   useEffect(() => {
-    console.log('🔥 Competitions effect - loaded:', competitionsLoaded, 'size:', userCompetitions.size);
     if (competitionsLoaded) {
-      console.log('🔥 Loading matches...');
       loadMatches();
     }
   }, [competitionsLoaded, userCompetitions]);
@@ -347,7 +332,7 @@ const LiveScore = () => {
           table: 'matches'
         },
         (payload) => {
-          console.log('Match updated via realtime:', payload);
+          
           if (competitionsLoaded) {
             loadMatches();
           }
@@ -367,7 +352,7 @@ const LiveScore = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('User competitions updated via realtime:', payload);
+          
           // Reload user competitions and then matches
           loadUserCompetitions().then(() => {
             setCompetitionsLoaded(true);
@@ -471,7 +456,6 @@ const LiveScore = () => {
               variant="outline" 
               className="gap-2 card-hover text-xs lg:text-sm px-3 lg:px-4 h-8 lg:h-10"
               onClick={() => {
-                console.log('🔄 Manually refreshing user competitions...');
                 loadUserCompetitions().then(() => {
                   setCompetitionsLoaded(true);
                 });
@@ -558,7 +542,7 @@ const LiveScore = () => {
             const leagueEmblem = firstMatch?.competition?.emblem;
             const areaName = firstMatch?.competition?.area?.name;
             
-            console.log(`🎯 League: ${leagueName}, Found competition:`, competitionInfo, `Current matchday: ${currentMatchday}`);
+            
             
             return (
               <League

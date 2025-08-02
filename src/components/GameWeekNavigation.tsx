@@ -23,14 +23,14 @@ export const GameWeekNavigation = ({
   
   const handlePrevious = () => {
     if (currentGameWeek > 1 && !disabled) {
-      console.log(`⬅️ Navigating to GW ${currentGameWeek - 1}`);
+      
       onGameWeekChange(currentGameWeek - 1);
     }
   };
 
   const handleNext = () => {
     if (currentGameWeek < maxGameWeek && !disabled) {
-      console.log(`➡️ Navigating to GW ${currentGameWeek + 1}`);
+      
       onGameWeekChange(currentGameWeek + 1);
     }
   };
@@ -68,7 +68,6 @@ export const GameWeekNavigation = ({
             <DropdownMenuItem
               key={gw}
               onClick={() => {
-                console.log(`🔄 Selected GW ${gw}`);
                 onGameWeekChange(gw);
               }}
               className={gw === currentGameWeek ? "bg-muted dark:bg-accent text-black dark:text-black" : "hover:bg-muted/50 dark:hover:bg-accent text-foreground dark:text-white dark:hover:text-black"}

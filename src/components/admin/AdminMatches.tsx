@@ -187,11 +187,11 @@ export function AdminMatches() {
               .single();
             
             const officialCurrentMatchday = cachedCompetition?.current_matchday || competitionData.currentMatchday || 1;
-            console.log(`🏆 ${competitionName}: Official current matchday: ${officialCurrentMatchday}`);
+            
             
             // Then get smart matchday based on official one
             const smartMatchday = await footballDataApi.getSmartCurrentMatchday(competitionId, officialCurrentMatchday);
-            console.log(`🧠 ${competitionName}: Smart matchday: ${smartMatchday}`);
+            
             
             newSmartGameWeeks[competitionName] = smartMatchday;
           } catch (error) {
@@ -238,7 +238,7 @@ export function AdminMatches() {
   // Filter matches by current game week for each competition
   const getMatchesForGameWeek = (competitionData: CompetitionWithMatches) => {
     const currentGameWeek = getCurrentGameWeek(competitionData.competition, competitionData.currentMatchday);
-    console.log(`Filtering matches for ${competitionData.competition}, game week: ${currentGameWeek}`);
+    
     return competitionData.matches.filter(match => match.matchday === currentGameWeek);
   };
 
