@@ -445,11 +445,11 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 <Table className="w-full min-w-[350px]">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="w-4 py-1 text-xs pl-1">#</TableHead>
-                      <TableHead className="py-1 text-xs min-w-[100px]">Team</TableHead>
-                      <TableHead className="w-8 py-1 text-xs">MP</TableHead>
-                      <TableHead className="w-10 py-1 text-xs">Goals</TableHead>
-                      <TableHead className="w-8 py-1 text-xs pr-1">PTS</TableHead>
+                      <TableHead className="w-4 py-1 text-xs pl-1 border border-black">#</TableHead>
+                      <TableHead className="py-1 text-xs min-w-[100px] border border-black">Team</TableHead>
+                      <TableHead className="w-8 py-1 text-xs border border-black">MP</TableHead>
+                      <TableHead className="w-10 py-1 text-xs border border-black">Goals</TableHead>
+                      <TableHead className="w-8 py-1 text-xs pr-1 border border-black">PTS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -465,15 +465,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-4 pl-1">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs min-w-[100px]">
+                          <TableCell className="py-1 font-medium text-xs w-4 pl-1 border border-black">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs min-w-[100px] border border-black">
                             <span className="truncate block text-left" title={team.team.name}>
                               {team.team.name.length > 10 ? `${team.team.name.substring(0, 10)}..` : team.team.name}
                             </span>
                           </TableCell>
-                          <TableCell className="py-1 text-xs w-8">{team.playedGames}</TableCell>
-                          <TableCell className="py-1 text-xs w-10">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs w-8 pr-1">{team.points}</TableCell>
+                          <TableCell className="py-1 text-xs w-8 border border-black">{team.playedGames}</TableCell>
+                          <TableCell className="py-1 text-xs w-10 border border-black">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-8 pr-1 border border-black">{team.points}</TableCell>
                         </TableRow>
                       );
                     })}
