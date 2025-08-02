@@ -3,7 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, ShoppingBag, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Clock, ShoppingBag, X, Tag, Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface CoinOffer {
   id: string;
@@ -26,30 +29,91 @@ interface BuyCoinsModalProps {
 
 export function BuyCoinsModal({ open, onOpenChange, offers, timeLeft }: BuyCoinsModalProps) {
   const [loading, setLoading] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<any>(null);
+  const [selectedOffer, setSelectedOffer] = useState<CoinOffer | null>(null);
+
+  const handleApplyPromoCode = async (offer: CoinOffer) => {
+    if (!promoCode.trim()) {
+      toast.error('Please enter a promo code');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .eq('code', promoCode.toUpperCase())
+        .eq('is_active', true)
+        .single();
+
+      if (error || !data) {
+        toast.error('Invalid promo code');
+        return;
+      }
+
+      // Check if promo is still valid
+      if (data.expires_at && new Date(data.expires_at) <= new Date()) {
+        toast.error('Promo code has expired');
+        return;
+      }
+
+      // Check usage limits
+      if (data.max_uses && data.current_uses >= data.max_uses) {
+        toast.error('Promo code usage limit reached');
+        return;
+      }
+
+      // Check minimum purchase amount
+      if (offer.offer_price < data.min_purchase_amount) {
+        toast.error(`Minimum purchase amount for this promo is €${data.min_purchase_amount}`);
+        return;
+      }
+
+      setAppliedPromo(data);
+      setSelectedOffer(offer);
+      toast.success(`Promo code applied! ${data.discount_type === 'percentage' ? data.discount_value + '%' : '€' + data.discount_value} discount`);
+    } catch (error) {
+      console.error('Error applying promo code:', error);
+      toast.error('Error applying promo code');
+    }
+  };
+
+  const calculateDiscountedPrice = (offer: CoinOffer) => {
+    if (!appliedPromo || selectedOffer?.id !== offer.id) return offer.offer_price;
+    
+    let discount = 0;
+    if (appliedPromo.discount_type === 'percentage') {
+      discount = (offer.offer_price * appliedPromo.discount_value) / 100;
+    } else if (appliedPromo.discount_type === 'fixed') {
+      discount = Math.min(appliedPromo.discount_value, offer.offer_price);
+    }
+    
+    return Math.max(offer.offer_price - discount, 0);
+  };
 
   const handleBuyCoins = async (offer: CoinOffer) => {
     setLoading(offer.id);
     
     try {
-      // TODO: Integrate with Stripe payment
-      console.log('Buying coins for offer:', offer);
-      
-      // Placeholder for Stripe integration
-      // const { data } = await supabase.functions.invoke('create-payment', {
-      //   body: {
-      //     amount: Math.round(offer.offer_price * 100), // Convert to cents
-      //     currency: 'usd',
-      //     offerTitle: offer.title,
-      //     coinAmount: offer.coin_amount
-      //   }
-      // });
-      
-      // if (data?.url) {
-      //   window.open(data.url, '_blank');
-      // }
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
+          offerId: offer.id,
+          promoCode: selectedOffer?.id === offer.id ? promoCode : ''
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+        onOpenChange(false); // Close modal after payment starts
+      }
       
     } catch (error) {
       console.error('Error creating payment:', error);
+      toast.error('Error creating payment. Please try again.');
     } finally {
       setLoading(null);
     }
@@ -109,14 +173,47 @@ export function BuyCoinsModal({ open, onOpenChange, offers, timeLeft }: BuyCoins
                       <div className="text-center space-y-1">
                         <div className="flex items-center justify-center gap-2">
                           <span className="text-2xl font-bold text-green-600">
-                            ${offer.offer_price.toFixed(2)}
+                            €{calculateDiscountedPrice(offer).toFixed(2)}
                           </span>
                           <span className="text-lg text-muted-foreground line-through">
-                            ${offer.original_price.toFixed(2)}
+                            €{offer.original_price.toFixed(2)}
                           </span>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Save ${(offer.original_price - offer.offer_price).toFixed(2)}!
+                          Save €{(offer.original_price - calculateDiscountedPrice(offer)).toFixed(2)}!
+                        </div>
+                        {appliedPromo && selectedOffer?.id === offer.id && (
+                          <div className="text-sm text-green-600 font-medium">
+                            Promo applied: {appliedPromo.discount_type === 'percentage' ? appliedPromo.discount_value + '%' : '€' + appliedPromo.discount_value} off
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Promo Code Section */}
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Tag className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                              placeholder="Enter promo code"
+                              value={promoCode}
+                              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                              className="pl-10"
+                              disabled={loading === offer.id}
+                            />
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleApplyPromoCode(offer)}
+                            disabled={!promoCode.trim() || loading === offer.id}
+                          >
+                            {appliedPromo && selectedOffer?.id === offer.id ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              'Apply'
+                            )}
+                          </Button>
                         </div>
                       </div>
 
@@ -148,7 +245,7 @@ export function BuyCoinsModal({ open, onOpenChange, offers, timeLeft }: BuyCoins
                         ) : (
                           <>
                             <ShoppingBag className="h-5 w-5 mr-2" />
-                            Buy Now - ${offer.offer_price.toFixed(2)}
+                            Buy Now - €{calculateDiscountedPrice(offer).toFixed(2)}
                           </>
                         )}
                       </Button>
