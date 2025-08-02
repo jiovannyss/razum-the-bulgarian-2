@@ -51,6 +51,8 @@ interface ProcessedMatch {
 
 const LiveScore = () => {
   const { user, userRole } = useAuth();
+  console.log('🚀 LiveScore component rendered - user:', user?.id, 'userRole:', userRole);
+  
   const [activeTab, setActiveTab] = useState("matches");
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
   const [loading, setLoading] = useState(true);
