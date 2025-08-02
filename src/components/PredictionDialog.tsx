@@ -409,48 +409,45 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              {/* Mobile title header */}
-              <div className="block sm:hidden mb-3">
-                <div className="flex items-center space-x-2 text-sm font-semibold">
-                  <Trophy className="w-4 h-4" />
-                  <span>League Table</span>
-                </div>
-              </div>
-              {/* Mobile view - simplified cards */}
-              <div className="block sm:hidden space-y-1">
-                {(matchInfo?.standings || []).map((team) => {
-                  const isHomeTeam = team.team.name === match.homeTeam.name;
-                  const isAwayTeam = team.team.name === match.awayTeam.name;
-                  const teamForm = getRealisticForm(team);
-                  
-                  return (
-                    <div 
-                      key={`${team.team.id}-${team.position}`}
-                      className={`relative p-2 rounded border ${
-                        isHomeTeam || isAwayTeam ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' : 'border-border bg-muted/20'
-                      }`}
-                    >
-                      {/* Yellow stripe for marked teams */}
-                      {(isHomeTeam || isAwayTeam) && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400 rounded-l"></div>
-                      )}
+              {/* Mobile view - table format */}
+              <div className="block sm:hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="h-8">
+                      <TableHead className="w-6 py-1 text-xs">#</TableHead>
+                      <TableHead className="py-1 text-xs">Team</TableHead>
+                      <TableHead className="w-8 py-1 text-xs">MP</TableHead>
+                      <TableHead className="w-12 py-1 text-xs">Goals</TableHead>
+                      <TableHead className="w-8 py-1 text-xs">PTS</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(matchInfo?.standings || []).map((team) => {
+                      const isHomeTeam = team.team.name === match.homeTeam.name;
+                      const isAwayTeam = team.team.name === match.awayTeam.name;
+                      const isHighlighted = isHomeTeam || isAwayTeam;
                       
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 flex-1 min-w-0">
-                          <span className="text-xs font-bold w-6 text-center flex-shrink-0">{team.position}</span>
-                          <span className="text-xs font-medium truncate flex-1 max-w-[120px]" title={team.team.name}>
-                            {team.team.name.length > 15 ? `${team.team.name.substring(0, 15)}..` : team.team.name}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-3 text-xs flex-shrink-0">
-                          <span className="text-center min-w-[20px]">{team.playedGames}</span>
-                          <span className="text-center min-w-[40px]">{team.goalsFor}:{team.goalsAgainst}</span>
-                          <span className="font-bold text-center min-w-[24px]">{team.points}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      return (
+                        <TableRow 
+                          key={`${team.team.id}-${team.position}`}
+                          className={`h-8 hover:bg-muted/50 ${
+                            isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
+                          }`}
+                        >
+                          <TableCell className="py-1 font-medium text-xs w-6">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs max-w-[80px]">
+                            <span className="truncate block" title={team.team.name}>
+                              {team.team.name.length > 12 ? `${team.team.name.substring(0, 12)}..` : team.team.name}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-1 text-xs w-8">{team.playedGames}</TableCell>
+                          <TableCell className="py-1 text-xs w-12">{team.goalsFor}:{team.goalsAgainst}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-8">{team.points}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               </div>
               
               {/* Desktop/Tablet view - full table */}
@@ -514,12 +511,12 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Save Button - Sticky Footer */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
           <div className="max-w-4xl mx-auto">
             <Button 
               onClick={handleSave}
               disabled={!selectedPrediction}
-              className="w-full h-12 text-lg font-bold bg-yellow-500 hover:bg-yellow-600 text-black"
+              className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               Save Prediction
             </Button>
