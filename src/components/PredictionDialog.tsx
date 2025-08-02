@@ -441,7 +441,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardHeader>
             <CardContent className="pt-0">
               {/* Mobile view - table format */}
-              <div className="block sm:hidden overflow-x-auto -mx-3">
+              <div className="block sm:hidden overflow-x-auto">
                 <Table className="w-full min-w-[350px]">
                   <TableHeader>
                     <TableRow className="h-8">
