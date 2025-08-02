@@ -1,16 +1,15 @@
-// Completely clean main.tsx
-console.log('Starting app...');
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-const root = document.getElementById("root");
-if (root) {
-  root.innerHTML = `
-    <div style="padding: 20px; background: lightblue; font-family: Arial;">
-      <h1>Clean HTML Test</h1>
-      <p>Това е чист HTML без React, без импорти, без нищо друго.</p>
-      <p>Ако това работи без грешки, значи проблемът е в някой импорт.</p>
-    </div>
-  `;
-  console.log('HTML set successfully');
-} else {
-  console.error('Root element not found!');
+// Very simple React component
+const SimpleApp = () => {
+  return React.createElement('div', {
+    style: { padding: '20px', backgroundColor: 'lightcoral', color: 'white' }
+  }, 'Simple React Component Works!');
+};
+
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(React.createElement(SimpleApp));
 }
