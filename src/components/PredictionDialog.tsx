@@ -249,13 +249,13 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 
                 {/* VS with optional star */}
                 <div className="flex flex-col items-center space-y-1">
-                  <span className="text-base sm:text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
-                  {adminRating && adminRating >= 2 && (
-                    <div className="relative flex items-center justify-center">
-                      <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                      <span className="absolute text-black text-xs font-bold">{adminRating}</span>
-                    </div>
-                  )}
+                   <span className="text-base sm:text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
+                   {adminRating && adminRating >= 2 && (
+                     <div className="relative flex items-center justify-center">
+                       <Star className="h-6 w-6 sm:h-5 sm:w-5 fill-yellow-500 text-yellow-500" />
+                       <span className="absolute text-black text-sm sm:text-xs font-bold">{adminRating}</span>
+                     </div>
+                   )}
                 </div>
                 
                 {/* Away Team */}
@@ -410,15 +410,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardHeader>
             <CardContent className="pt-0">
               {/* Mobile view - table format */}
-              <div className="block sm:hidden">
-                <Table>
+              <div className="block sm:hidden -mx-4">
+                <Table className="w-full">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="w-6 py-1 text-xs">#</TableHead>
-                      <TableHead className="py-1 text-xs">Team</TableHead>
+                      <TableHead className="w-8 py-1 text-xs pl-4">#</TableHead>
+                      <TableHead className="py-1 text-xs flex-1">Team</TableHead>
                       <TableHead className="w-8 py-1 text-xs">MP</TableHead>
                       <TableHead className="w-12 py-1 text-xs">Goals</TableHead>
-                      <TableHead className="w-8 py-1 text-xs">PTS</TableHead>
+                      <TableHead className="w-8 py-1 text-xs pr-4">PTS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -434,15 +434,15 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-6">{team.position}</TableCell>
-                          <TableCell className="py-1 text-xs max-w-[80px]">
-                            <span className="truncate block" title={team.team.name}>
-                              {team.team.name.length > 12 ? `${team.team.name.substring(0, 12)}..` : team.team.name}
+                          <TableCell className="py-1 font-medium text-xs w-8 pl-4">{team.position}</TableCell>
+                          <TableCell className="py-1 text-xs flex-1 min-w-0">
+                            <span className="truncate block text-left" title={team.team.name}>
+                              {team.team.name.length > 15 ? `${team.team.name.substring(0, 15)}..` : team.team.name}
                             </span>
                           </TableCell>
                           <TableCell className="py-1 text-xs w-8">{team.playedGames}</TableCell>
                           <TableCell className="py-1 text-xs w-12">{team.goalsFor}:{team.goalsAgainst}</TableCell>
-                          <TableCell className="py-1 font-medium text-xs w-8">{team.points}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-8 pr-4">{team.points}</TableCell>
                         </TableRow>
                       );
                     })}
@@ -467,10 +467,10 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {(matchInfo?.standings || []).map((team) => {
-                      const isHomeTeam = team.team.name === match.homeTeam.name;
-                      const isAwayTeam = team.team.name === match.awayTeam.name;
-                      const isHighlighted = isHomeTeam || isAwayTeam;
+                     {(matchInfo?.standings || []).map((team) => {
+                       const isHomeTeam = team.team.name === match.homeTeam.name;
+                       const isAwayTeam = team.team.name === match.awayTeam.name;
+                       const isHighlighted = isHomeTeam || isAwayTeam;
                       const teamForm = getRealisticForm(team);
                       
                       return (

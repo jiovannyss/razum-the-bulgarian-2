@@ -359,121 +359,121 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                const timeInfo = getTimeInfo(match.time);
                
                 return (
-                  <div
-                    key={match.id}
-                    className={cn(
-                      "p-2 sm:p-3 lg:p-4 transition-colors",
-                      match.status === 'upcoming' 
-                        ? "hover:bg-accent/10 cursor-pointer" 
-                        : "hover:bg-accent/5"
-                    )}
-                    onClick={() => handleMatchClick(match)}
-                  >
-                   <div className="flex items-center gap-2 sm:gap-4">
-                      {/* Star area - always present */}
-                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 relative flex items-center justify-center">
-                        {match.adminRating && match.adminRating >= 2 && (
-                          <div className="relative">
-                            <Star 
-                              className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-400 fill-yellow-400" 
-                              strokeWidth={1.5}
-                            />
-                            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
-                              {match.adminRating}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                   <div
+                     key={match.id}
+                     className={cn(
+                       "p-4 sm:p-3 lg:p-4 transition-colors",
+                       match.status === 'upcoming' 
+                         ? "hover:bg-accent/10 cursor-pointer" 
+                         : "hover:bg-accent/5"
+                     )}
+                     onClick={() => handleMatchClick(match)}
+                   >
+                    <div className="flex items-center gap-3 sm:gap-4">
+                       {/* Star area - always present */}
+                       <div className="flex-shrink-0 w-8 h-8 sm:w-8 sm:h-8 relative flex items-center justify-center">
+                         {match.adminRating && match.adminRating >= 2 && (
+                           <div className="relative">
+                             <Star 
+                               className="w-6 h-6 sm:w-6 sm:h-6 text-yellow-400 fill-yellow-400" 
+                               strokeWidth={1.5}
+                             />
+                             <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-black">
+                               {match.adminRating}
+                             </span>
+                           </div>
+                         )}
+                       </div>
                      {/* Teams, Scores, Date/Time - takes most space */}
                      <div className="flex-1 min-w-0">
-                       {/* Home Team Row */}
-                       <div className="flex items-center justify-between mb-1 lg:mb-2">
-                         <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 min-w-0 flex-1">
-                           {match.homeLogo && (
-                             <img 
-                               src={match.homeLogo} 
-                               alt={match.homeTeam}
-                               className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
-                             />
-                           )}
-                           <span className="font-medium text-xs sm:text-sm lg:text-base truncate">{match.homeTeam}</span>
+                        {/* Home Team Row */}
+                        <div className="flex items-center justify-between mb-1 lg:mb-2">
+                          <div className="flex items-center gap-2 sm:gap-2 lg:gap-3 min-w-0 flex-1">
+                            {match.homeLogo && (
+                              <img 
+                                src={match.homeLogo} 
+                                alt={match.homeTeam}
+                                className="w-5 h-5 sm:w-4 sm:h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
+                              />
+                            )}
+                            <span className="font-medium text-sm sm:text-sm lg:text-base truncate">{match.homeTeam}</span>
                          </div>
-                         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2 sm:ml-4">
-                           <span className={cn(
-                             "text-sm sm:text-base lg:text-lg font-bold w-4 sm:w-6 text-center",
-                             match.status === "live" ? "text-live" : 
-                             match.status === "finished" ? "text-white" : ""
-                           )}>
-                             {match.homeScore !== null ? match.homeScore : '-'}
-                           </span>
-                           <div className="w-8 sm:w-10 lg:w-12 text-center">
-                              {match.status === "live" ? (
-                                <div className="text-xs sm:text-sm font-bold text-live flex items-baseline justify-center">
-                                  <span>{(() => {
-                                    const now = new Date();
-                                    const minutesSinceHour = now.getMinutes();
-                                    const secondsSinceMinute = now.getSeconds();
-                                    // Simulate match progression based on real time
-                                    return (minutesSinceHour + Math.floor(secondsSinceMinute / 2)) % 90 + 1;
-                                  })()}</span>
-                                  <span className={cn("transition-opacity duration-500", 
-                                    new Date().getSeconds() % 2 === 0 ? "opacity-100" : "opacity-0"
-                                  )}>'</span>
-                                </div>
-                             ) : match.status === "finished" ? (
-                               <span className="text-xs font-bold text-white">FT</span>
-                             ) : match.status === "upcoming" && timeInfo.isToday ? (
-                               <span className="text-xs text-muted-foreground">
-                                 {timeInfo.timeStr}
-                               </span>
-                              ) : (
-                                timeInfo.date && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {timeInfo.date}
-                                  </span>
-                                )
-                              )}
+                          <div className="flex items-center gap-3 sm:gap-3 flex-shrink-0 ml-2 sm:ml-4">
+                            <span className={cn(
+                              "text-lg sm:text-base lg:text-lg font-bold w-6 sm:w-6 text-center",
+                              match.status === "live" ? "text-live" : 
+                              match.status === "finished" ? "text-white" : ""
+                            )}>
+                              {match.homeScore !== null ? match.homeScore : '-'}
+                            </span>
+                            <div className="w-12 sm:w-10 lg:w-12 text-center">
+                               {match.status === "live" ? (
+                                 <div className="text-sm sm:text-sm font-bold text-live flex items-baseline justify-center">
+                                   <span>{(() => {
+                                     const now = new Date();
+                                     const minutesSinceHour = now.getMinutes();
+                                     const secondsSinceMinute = now.getSeconds();
+                                     // Simulate match progression based on real time
+                                     return (minutesSinceHour + Math.floor(secondsSinceMinute / 2)) % 90 + 1;
+                                   })()}</span>
+                                   <span className={cn("transition-opacity duration-500", 
+                                     new Date().getSeconds() % 2 === 0 ? "opacity-100" : "opacity-0"
+                                   )}>'</span>
+                                 </div>
+                              ) : match.status === "finished" ? (
+                                <span className="text-sm font-bold text-white">FT</span>
+                              ) : match.status === "upcoming" && timeInfo.isToday ? (
+                                <span className="text-sm text-muted-foreground">
+                                  {timeInfo.timeStr}
+                                </span>
+                               ) : (
+                                 timeInfo.date && (
+                                   <span className="text-sm text-muted-foreground">
+                                     {timeInfo.date}
+                                   </span>
+                                 )
+                               )}
                            </div>
                          </div>
                        </div>
                        
-                       {/* Away Team Row */}
-                       <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 min-w-0 flex-1">
-                           {match.awayLogo && (
-                             <img 
-                               src={match.awayLogo} 
-                               alt={match.awayTeam}
-                               className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
-                             />
-                           )}
-                           <span className="font-medium text-xs sm:text-sm lg:text-base truncate">{match.awayTeam}</span>
+                        {/* Away Team Row */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 sm:gap-2 lg:gap-3 min-w-0 flex-1">
+                            {match.awayLogo && (
+                              <img 
+                                src={match.awayLogo} 
+                                alt={match.awayTeam}
+                                className="w-5 h-5 sm:w-4 sm:h-4 lg:w-6 lg:h-6 rounded-sm flex-shrink-0"
+                              />
+                            )}
+                            <span className="font-medium text-sm sm:text-sm lg:text-base truncate">{match.awayTeam}</span>
                          </div>
-                            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2 sm:ml-4">
-                              <span className={cn(
-                                "text-sm sm:text-base lg:text-lg font-bold w-4 sm:w-6 text-center",
-                                match.status === "live" ? "text-live" : 
-                                match.status === "finished" ? "text-white" : ""
-                              )}>
-                                {match.awayScore !== null ? match.awayScore : '-'}
-                              </span>
-                              <div className="w-8 sm:w-10 lg:w-12" />
+                             <div className="flex items-center gap-3 sm:gap-3 flex-shrink-0 ml-2 sm:ml-4">
+                               <span className={cn(
+                                 "text-lg sm:text-base lg:text-lg font-bold w-6 sm:w-6 text-center",
+                                 match.status === "live" ? "text-live" : 
+                                 match.status === "finished" ? "text-white" : ""
+                               )}>
+                                 {match.awayScore !== null ? match.awayScore : '-'}
+                               </span>
+                               <div className="w-12 sm:w-10 lg:w-12" />
                             </div>
                        </div>
                      </div>
 
-                     {/* My Prediction Button */}
-                     <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
+                      {/* My Prediction Button */}
+                      <div className="flex items-center gap-2 sm:gap-2 lg:gap-3 flex-shrink-0">
                        {(() => {
                          const predictionDisplay = getPredictionDisplay(match);
                          return (
-                           <Badge 
-                             className={cn(
-                               "text-xs font-bold min-w-[20px] sm:min-w-[24px] h-6 sm:h-8 flex items-center justify-center",
-                               predictionDisplay.bgColor,
-                               predictionDisplay.textColor
-                             )}
-                           >
+                            <Badge 
+                              className={cn(
+                                "text-sm font-bold min-w-[28px] sm:min-w-[24px] h-8 sm:h-8 flex items-center justify-center",
+                                predictionDisplay.bgColor,
+                                predictionDisplay.textColor
+                              )}
+                            >
                              {predictionDisplay.text}
                            </Badge>
                          );
