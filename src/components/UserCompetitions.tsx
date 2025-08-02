@@ -176,7 +176,7 @@ export default function UserCompetitions() {
       </Card>
       
       {/* Sticky Change/Save button */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
         <Button 
           onClick={handleEditMode}
           disabled={loading}
