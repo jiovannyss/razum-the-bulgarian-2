@@ -4,11 +4,11 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// Removed Tabs import since we no longer use tabs
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Coins, History, ShoppingBag, Clock } from 'lucide-react';
 import { CoinsBalance } from '@/components/CoinsBalance';
 import { toast } from '@/hooks/use-toast';
+import { BuyCoinsModal } from '@/components/BuyCoinsModal';
 
 interface WalletTransaction {
   id: string;
@@ -37,6 +37,7 @@ export default function MyWallet() {
   const [offers, setOffers] = useState<CoinOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<{ [key: string]: string }>({});
+  const [buyCoinsModalOpen, setBuyCoinsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -178,10 +179,7 @@ export default function MyWallet() {
                 <CoinsBalance className="text-3xl font-bold" />
                 <Button 
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 gap-2"
-                  onClick={() => {
-                    // TODO: Open offers modal or navigate to offers page
-                    console.log('Buy Coins clicked');
-                  }}
+                  onClick={() => setBuyCoinsModalOpen(true)}
                 >
                   <ShoppingBag className="h-5 w-5" />
                   Buy Coins
@@ -251,6 +249,14 @@ export default function MyWallet() {
               )}
             </CardContent>
           </Card>
+
+          {/* Buy Coins Modal */}
+          <BuyCoinsModal 
+            open={buyCoinsModalOpen}
+            onOpenChange={setBuyCoinsModalOpen}
+            offers={offers}
+            timeLeft={timeLeft}
+          />
         </div>
       </div>
     </div>
