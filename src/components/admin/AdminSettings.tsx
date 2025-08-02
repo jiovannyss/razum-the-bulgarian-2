@@ -80,6 +80,7 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
 
   const loadCurrentSyncProgress = async () => {
     try {
+      console.log('Loading sync progress...');
       const { data, error } = await supabase
         .from('sync_logs' as any)
         .select('*')
@@ -87,6 +88,9 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
         .order('started_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+
+      console.log('Sync progress data:', data);
+      console.log('Sync progress error:', error);
 
       if (data) {
         setSyncProgress(data);
@@ -99,6 +103,8 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
       }
     } catch (error) {
       console.error('Error loading sync progress:', error);
+      setSyncProgress(null);
+      setIsLoading(false);
     }
   };
 
@@ -267,13 +273,13 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-purple-300">⏳ Синхронизация в ход...</span>
-                {syncProgress && (
+                {syncProgress && syncProgress.sync_type && (
                   <span className="text-purple-400">
                     {syncProgress.sync_type} | {syncProgress.records_processed || 0} записа
                   </span>
                 )}
               </div>
-              {syncProgress && syncProgress.records_processed && (
+              {syncProgress && typeof syncProgress.records_processed === 'number' && (
                 <Progress 
                   value={Math.min((syncProgress.records_processed / 1000) * 100, 100)} 
                   className="w-full"
