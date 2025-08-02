@@ -31,7 +31,7 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { ChipsIndicator } from "@/components/ChipsIndicator";
+import { ChipsBalance } from "@/components/ChipsBalance";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ const Header = () => {
                           {profile?.username || user.email?.split('@')[0]}
                         </div>
                       </div>
-                      <ChipsIndicator />
+                      <ChipsBalance />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">

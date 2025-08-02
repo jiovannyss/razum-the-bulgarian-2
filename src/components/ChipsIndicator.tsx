@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
+import glowterCoin from '@/assets/glowter-coin.png';
 
 export const ChipsIndicator = () => {
   const [chips, setChips] = useState<number>(0);
@@ -16,7 +16,7 @@ export const ChipsIndicator = () => {
   const loadChips = async () => {
     try {
       const { data, error } = await supabase
-        .from('wallets' as any)
+        .from('wallets')
         .select('balance')
         .eq('user_id', user?.id)
         .single();
@@ -26,7 +26,7 @@ export const ChipsIndicator = () => {
         return;
       }
 
-      setChips((data as any)?.balance || 0);
+      setChips(data?.balance || 0);
     } catch (error) {
       console.error('Error loading chips:', error);
     }
@@ -35,14 +35,13 @@ export const ChipsIndicator = () => {
   if (!user) return null;
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-full">
-      <div className="relative">
-        <Coins className="w-4 h-4 text-yellow-500" />
-        <div className="absolute inset-0 text-yellow-600 font-bold text-xs flex items-center justify-center">
-          G
-        </div>
-      </div>
-      <span className="text-xs font-medium text-yellow-200 min-w-[2rem]">
+    <div className="flex items-center gap-2">
+      <img 
+        src={glowterCoin} 
+        alt="Glowter Chips" 
+        className="w-5 h-5 drop-shadow-sm"
+      />
+      <span className="text-sm font-medium text-foreground">
         {chips.toLocaleString()}
       </span>
     </div>
