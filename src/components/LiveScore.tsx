@@ -466,6 +466,20 @@ const LiveScore = () => {
               <RefreshCw className={`w-3 h-3 lg:w-4 lg:h-4 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Loading...' : 'Refresh'}</span>
             </Button>
+            
+            <Button 
+              variant="outline" 
+              className="gap-2 card-hover text-xs lg:text-sm px-3 lg:px-4 h-8 lg:h-10"
+              onClick={() => {
+                console.log('🔄 Manually refreshing user competitions...');
+                loadUserCompetitions().then(() => {
+                  setCompetitionsLoaded(true);
+                });
+              }}
+            >
+              <RefreshCw className="w-3 h-3 lg:w-4 lg:h-4" />
+              <span>Refresh Leagues</span>
+            </Button>
           </div>
         </div>
 
