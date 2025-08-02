@@ -12,7 +12,8 @@ import {
   MessageCircle,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  Coins
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -101,6 +102,10 @@ const Header = () => {
                     <DropdownMenuItem className="gap-2" onClick={() => navigate('/my-leagues')}>
                       <Trophy className="w-4 h-4" />
                       <span>My Leagues</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2" onClick={() => navigate('/my-wallet')}>
+                      <Coins className="w-4 h-4" />
+                      <span>My Wallet</span>
                     </DropdownMenuItem>
                     {(userRole === 'admin' || userRole === 'super_admin') && (
                       <DropdownMenuItem className="gap-2" onClick={() => navigate('/admin')}>

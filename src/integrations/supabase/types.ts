@@ -372,6 +372,54 @@ export type Database = {
         }
         Relationships: []
       }
+      coin_offers: {
+        Row: {
+          coin_amount: number
+          created_at: string
+          created_by: string
+          description: string | null
+          discount_percentage: number | null
+          end_date: string
+          id: string
+          is_active: boolean
+          offer_price: number
+          original_price: number
+          start_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          coin_amount: number
+          created_at?: string
+          created_by: string
+          description?: string | null
+          discount_percentage?: number | null
+          end_date: string
+          id?: string
+          is_active?: boolean
+          offer_price: number
+          original_price: number
+          start_date?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          coin_amount?: number
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          discount_percentage?: number | null
+          end_date?: string
+          id?: string
+          is_active?: boolean
+          offer_price?: number
+          original_price?: number
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           admin_rating: number | null
