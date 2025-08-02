@@ -113,9 +113,13 @@ export interface MatchesResponse {
 class FootballDataApiService {
   private baseUrl = 'https://api.football-data.org/v4';
   private corsProxy = 'https://corsproxy.io/?';
-  private apiKey = '4c0b967130864749a36fb552c0755910';
+  private apiKey: string;
   private lastRequestTime = 0;
   private minRequestInterval = 6000; // 6 seconds between requests (10 requests per minute max)
+
+  constructor() {
+    this.apiKey = '4c0b967130864749a36fb552c0755910'; // Default key for now
+  }
 
   private async waitForRateLimit(): Promise<void> {
     const now = Date.now();
