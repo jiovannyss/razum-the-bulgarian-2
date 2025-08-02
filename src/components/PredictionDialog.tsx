@@ -468,7 +468,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                           <TableCell className="py-1 font-medium text-xs w-[7%] text-center border border-black">{team.position}</TableCell>
                           <TableCell className="py-1 text-xs w-[55%] px-1 border border-black">
                             <span className="truncate block text-left" title={team.team.name}>
-                              {team.team.name}
+                              {team.team.name.length > 17 ? `${team.team.name.substring(0, 17)}..` : team.team.name}
                             </span>
                           </TableCell>
                           <TableCell className="py-1 text-xs w-[8%] text-center border border-black">{team.playedGames}</TableCell>
