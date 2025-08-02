@@ -200,7 +200,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl w-[92vw] sm:w-[90vw] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 mr-2">
         <DialogHeader className="p-3 sm:p-6 pb-0">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <Button 
@@ -511,11 +511,11 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
         
         {/* Нов Save Prediction бутон - sticky най-отдолу в диалога */}
-        <div className="sticky bottom-0 left-0 right-0 bg-transparent p-4 mt-4">
+        <div className="sticky bottom-0 left-0 right-0 bg-transparent p-4 pt-2 flex justify-center">
           <button
             onClick={handleSave}
             disabled={!selectedPrediction}
-            className={`w-full h-12 rounded-md text-lg font-bold transition-all duration-200 ${
+            className={`w-[85%] max-w-md h-12 rounded-md text-lg font-bold transition-all duration-200 ${
               !selectedPrediction 
                 ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
                 : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-md'
