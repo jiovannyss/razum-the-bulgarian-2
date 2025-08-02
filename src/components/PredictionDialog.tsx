@@ -251,7 +251,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 <div className="flex flex-col items-center space-y-1">
                   <span className="text-base sm:text-lg md:text-2xl font-bold text-muted-foreground">VS</span>
                   {adminRating && adminRating >= 2 && (
-                    <div className="relative flex items-center justify-center hidden sm:flex">
+                    <div className="relative flex items-center justify-center">
                       <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
                       <span className="absolute text-black text-xs font-bold">{adminRating}</span>
                     </div>
@@ -410,12 +410,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardHeader>
             <CardContent className="pt-0">
               {/* Mobile view - simplified cards */}
-              <div className="block sm:hidden space-y-2">
-                {(matchInfo?.standings || []).filter(team => {
-                  const isHomeTeam = team.team.name === match.homeTeam.name;
-                  const isAwayTeam = team.team.name === match.awayTeam.name;
-                  return isHomeTeam || isAwayTeam;
-                }).map((team) => {
+              <div className="block sm:hidden space-y-1">
+                {(matchInfo?.standings || []).map((team) => {
                   const isHomeTeam = team.team.name === match.homeTeam.name;
                   const isAwayTeam = team.team.name === match.awayTeam.name;
                   const teamForm = getRealisticForm(team);
@@ -423,29 +419,25 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                   return (
                     <div 
                       key={`${team.team.id}-${team.position}`}
-                      className={`p-3 rounded-lg border-2 ${
-                        isHomeTeam || isAwayTeam ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' : 'border-border'
+                      className={`relative p-2 rounded border ${
+                        isHomeTeam || isAwayTeam ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' : 'border-border bg-muted/20'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold">{team.position}</span>
-                          <span className="text-sm font-medium truncate">{team.team.name}</span>
+                      {/* Yellow stripe for marked teams */}
+                      {(isHomeTeam || isAwayTeam) && (
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400 rounded-l"></div>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2 flex-1 min-w-0">
+                          <span className="text-xs font-bold w-6 text-center">{team.position}</span>
+                          <span className="text-xs font-medium truncate flex-1">{team.team.name}</span>
                         </div>
-                        <span className="text-sm font-bold">{team.points} pts</span>
-                      </div>
-                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                         <span>{team.playedGames} MP • {team.goalsFor}:{team.goalsAgainst} • {team.points} PTS</span>
-                       </div>
-                      <div className="flex space-x-1 mt-2">
-                        {teamForm.split('').reverse().map((result, index) => (
-                          <div
-                            key={index}
-                            className={`w-4 h-4 rounded flex items-center justify-center text-white text-xs font-bold ${getFormColor(result)}`}
-                          >
-                            {result}
-                          </div>
-                        ))}
+                        <div className="flex items-center space-x-3 text-xs">
+                          <span className="text-center min-w-[24px]">{team.playedGames}</span>
+                          <span className="text-center min-w-[32px]">{team.goalsFor}:{team.goalsAgainst}</span>
+                          <span className="font-bold text-center min-w-[24px]">{team.points}</span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -513,12 +505,12 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
         </div>
 
         {/* Save Button - Sticky Footer */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-sm border-t border-border z-50">
           <div className="max-w-4xl mx-auto">
             <Button 
               onClick={handleSave}
               disabled={!selectedPrediction}
-              className="w-full h-12 text-lg font-bold bg-yellow-500 hover:bg-yellow-600 text-black shadow-lg"
+              className="w-full h-11 text-base font-bold bg-yellow-500 hover:bg-yellow-600 text-black shadow-lg"
             >
               Save Prediction
             </Button>
