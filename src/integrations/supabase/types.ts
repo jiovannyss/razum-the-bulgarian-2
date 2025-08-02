@@ -803,11 +803,83 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          transaction_type?: Database["public"]["Enums"]["transaction_type"]
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          is_glowter_wallet: boolean
+          updated_at: string
+          user_id: string | null
+          wallet_name: string | null
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          is_glowter_wallet?: boolean
+          updated_at?: string
+          user_id?: string | null
+          wallet_name?: string | null
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          is_glowter_wallet?: boolean
+          updated_at?: string
+          user_id?: string | null
+          wallet_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_glowter_wallet_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -819,9 +891,27 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      transfer_chips: {
+        Args: {
+          from_wallet_id: string
+          to_wallet_id: string
+          amount: number
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          description?: string
+          reference_id?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"
+      transaction_type:
+        | "deposit"
+        | "withdrawal"
+        | "bonus"
+        | "room_fee"
+        | "prize"
+        | "refund"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -950,6 +1040,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "admin", "moderator", "user"],
+      transaction_type: [
+        "deposit",
+        "withdrawal",
+        "bonus",
+        "room_fee",
+        "prize",
+        "refund",
+      ],
     },
   },
 } as const
