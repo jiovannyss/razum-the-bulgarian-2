@@ -18,23 +18,23 @@ interface WalletTransaction {
   created_at: string;
 }
 
-// interface CoinOffer {
-//   id: string;
-//   title: string;
-//   description: string;
-//   coin_amount: number;
-//   original_price: number;
-//   offer_price: number;
-//   discount_percentage: number;
-//   end_date: string;
-//   is_active: boolean;
-// }
+interface CoinOffer {
+  id: string;
+  title: string;
+  description: string;
+  coin_amount: number;
+  original_price: number;
+  offer_price: number;
+  discount_percentage: number;
+  end_date: string;
+  is_active: boolean;
+}
 
 export default function MyWallet() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
-  // const [offers, setOffers] = useState<CoinOffer[]>([]); // DISABLED
+  const [offers, setOffers] = useState<CoinOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<{ [key: string]: string }>({});
   const [buyCoinsModalOpen, setBuyCoinsModalOpen] = useState(false);
@@ -50,31 +50,31 @@ export default function MyWallet() {
     }
   }, [user, authLoading, navigate]);
 
-  // useEffect(() => {
-  //   // Update countdown timers every second
-  //   const interval = setInterval(() => {
-  //     const newTimeLeft: { [key: string]: string } = {};
-  //     offers.forEach(offer => {
-  //       const now = new Date().getTime();
-  //       const endTime = new Date(offer.end_date).getTime();
-  //       const difference = endTime - now;
+  useEffect(() => {
+    // Update countdown timers every second
+    const interval = setInterval(() => {
+      const newTimeLeft: { [key: string]: string } = {};
+      offers.forEach(offer => {
+        const now = new Date().getTime();
+        const endTime = new Date(offer.end_date).getTime();
+        const difference = endTime - now;
         
-  //       if (difference > 0) {
-  //         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-  //         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  //         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-  //         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
-  //         newTimeLeft[offer.id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  //       } else {
-  //         newTimeLeft[offer.id] = 'Expired';
-  //       }
-  //     });
-  //     setTimeLeft(newTimeLeft);
-  //   }, 1000);
+        if (difference > 0) {
+          const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+          
+          newTimeLeft[offer.id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        } else {
+          newTimeLeft[offer.id] = 'Expired';
+        }
+      });
+      setTimeLeft(newTimeLeft);
+    }, 1000);
 
-  //   return () => clearInterval(interval);
-  // }, [offers]);
+    return () => clearInterval(interval);
+  }, [offers]);
 
   const loadWalletData = async () => {
     try {
@@ -98,15 +98,15 @@ export default function MyWallet() {
         setTransactions(transactionsData || []);
       }
 
-      // Load active coin offers - DISABLED (table doesn't exist)
-      // const { data: offersData } = await supabase
-      //   .from('coin_offers')
-      //   .select('*')
-      //   .eq('is_active', true)
-      //   .gt('end_date', new Date().toISOString())
-      //   .order('created_at', { ascending: false });
+      // Load active coin offers
+      const { data: offersData } = await supabase
+        .from('coin_offers')
+        .select('*')
+        .eq('is_active', true)
+        .gt('end_date', new Date().toISOString())
+        .order('created_at', { ascending: false });
 
-      // setOffers(offersData || []);
+      setOffers(offersData || []);
     } catch (error) {
       console.error('Error loading wallet data:', error);
       toast({
@@ -254,8 +254,8 @@ export default function MyWallet() {
           <BuyCoinsModal 
             open={buyCoinsModalOpen}
             onOpenChange={setBuyCoinsModalOpen}
-            offers={[]} 
-            timeLeft={{}}
+            offers={offers}
+            timeLeft={timeLeft}
           />
         </div>
       </div>

@@ -13,7 +13,7 @@ import { AdminSpecialGames } from '@/components/admin/AdminSpecialGames';
 import { AdminRooms } from '@/components/admin/AdminRooms';
 import { AdminSettings } from '@/components/admin/AdminSettings';
 import { AdminWallets } from '@/components/admin/AdminWallets';
-// import AdminOffers from '@/components/admin/AdminOffers'; // Temporarily disabled
+import AdminOffers from '@/components/admin/AdminOffers';
 
 interface UserRole {
   role: 'super_admin' | 'admin' | 'moderator' | 'user';
@@ -137,7 +137,7 @@ export default function Admin() {
           <Card>
             <CardContent className="p-0">
               <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-7">
                   <TabsTrigger value="users" className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     Потребители
@@ -157,6 +157,10 @@ export default function Admin() {
                   <TabsTrigger value="rooms" className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     Стаи
+                  </TabsTrigger>
+                  <TabsTrigger value="offers" className="flex items-center gap-2">
+                    <ShoppingBag className="h-4 w-4" />
+                    Оферти
                   </TabsTrigger>
                   <TabsTrigger value="settings" className="flex items-center gap-2">
                     <Settings className="h-4 w-4" />
@@ -183,6 +187,10 @@ export default function Admin() {
 
                   <TabsContent value="rooms" className="mt-0">
                     <AdminRooms />
+                  </TabsContent>
+
+                  <TabsContent value="offers" className="mt-0">
+                    <AdminOffers />
                   </TabsContent>
 
                   <TabsContent value="settings" className="mt-0">
