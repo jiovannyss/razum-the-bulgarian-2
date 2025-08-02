@@ -36,7 +36,10 @@ export default function MyLeagues() {
           <div className="flex items-center justify-between mb-6">
             <Button
               variant="ghost"
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                console.log('Back button clicked, navigating back...');
+                navigate(-1);
+              }}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
