@@ -79,16 +79,9 @@ export default function UserCompetitions() {
     
     setLoading(true);
     try {
-      console.log('💾 Saving changes...');
-      console.log('💾 Current userCompetitions:', Array.from(userCompetitions));
-      console.log('💾 Pending changes:', Array.from(pendingChanges));
-      
       // Get competitions to add and remove
       const toAdd = Array.from(pendingChanges).filter(id => !userCompetitions.has(id));
       const toRemove = Array.from(userCompetitions).filter(id => !pendingChanges.has(id));
-      
-      console.log('💾 To add:', toAdd);
-      console.log('💾 To remove:', toRemove);
 
       // Remove competitions
       for (const competitionId of toRemove) {
@@ -103,8 +96,6 @@ export default function UserCompetitions() {
       for (const competitionId of toAdd) {
         const competition = availableCompetitions.find(c => c.id === competitionId);
         if (competition) {
-          console.log(`💾 Adding competition: ${competition.name} (${competitionId})`);
-          
           // Try to update existing record first
           const { data: updateData, error: updateError } = await (supabase as any)
             .from('user_competitions')
@@ -113,11 +104,8 @@ export default function UserCompetitions() {
             .eq('competition_id', competitionId)
             .select();
 
-          console.log('💾 Update result:', updateData, updateError);
-
           // If no rows were updated (updateData is empty), insert new record
           if (!updateData || updateData.length === 0) {
-            console.log(`💾 No existing record found, inserting new one for ${competition.name}`);
             const { data: insertData, error: insertError } = await (supabase as any)
               .from('user_competitions')
               .insert({
@@ -130,14 +118,9 @@ export default function UserCompetitions() {
               })
               .select();
             
-            console.log('💾 Insert result:', insertData, insertError);
-            
             if (insertError) {
-              console.error('💾 Insert error:', insertError);
               throw insertError;
             }
-          } else {
-            console.log(`💾 Updated existing record for ${competition.name}`);
           }
         }
       }
