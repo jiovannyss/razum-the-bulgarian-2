@@ -475,16 +475,9 @@ const League = ({ leagueName, areaName, matches, leagueLogo, currentMatchday, on
                               )}
                             >
                              {predictionDisplay.text}
-                           </Badge>
-                         );
-                       })()}
-                       
-                       {match.predictions && (
-                         <div className="text-xs text-muted-foreground text-right hidden sm:block">
-                           <div>{match.predictions}</div>
-                           <div className="text-xs opacity-75">predictions</div>
-                         </div>
-                       )}
+                        </Badge>
+                          );
+                        })()}
                      </div>
                    </div>
                  </div>
