@@ -106,9 +106,19 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Парсиране на заявката
-    const { syncType = 'all', competitionIds } = await req.json().catch(() => ({}));
+    const { 
+      syncType = 'all', 
+      competitionIds, 
+      batchSize = 3, // Намаляваме batch size-а
+      resumeFrom = null 
+    } = await req.json().catch(() => ({}));
 
-    console.log(`📊 Започва синхронизация тип: ${syncType}`);
+    console.log(`📊 Започва синхронизация тип: ${syncType}, batch size: ${batchSize}`);
+
+    // Проверяваме дали има активна синхронизация, която може да бъде възобновена
+    if (resumeFrom) {
+      console.log(`🔄 Възобновяване на синхронизация от позиция: ${resumeFrom}`);
+    }
 
     // Създаване на sync log запис
     const { data: syncLog, error: syncLogError } = await supabase
@@ -565,6 +575,137 @@ serve(async (req) => {
       }
     };
 
+    // Helper функция за chunk синхронизация
+    const syncCompetitionsInChunks = async (competitionsList: number[], syncTypes: string[]) => {
+      const chunks = [];
+      for (let i = 0; i < competitionsList.length; i += batchSize) {
+        chunks.push(competitionsList.slice(i, i + batchSize));
+      }
+
+      console.log(`📦 Ще синхронизирам ${competitionsList.length} турнира в ${chunks.length} порции по ${batchSize}`);
+
+      // Създаваме прогрес запис
+      const { data: progressRecord, error: progressError } = await supabase
+        .from('sync_progress')
+        .insert({
+          sync_type: syncType,
+          total_items: competitionsList.length,
+          processed_items: resumeFrom || 0,
+          current_batch: Math.floor((resumeFrom || 0) / batchSize),
+          batch_size: batchSize,
+          status: 'running',
+          metadata: { competitions: competitionsList, sync_types: syncTypes }
+        })
+        .select()
+        .single();
+
+      if (progressError) {
+        console.warn('⚠️ Грешка при създаване на прогрес запис:', progressError);
+      }
+
+      const startBatch = Math.floor((resumeFrom || 0) / batchSize);
+      
+      for (let chunkIndex = startBatch; chunkIndex < chunks.length; chunkIndex++) {
+        const chunk = chunks[chunkIndex];
+        console.log(`\n🚀 Обработване на порция ${chunkIndex + 1}/${chunks.length} (турнири ${chunkIndex * batchSize + 1}-${Math.min((chunkIndex + 1) * batchSize, competitionsList.length)})`);
+        
+        // Обновяваме прогреса
+        if (progressRecord) {
+          await supabase
+            .from('sync_progress')
+            .update({ 
+              current_batch: chunkIndex,
+              status: 'running',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', progressRecord.id);
+        }
+
+        // Обработваме турнирите в тази порция
+        for (const competitionId of chunk) {
+          try {
+            console.log(`\n📍 Обработване на турнир ${competitionId}...`);
+            
+            if (syncTypes.includes('teams')) {
+              await syncTeamsForCompetition(competitionId);
+            }
+            
+            if (syncTypes.includes('standings')) {
+              await syncStandingsForCompetition(competitionId);
+            }
+            
+            if (syncTypes.includes('fixtures')) {
+              await syncFixturesForCompetition(competitionId);
+            }
+
+            // Обновяваме прогреса
+            if (progressRecord) {
+              const currentProcessed = chunkIndex * batchSize + chunk.indexOf(competitionId) + 1;
+              await supabase
+                .from('sync_progress')
+                .update({ 
+                  processed_items: currentProcessed,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', progressRecord.id);
+            }
+
+            // Пауза между турнирите
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+          } catch (competitionError) {
+            console.error(`❌ Грешка при обработване на турнир ${competitionId}:`, competitionError);
+            continue; // Продължаваме с следващия турнир
+          }
+        }
+
+        console.log(`✅ Завършена порция ${chunkIndex + 1}/${chunks.length}`);
+        
+        // Проверяваме дали имаме достатъчно време за следващата порция
+        // Edge Functions имат лимит от 25 минути
+        const elapsed = Date.now() - new Date(syncLog.started_at).getTime();
+        const maxTime = 20 * 60 * 1000; // 20 минути (оставяме малко резерв)
+        
+        if (elapsed > maxTime && chunkIndex < chunks.length - 1) {
+          console.log(`⏰ Времето изтича (${Math.round(elapsed / 60000)} минути). Спираме след тази порция.`);
+          
+          // Маркираме като паузирана
+          if (progressRecord) {
+            await supabase
+              .from('sync_progress')
+              .update({ 
+                status: 'paused',
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', progressRecord.id);
+          }
+          
+          return {
+            completed: false,
+            nextBatch: chunkIndex + 1,
+            reason: 'time_limit'
+          };
+        }
+
+        // Пауза между порциите
+        await new Promise(resolve => setTimeout(resolve, 5000)); // 5 секунди между порциите
+      }
+
+      // Маркираме като завършена
+      if (progressRecord) {
+        await supabase
+          .from('sync_progress')
+          .update({ 
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', progressRecord.id);
+      }
+
+      return { completed: true };
+    };
+
     // Главна логика за синхронизация
     let competitions: number[] = [];
 
@@ -595,22 +736,30 @@ serve(async (req) => {
     } else if (syncType === 'team-form') {
       await syncTeamForm();
     } else {
-      // Синхронизиране на данни за избраните турнири
-      for (const competitionId of competitions) {
-        if (syncType === 'all' || syncType === 'teams') {
-          await syncTeamsForCompetition(competitionId);
-        }
-        
-        if (syncType === 'all' || syncType === 'standings') {
-          await syncStandingsForCompetition(competitionId);
-        }
-        
-        if (syncType === 'all' || syncType === 'fixtures') {
-          await syncFixturesForCompetition(competitionId);
-        }
+      // Определяваме кои типове синхронизация да направим
+      const syncTypes = [];
+      if (syncType === 'all' || syncType === 'teams') syncTypes.push('teams');
+      if (syncType === 'all' || syncType === 'standings') syncTypes.push('standings');
+      if (syncType === 'all' || syncType === 'fixtures') syncTypes.push('fixtures');
 
-        // Увеличена пауза между турнирите за да спазваме rate limit
-        await new Promise(resolve => setTimeout(resolve, 3000)); // 3 секунди между турнирите
+      // Синхронизиране на данни в порции
+      const result = await syncCompetitionsInChunks(competitions, syncTypes);
+      
+      if (!result.completed) {
+        console.log(`🚧 Синхронизацията е спряна: ${result.reason}. Следваща порция: ${result.nextBatch}`);
+        
+        return new Response(JSON.stringify({
+          success: false,
+          paused: true,
+          reason: result.reason,
+          nextBatch: result.nextBatch,
+          syncLogId,
+          recordsProcessed: totalProcessed,
+          competitions: competitions.length,
+          message: `Синхронизацията е паузирана. Обработени ${result.nextBatch * batchSize}/${competitions.length} турнира.`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
     }
 

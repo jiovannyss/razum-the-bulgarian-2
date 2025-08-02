@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { triggerFootballDataSync } from '@/utils/syncTrigger';
+import { Progress } from '@/components/ui/progress';
+import { triggerFootballDataSync, getSyncProgress, resumeSync } from '@/utils/syncTrigger';
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,7 @@ interface AdminSettingsProps {
 export function AdminSettings({ userRole }: AdminSettingsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [lastSync, setLastSync] = useState<any>(null);
+  const [syncProgress, setSyncProgress] = useState<any>(null);
   const [syncCounts, setSyncCounts] = useState({
     competitions: 0,
     teams: 0,
@@ -24,6 +26,14 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
   useEffect(() => {
     loadSyncInfo();
     loadDataCounts();
+    loadSyncProgress();
+    
+    // Проверяваме прогреса на всеки 10 секунди
+    const interval = setInterval(() => {
+      loadSyncProgress();
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadSyncInfo = async () => {
@@ -69,20 +79,57 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
     }
   };
 
+  const loadSyncProgress = async () => {
+    try {
+      const progress = await getSyncProgress();
+      setSyncProgress(progress);
+    } catch (error) {
+      console.error('Error loading sync progress:', error);
+    }
+  };
+
   const handleSync = async (syncType: 'all' | 'competitions' | 'teams' | 'standings' | 'fixtures' | 'brazil-standings' | 'h2h' | 'team-form') => {
     setIsLoading(true);
     try {
-      await triggerFootballDataSync(syncType);
-      toast.success(`Синхронизацията ${syncType} стартира успешно!`);
+      const result = await triggerFootballDataSync(syncType);
+      
+      if (result?.paused) {
+        toast.warning(`Синхронизацията е паузирана поради ограничения във времето. Обработени ${result.nextBatch * 3} турнира.`);
+      } else {
+        toast.success(`Синхронизацията ${syncType} стартира успешно!`);
+      }
       
       // Reload sync info after a delay to catch the new sync
       setTimeout(() => {
         loadSyncInfo();
         loadDataCounts();
+        loadSyncProgress();
       }, 3000);
     } catch (error) {
       console.error('Sync failed:', error);
       toast.error('Грешка при стартиране на синхронизацията');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResumeSync = async () => {
+    if (!syncProgress) return;
+    
+    setIsLoading(true);
+    try {
+      const nextBatch = syncProgress.current_batch + 1;
+      await resumeSync(nextBatch, syncProgress.batch_size);
+      toast.success('Синхронизацията се възобновява...');
+      
+      setTimeout(() => {
+        loadSyncInfo();
+        loadDataCounts();
+        loadSyncProgress();
+      }, 3000);
+    } catch (error) {
+      console.error('Resume failed:', error);
+      toast.error('Грешка при възобновяване на синхронизацията');
     } finally {
       setIsLoading(false);
     }
@@ -155,6 +202,41 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
                   <div className="text-purple-400">Класирания</div>
                   <div className="text-white font-bold">{syncCounts.standings}</div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sync Progress */}
+          {syncProgress && syncProgress.status !== 'completed' && (
+            <div className="bg-slate-700/30 rounded-lg p-4 mb-4">
+              <h4 className="text-white font-medium mb-2">🔄 Текуща синхронизация</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-purple-200">Статус: {syncProgress.status}</span>
+                  <span className="text-purple-200">
+                    {syncProgress.processed_items}/{syncProgress.total_items} турнира
+                  </span>
+                </div>
+                
+                <Progress 
+                  value={(syncProgress.processed_items / syncProgress.total_items) * 100} 
+                  className="w-full h-2"
+                />
+                
+                <div className="flex justify-between text-xs text-purple-300">
+                  <span>Порция {syncProgress.current_batch + 1} от {Math.ceil(syncProgress.total_items / syncProgress.batch_size)}</span>
+                  <span>Размер на порцията: {syncProgress.batch_size}</span>
+                </div>
+                
+                {syncProgress.status === 'paused' && (
+                  <Button 
+                    onClick={handleResumeSync}
+                    disabled={isLoading}
+                    className="bg-green-600 hover:bg-green-700 text-white w-full"
+                  >
+                    🔄 Възобнови синхронизацията
+                  </Button>
+                )}
               </div>
             </div>
           )}

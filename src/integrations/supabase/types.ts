@@ -692,6 +692,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_progress: {
+        Row: {
+          batch_size: number
+          competition_id: number | null
+          completed_at: string | null
+          created_at: string
+          current_batch: number
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          processed_items: number
+          status: string
+          sync_type: string
+          total_items: number
+          updated_at: string
+        }
+        Insert: {
+          batch_size?: number
+          competition_id?: number | null
+          completed_at?: string | null
+          created_at?: string
+          current_batch?: number
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_items?: number
+          status?: string
+          sync_type: string
+          total_items?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_size?: number
+          competition_id?: number | null
+          completed_at?: string | null
+          created_at?: string
+          current_batch?: number
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_items?: number
+          status?: string
+          sync_type?: string
+          total_items?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_competitions: {
         Row: {
           area_name: string | null
