@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Eye, EyeOff, Upload, User, Camera, Check } from 'lucide-react';
+import { ArrowLeft, Upload, User, Camera, Check } from 'lucide-react';
 import avatar1 from '@/assets/avatars/avatar-1.png';
 import avatar2 from '@/assets/avatars/avatar-2.png';
 import avatar3 from '@/assets/avatars/avatar-3.png';
@@ -764,32 +764,24 @@ export default function Auth() {
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password *</Label>
-                    <div className="relative">
-                      <Input
-                        id="signin-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Your password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="signin-password">Password *</Label>
+                     <Input
+                       id="signin-password"
+                       type={showPassword ? "text" : "password"}
+                       placeholder="Your password"
+                       value={formData.password}
+                       onChange={(e) => setFormData({...formData, password: e.target.value})}
+                       required
+                     />
+                     <button
+                       type="button"
+                       onClick={() => setShowPassword(!showPassword)}
+                       className="text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                     >
+                       {showPassword ? "Hide password" : "Show password"}
+                     </button>
+                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Signing in...' : 'Sign In'}
                   </Button>
@@ -1100,60 +1092,44 @@ export default function Auth() {
                         )}
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-password">Password *</Label>
-                        <div className="relative">
-                          <Input
-                            id="signup-password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="At least 8 characters, numbers, uppercase and lowercase"
-                            value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
-                            required
-                            minLength={8}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                       <div className="space-y-2">
+                         <Label htmlFor="signup-password">Password *</Label>
+                         <Input
+                           id="signup-password"
+                           type={showPassword ? "text" : "password"}
+                           placeholder="At least 8 characters, numbers, uppercase and lowercase"
+                           value={formData.password}
+                           onChange={(e) => setFormData({...formData, password: e.target.value})}
+                           required
+                           minLength={8}
+                         />
+                         <button
+                           type="button"
+                           onClick={() => setShowPassword(!showPassword)}
+                           className="text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                         >
+                           {showPassword ? "Hide password" : "Show password"}
+                         </button>
+                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-confirm-password">Confirm Password *</Label>
-                        <div className="relative">
-                          <Input
-                            id="signup-confirm-password"
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Repeat password"
-                            value={formData.confirmPassword}
-                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                            required
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          >
-                            {showConfirmPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                       <div className="space-y-2">
+                         <Label htmlFor="signup-confirm-password">Confirm Password *</Label>
+                         <Input
+                           id="signup-confirm-password"
+                           type={showConfirmPassword ? "text" : "password"}
+                           placeholder="Repeat password"
+                           value={formData.confirmPassword}
+                           onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                           required
+                         />
+                         <button
+                           type="button"
+                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                           className="text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                         >
+                           {showConfirmPassword ? "Hide password" : "Show password"}
+                         </button>
+                       </div>
 
                       <div className="text-xs text-muted-foreground">
                         * Required fields
