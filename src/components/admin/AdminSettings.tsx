@@ -27,6 +27,14 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
     loadDataCounts();
   }, []);
 
+  // Monitor sync progress when loading
+  useEffect(() => {
+    if (isLoading) {
+      const interval = setInterval(loadCurrentSyncProgress, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isLoading]);
+
   const loadSyncInfo = async () => {
     try {
       const { data, error } = await supabase
@@ -70,9 +78,35 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
     }
   };
 
+  const loadCurrentSyncProgress = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('sync_logs' as any)
+        .select('*')
+        .eq('status', 'running')
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data) {
+        setSyncProgress(data);
+      } else {
+        // No running sync found, check if we finished
+        setSyncProgress(null);
+        setIsLoading(false);
+        loadSyncInfo();
+        loadDataCounts();
+      }
+    } catch (error) {
+      console.error('Error loading sync progress:', error);
+    }
+  };
+
 
   const handleSync = async (syncType: string = 'all') => {
     setIsLoading(true);
+    setSyncProgress(null);
+    
     try {
       const payload = syncType === 'all' ? {} : { syncType };
       const { error } = await supabase.functions.invoke('sync-football-data', {
@@ -88,15 +122,9 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
         : `Синхронизацията на ${syncType} стартира успешно!`;
       toast.success(message);
       
-      // Reload sync info after a delay to catch the new sync
-      setTimeout(() => {
-        loadSyncInfo();
-        loadDataCounts();
-      }, 3000);
     } catch (error) {
       console.error('Sync failed:', error);
       toast.error('Грешка при стартиране на синхронизацията');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -234,8 +262,24 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
           >
             🔄 Пълна синхронизация
           </Button>
+          {/* Progress indicator */}
           {isLoading && (
-            <p className="text-purple-300 text-sm">⏳ Синхронизацията стартира...</p>
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-purple-300">⏳ Синхронизация в ход...</span>
+                {syncProgress && (
+                  <span className="text-purple-400">
+                    {syncProgress.sync_type} | {syncProgress.records_processed || 0} записа
+                  </span>
+                )}
+              </div>
+              {syncProgress && syncProgress.records_processed && (
+                <Progress 
+                  value={Math.min((syncProgress.records_processed / 1000) * 100, 100)} 
+                  className="w-full"
+                />
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
