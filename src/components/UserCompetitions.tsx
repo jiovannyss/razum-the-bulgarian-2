@@ -103,16 +103,22 @@ export default function UserCompetitions() {
       for (const competitionId of toAdd) {
         const competition = availableCompetitions.find(c => c.id === competitionId);
         if (competition) {
-          // First try to update existing record
-          const { error: updateError } = await (supabase as any)
+          console.log(`💾 Adding competition: ${competition.name} (${competitionId})`);
+          
+          // Try to update existing record first
+          const { data: updateData, error: updateError } = await (supabase as any)
             .from('user_competitions')
-            .update({ is_active: true })
+            .update({ is_active: true, updated_at: new Date().toISOString() })
             .eq('user_id', user.id)
-            .eq('competition_id', competitionId);
+            .eq('competition_id', competitionId)
+            .select();
 
-          // If no rows were updated, insert new record
-          if (updateError || updateError?.code === 'PGRST116') {
-            await (supabase as any)
+          console.log('💾 Update result:', updateData, updateError);
+
+          // If no rows were updated (updateData is empty), insert new record
+          if (!updateData || updateData.length === 0) {
+            console.log(`💾 No existing record found, inserting new one for ${competition.name}`);
+            const { data: insertData, error: insertError } = await (supabase as any)
               .from('user_competitions')
               .insert({
                 user_id: user.id,
@@ -121,7 +127,17 @@ export default function UserCompetitions() {
                 competition_code: competition.code,
                 area_name: competition.area.name,
                 is_active: true
-              });
+              })
+              .select();
+            
+            console.log('💾 Insert result:', insertData, insertError);
+            
+            if (insertError) {
+              console.error('💾 Insert error:', insertError);
+              throw insertError;
+            }
+          } else {
+            console.log(`💾 Updated existing record for ${competition.name}`);
           }
         }
       }
