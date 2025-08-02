@@ -1,23 +1,24 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
+import MyLeagues from "./pages/MyLeagues";
+import MyWallet from "./pages/MyWallet";
 
-// Simple test pages
-const Index = () => <div style={{padding: '20px'}}>Index Page Works!</div>;
-const NotFound = () => <div style={{padding: '20px'}}>404 - Not Found</div>;
-
-const App = () => {
-  console.log('App with routing is rendering');
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f0f0', padding: '20px' }}>
-      <h1>Glowter App - Testing</h1>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
-};
+const App = () => (
+  <div className="min-h-screen bg-gradient-to-br from-primary via-primary-foreground to-secondary">
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/my-leagues" element={<MyLeagues />} />
+        <Route path="/my-wallet" element={<MyWallet />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  </div>
+);
 
 export default App;
