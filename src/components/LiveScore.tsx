@@ -1,3 +1,4 @@
+console.log('🔥 LiveScore.tsx file loaded at:', new Date().toISOString());
 import { useState, useEffect } from "react";
 import { 
   RefreshCw,
