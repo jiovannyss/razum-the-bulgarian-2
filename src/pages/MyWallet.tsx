@@ -152,16 +152,16 @@ export default function MyWallet() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => window.history.back()}
-              className="gap-2"
+              className="gap-2 bg-background hover:bg-accent hover:text-accent-foreground border-border"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
             <div className="flex items-center gap-2">
               <Coins className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-bold">My Wallet</h1>
+              <h1 className="text-2xl font-bold text-foreground">My Wallet</h1>
             </div>
           </div>
 
