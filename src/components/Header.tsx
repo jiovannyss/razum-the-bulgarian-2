@@ -107,12 +107,6 @@ const Header = () => {
                       <Coins className="w-4 h-4" />
                       <span>My Wallet</span>
                     </DropdownMenuItem>
-                    {(userRole === 'admin' || userRole === 'super_admin') && (
-                      <DropdownMenuItem className="gap-2" onClick={() => navigate('/admin')}>
-                        <Settings className="w-4 h-4" />
-                        <span>Admin Panel</span>
-                      </DropdownMenuItem>
-                    )}
                     <DropdownMenuItem className="gap-2">
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
@@ -146,6 +140,15 @@ const Header = () => {
                       <LogOut className="w-4 h-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
+                    {(userRole === 'admin' || userRole === 'super_admin') && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="gap-2" onClick={() => navigate('/admin')}>
+                          <Settings className="w-4 h-4" />
+                          <span>Admin Panel</span>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
