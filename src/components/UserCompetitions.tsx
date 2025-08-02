@@ -96,16 +96,26 @@ export default function UserCompetitions() {
       for (const competitionId of toAdd) {
         const competition = availableCompetitions.find(c => c.id === competitionId);
         if (competition) {
-          await (supabase as any)
+          // First try to update existing record
+          const { error: updateError } = await (supabase as any)
             .from('user_competitions')
-            .upsert({
-              user_id: user.id,
-              competition_id: competitionId,
-              competition_name: competition.name,
-              competition_code: competition.code,
-              area_name: competition.area.name,
-              is_active: true
-            });
+            .update({ is_active: true })
+            .eq('user_id', user.id)
+            .eq('competition_id', competitionId);
+
+          // If no rows were updated, insert new record
+          if (updateError || updateError?.code === 'PGRST116') {
+            await (supabase as any)
+              .from('user_competitions')
+              .insert({
+                user_id: user.id,
+                competition_id: competitionId,
+                competition_name: competition.name,
+                competition_code: competition.code,
+                area_name: competition.area.name,
+                is_active: true
+              });
+          }
         }
       }
 
