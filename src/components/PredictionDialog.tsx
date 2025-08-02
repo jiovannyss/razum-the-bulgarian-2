@@ -445,7 +445,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 <Table className="w-full min-w-[350px]">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="w-6 py-1 text-xs pl-1">#</TableHead>
+                      <TableHead className="w-4 py-1 text-xs pl-1">#</TableHead>
                       <TableHead className="py-1 text-xs min-w-[100px]">Team</TableHead>
                       <TableHead className="w-8 py-1 text-xs">MP</TableHead>
                       <TableHead className="w-10 py-1 text-xs">Goals</TableHead>
@@ -465,7 +465,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                             isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500' : ''
                           }`}
                         >
-                          <TableCell className="py-1 font-medium text-xs w-6 pl-1">{team.position}</TableCell>
+                          <TableCell className="py-1 font-medium text-xs w-4 pl-1">{team.position}</TableCell>
                           <TableCell className="py-1 text-xs min-w-[100px]">
                             <span className="truncate block text-left" title={team.team.name}>
                               {team.team.name.length > 10 ? `${team.team.name.substring(0, 10)}..` : team.team.name}
