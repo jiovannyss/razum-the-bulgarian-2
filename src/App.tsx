@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Admin from "./pages/Admin";
+// import Admin from "./pages/Admin"; // TEMPORARILY DISABLED
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import MyLeagues from "./pages/MyLeagues";
@@ -26,7 +26,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/admin" element={<Admin />} />
+                {/* <Route path="/admin" element={<Admin />} /> TEMPORARILY DISABLED */}
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/my-leagues" element={<MyLeagues />} />
