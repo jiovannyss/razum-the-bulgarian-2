@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 
 export default function UserCompetitions() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [availableCompetitions, setAvailableCompetitions] = useState<Competition[]>([]);
@@ -17,10 +17,10 @@ export default function UserCompetitions() {
   const [pendingChanges, setPendingChanges] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    if (user) {
+    if (user && userRole) {
       loadData();
     }
-  }, [user]);
+  }, [user, userRole]);
 
   const loadData = async () => {
     setLoading(true);
@@ -29,15 +29,20 @@ export default function UserCompetitions() {
       const competitions = await footballDataApi.getCompetitions();
       setAvailableCompetitions(competitions);
 
-      // Load user's current competitions
-      const { data } = await (supabase as any)
-        .from('user_competitions')
-        .select('competition_id')
-        .eq('user_id', user?.id)
-        .eq('is_active', true);
+      // For super admin, show all available competitions
+      if (userRole === 'super_admin') {
+        setUserCompetitions(new Set(competitions.map(c => c.id)));
+      } else {
+        // Load user's current competitions for regular users
+        const { data } = await (supabase as any)
+          .from('user_competitions')
+          .select('competition_id')
+          .eq('user_id', user?.id)
+          .eq('is_active', true);
 
-      if (data) {
-        setUserCompetitions(new Set(data.map((item: any) => item.competition_id)));
+        if (data) {
+          setUserCompetitions(new Set(data.map((item: any) => item.competition_id)));
+        }
       }
     } catch (error) {
       console.error('Error loading competitions:', error);
@@ -159,7 +164,7 @@ export default function UserCompetitions() {
                 <Checkbox
                   id={`user-comp-${competition.id}`}
                   checked={isSelected}
-                  disabled={!isEditMode}
+                  disabled={userRole === 'super_admin' || !isEditMode}
                   onCheckedChange={() => toggleCompetitionInEditMode(competition.id)}
                 />
                 <label 
@@ -175,17 +180,19 @@ export default function UserCompetitions() {
         </CardContent>
       </Card>
       
-      {/* Sticky Change/Save button */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
-        <Button 
-          onClick={handleEditMode}
-          disabled={loading}
-          size="lg"
-          className="shadow-lg"
-        >
-          {isEditMode ? 'Save' : 'Change'}
-        </Button>
-      </div>
+      {/* Sticky Change/Save button - hide for super admin */}
+      {userRole !== 'super_admin' && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+          <Button 
+            onClick={handleEditMode}
+            disabled={loading}
+            size="lg"
+            className="shadow-lg"
+          >
+            {isEditMode ? 'Save' : 'Change'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
