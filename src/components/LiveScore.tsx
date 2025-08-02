@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { footballDataApi, type Match, type Competition } from "@/services/footballDataApi";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthProvider";
 import League from "./League";
 
 interface ProcessedMatch {
@@ -49,11 +50,13 @@ interface ProcessedMatch {
 }
 
 const LiveScore = () => {
+  const { user, userRole } = useAuth();
   const [activeTab, setActiveTab] = useState("matches");
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [competitionsWithCurrentMatchday, setCompetitionsWithCurrentMatchday] = useState<Array<Competition & { currentMatchday: number }>>([]);
+  const [userCompetitions, setUserCompetitions] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
   // Transform Football-Data.org API match to our format
@@ -173,6 +176,32 @@ const LiveScore = () => {
     }
   };
 
+  // Load user's selected competitions
+  const loadUserCompetitions = async () => {
+    if (!user) return;
+    
+    try {
+      // For super admin, get all available competitions
+      if (userRole === 'super_admin') {
+        const competitions = await footballDataApi.getCompetitions();
+        setUserCompetitions(new Set(competitions.map(c => c.id)));
+      } else {
+        // For regular users, get their selected competitions
+        const { data } = await supabase
+          .from('user_competitions')
+          .select('competition_id')
+          .eq('user_id', user.id)
+          .eq('is_active', true);
+
+        if (data) {
+          setUserCompetitions(new Set(data.map((item: any) => item.competition_id)));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user competitions:', error);
+    }
+  };
+
   const loadMatches = async () => {
     try {
       setLoading(true);
@@ -191,16 +220,25 @@ const LiveScore = () => {
       }));
       console.log(`📊 Found ${upcomingMatches.length} total matches`);
       
+      // Filter matches based on user's selected competitions
+      let filteredMatches = upcomingMatches;
+      if (userCompetitions.size > 0) {
+        filteredMatches = upcomingMatches.filter(match => 
+          userCompetitions.has(match.competition.id)
+        );
+        console.log(`🎯 Filtered to ${filteredMatches.length} matches based on user competitions`);
+      }
+      
       // Log rounds from the matches
-      const roundsInMatches = [...new Set(upcomingMatches.map(m => m.matchday))];
-      console.log(`📋 Rounds in API matches: [${roundsInMatches.sort((a, b) => a - b).join(', ')}]`);
+      const roundsInMatches = [...new Set(filteredMatches.map(m => m.matchday))];
+      console.log(`📋 Rounds in filtered matches: [${roundsInMatches.sort((a, b) => a - b).join(', ')}]`);
 
-      if (upcomingMatches.length === 0) {
-        console.log('⚠️ No upcoming matches found from API');
+      if (filteredMatches.length === 0) {
+        console.log('⚠️ No matches found for user competitions');
         // Let the normal error handling take care of it
       }
 
-      const transformedMatches = upcomingMatches.map(apiMatch => 
+      const transformedMatches = filteredMatches.map(apiMatch => 
         transformMatch(apiMatch)
       );
       console.log(`🏁 Transformed ${transformedMatches.length} matches`);
@@ -238,9 +276,25 @@ const LiveScore = () => {
     }
   };
 
-  // Load matches on component mount
+  // Load user competitions and matches when component mounts or user changes
   useEffect(() => {
-    loadMatches();
+    if (user && userRole !== null) {
+      loadUserCompetitions();
+    }
+  }, [user, userRole]);
+
+  // Load matches when user competitions change
+  useEffect(() => {
+    if (userCompetitions.size > 0) {
+      loadMatches();
+    }
+  }, [userCompetitions]);
+
+  // Load matches on component mount for super admin or when no user competitions
+  useEffect(() => {
+    if (userRole === 'super_admin' || (user && userCompetitions.size === 0)) {
+      loadMatches();
+    }
     
     // Set up realtime listener for matches table updates
     const channel = supabase
@@ -263,7 +317,7 @@ const LiveScore = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userRole, user, userCompetitions.size]);
 
   // Helper function to check if a match is today
   const isMatchToday = (match: ProcessedMatch) => {
