@@ -445,11 +445,11 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow className="h-8">
-                      <TableHead className="py-1 text-xs w-[10%] border border-black">#</TableHead>
-                      <TableHead className="py-1 text-xs w-[40%] border border-black">Team</TableHead>
-                      <TableHead className="py-1 text-xs w-[15%] border border-black">MP</TableHead>
-                      <TableHead className="py-1 text-xs w-[20%] border border-black">Goals</TableHead>
-                      <TableHead className="py-1 text-xs w-[15%] border border-black">PTS</TableHead>
+                      <TableHead className="py-1 text-xs w-[7%] text-center border border-black">#</TableHead>
+                      <TableHead className="py-1 text-xs w-[55%] px-1 border border-black">Team</TableHead>
+                      <TableHead className="py-1 text-xs w-[8%] text-center border border-black">MP</TableHead>
+                      <TableHead className="py-1 text-xs w-[15%] text-center border border-black">Goals</TableHead>
+                      <TableHead className="py-1 text-xs w-[15%] text-center border border-black">PTS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
