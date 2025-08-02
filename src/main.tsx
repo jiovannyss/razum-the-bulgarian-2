@@ -1,19 +1,16 @@
-import { createRoot } from 'react-dom/client';
+// Completely clean main.tsx
+console.log('Starting app...');
 
-const container = document.getElementById("root");
-if (container) {
-  console.log('Root container found');
-  const root = createRoot(container);
-  console.log('React root created');
-  
-  // Ultra minimal HTML element
-  const testDiv = document.createElement('div');
-  testDiv.textContent = 'Direct DOM Manipulation Works!';
-  testDiv.style.padding = '20px';
-  testDiv.style.backgroundColor = 'lightgreen';
-  
-  container.appendChild(testDiv);
-  console.log('DOM element added directly');
+const root = document.getElementById("root");
+if (root) {
+  root.innerHTML = `
+    <div style="padding: 20px; background: lightblue; font-family: Arial;">
+      <h1>Clean HTML Test</h1>
+      <p>Това е чист HTML без React, без импорти, без нищо друго.</p>
+      <p>Ако това работи без грешки, значи проблемът е в някой импорт.</p>
+    </div>
+  `;
+  console.log('HTML set successfully');
 } else {
-  console.error('Root container not found!');
+  console.error('Root element not found!');
 }
