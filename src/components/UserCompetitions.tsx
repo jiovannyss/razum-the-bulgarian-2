@@ -79,9 +79,16 @@ export default function UserCompetitions() {
     
     setLoading(true);
     try {
+      console.log('💾 Saving changes...');
+      console.log('💾 Current userCompetitions:', Array.from(userCompetitions));
+      console.log('💾 Pending changes:', Array.from(pendingChanges));
+      
       // Get competitions to add and remove
       const toAdd = Array.from(pendingChanges).filter(id => !userCompetitions.has(id));
       const toRemove = Array.from(userCompetitions).filter(id => !pendingChanges.has(id));
+      
+      console.log('💾 To add:', toAdd);
+      console.log('💾 To remove:', toRemove);
 
       // Remove competitions
       for (const competitionId of toRemove) {
