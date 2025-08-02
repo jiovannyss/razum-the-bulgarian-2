@@ -241,14 +241,26 @@ const LiveScore = () => {
       
       // Filter matches based on user's selected competitions
       let filteredMatches = allMatches;
+      console.log(`🔍 User competitions size: ${userCompetitions.size}`);
+      console.log(`🔍 User competitions:`, Array.from(userCompetitions));
+      
       if (userCompetitions.size > 0) {
-        filteredMatches = allMatches.filter(match => 
-          userCompetitions.has(match.competition.id)
-        );
+        console.log(`🔍 Filtering ${allMatches.length} total matches...`);
+        filteredMatches = allMatches.filter(match => {
+          const hasMatch = userCompetitions.has(match.competition.id);
+          if (hasMatch) {
+            console.log(`✅ Match included: ${match.homeTeam.name} vs ${match.awayTeam.name} (${match.competition.name})`);
+          }
+          return hasMatch;
+        });
         console.log(`🎯 Filtered to ${filteredMatches.length} matches based on user competitions:`, Array.from(userCompetitions));
       } else {
         console.log('⚠️ No user competitions set, showing all matches');
       }
+      
+      // Log competition names in filtered matches
+      const competitionNames = [...new Set(filteredMatches.map(m => m.competition.name))];
+      console.log(`🏆 Competitions in filtered matches:`, competitionNames);
       
       // Log rounds from the matches
       const roundsInMatches = [...new Set(filteredMatches.map(m => m.matchday))];
