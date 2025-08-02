@@ -509,22 +509,22 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </CardContent>
           </Card>
         </div>
+        
+        {/* Нов Save Prediction бутон - sticky най-отдолу в диалога */}
+        <div className="sticky bottom-0 left-0 right-0 bg-transparent p-4 mt-4">
+          <button
+            onClick={handleSave}
+            disabled={!selectedPrediction}
+            className={`w-full h-12 rounded-md text-lg font-bold transition-all duration-200 ${
+              !selectedPrediction 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-md'
+            }`}
+          >
+            Save Prediction
+          </button>
+        </div>
       </DialogContent>
-      
-      {/* Нов Save Prediction бутон - sticky най-отдолу */}
-      <div className="absolute bottom-0 left-0 right-0 bg-transparent p-4">
-        <button
-          onClick={handleSave}
-          disabled={!selectedPrediction}
-          className={`w-full h-12 rounded-md text-lg font-bold transition-all duration-200 ${
-            !selectedPrediction 
-              ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-md'
-          }`}
-        >
-          Save Prediction
-        </button>
-      </div>
     </Dialog>
   );
 };
