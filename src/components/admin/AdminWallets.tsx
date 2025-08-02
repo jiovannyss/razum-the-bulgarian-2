@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RefreshCw, User, Building2, TrendingUp, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import glowterCoin from '@/assets/glowter-coin-round.png';
+import glowterCoin from '@/assets/glowter-coin-transparent.png';
 
 interface WalletData {
   id: string;
