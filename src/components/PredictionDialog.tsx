@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -99,9 +100,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
 
   // Show loading state while fetching match info
   if (isLoadingMatchInfo) {
-    return (
+    return createPortal(
       <div 
-        className="fixed inset-0 z-50 bg-background flex items-center justify-center"
+        className="fixed inset-0 z-[9999] bg-background flex items-center justify-center"
         onClick={onClose}
       >
         {/* Content */}
@@ -140,7 +141,8 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 
@@ -210,9 +212,9 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
     return team.form;
   };
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 bg-background flex items-center justify-center"
+      className="fixed inset-0 z-[9999] bg-background flex items-center justify-center"
       onClick={onClose}
     >
       {/* Content */}
@@ -554,6 +556,7 @@ export const PredictionDialog: React.FC<PredictionDialogProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
