@@ -1,10 +1,18 @@
-// Minimal App for debugging
+import React from 'react';
+
+// Ultra minimal App for debugging
 const App = () => {
-  return (
-    <div className="min-h-screen bg-blue-500 text-white flex items-center justify-center">
-      <h1>Test - App Works!</h1>
-    </div>
-  );
+  console.log('App component is rendering');
+  return React.createElement('div', { 
+    style: { 
+      minHeight: '100vh', 
+      backgroundColor: 'blue', 
+      color: 'white', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center' 
+    } 
+  }, 'TEST - App Works!');
 };
 
 export default App;
