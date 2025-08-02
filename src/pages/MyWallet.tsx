@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// Removed Tabs import since we no longer use tabs
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Coins, History, ShoppingBag, Clock } from 'lucide-react';
 import { CoinsBalance } from '@/components/CoinsBalance';
@@ -179,11 +179,8 @@ export default function MyWallet() {
                 <Button 
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 gap-2"
                   onClick={() => {
-                    // Navigate to Buy Coins tab
-                    const buyCoinsTab = document.querySelector('[value="offers"]');
-                    if (buyCoinsTab) {
-                      (buyCoinsTab as HTMLElement).click();
-                    }
+                    // TODO: Open offers modal or navigate to offers page
+                    console.log('Buy Coins clicked');
                   }}
                 >
                   <ShoppingBag className="h-5 w-5" />
@@ -193,142 +190,67 @@ export default function MyWallet() {
             </CardContent>
           </Card>
 
-          {/* Tabs */}
-          <Tabs defaultValue="history" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="history" className="gap-2">
-                <History className="h-4 w-4" />
-                History
-              </TabsTrigger>
-              <TabsTrigger value="offers" className="gap-2">
-                <ShoppingBag className="h-4 w-4" />
-                Buy Coins
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="history" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Transaction History</CardTitle>
-                  <CardDescription>
-                    Overview of all incoming and outgoing transactions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                    </div>
-                  ) : transactions.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-4">
-                      No transactions to display
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {transactions.map((transaction) => (
-                        <div
-                          key={transaction.id}
-                          className="flex items-center justify-between p-3 border rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">
-                              {getTransactionIcon(transaction.amount)}
-                            </span>
-                            <div>
-                              <p className="font-medium">
-                                {formatTransactionType(transaction.transaction_type)}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {transaction.description}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(transaction.created_at).toLocaleDateString('en-GB', {
-                                  day: '2-digit',
-                                  month: '2-digit', 
-                                  year: 'numeric'
-                                }).replace(/\//g, '.')} {new Date(transaction.created_at).toLocaleTimeString('en-GB', {
-                                  hour12: false,
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  second: '2-digit'
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                          <div className={`font-medium ${getTransactionColor(transaction.amount)}`}>
-                            {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString()} coins
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="offers" className="space-y-4">
+          {/* Transaction History */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Transaction History
+              </CardTitle>
+              <CardDescription>
+                Overview of all incoming and outgoing transactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               {loading ? (
                 <div className="flex justify-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 </div>
-              ) : offers.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      No active offers at the moment
-                    </p>
-                  </CardContent>
-                </Card>
+              ) : transactions.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  No transactions to display
+                </p>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {offers.map((offer) => (
-                    <Card key={offer.id} className="relative">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">{offer.title}</CardTitle>
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            -{offer.discount_percentage}%
-                          </Badge>
+                <div className="space-y-3">
+                  {transactions.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">
+                          {getTransactionIcon(transaction.amount)}
+                        </span>
+                        <div>
+                          <p className="font-medium">
+                            {formatTransactionType(transaction.transaction_type)}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {transaction.description}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(transaction.created_at).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit', 
+                              year: 'numeric'
+                            }).replace(/\//g, '.')} {new Date(transaction.created_at).toLocaleTimeString('en-GB', {
+                              hour12: false,
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit'
+                            })}
+                          </p>
                         </div>
-                        <CardDescription>{offer.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-2xl font-bold text-primary">
-                              {offer.coin_amount.toLocaleString()} coins
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-semibold">
-                              ${offer.offer_price.toFixed(2)}
-                            </span>
-                            <span className="text-sm text-muted-foreground line-through">
-                              ${offer.original_price.toFixed(2)}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <span>Time left: {timeLeft[offer.id] || 'Calculating...'}</span>
-                          </div>
-
-                          <Button 
-                            className="w-full" 
-                            disabled={timeLeft[offer.id] === 'Expired'}
-                          >
-                            {timeLeft[offer.id] === 'Expired' ? 'Offer expired' : 'Buy now'}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                      <div className={`font-medium ${getTransactionColor(transaction.amount)}`}>
+                        {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString()} coins
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
-            </TabsContent>
-          </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
