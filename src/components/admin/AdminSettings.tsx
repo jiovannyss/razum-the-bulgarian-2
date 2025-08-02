@@ -71,16 +71,22 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
   };
 
 
-  const handleSync = async () => {
+  const handleSync = async (syncType: string = 'all') => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('sync-football-data');
+      const payload = syncType === 'all' ? {} : { syncType };
+      const { error } = await supabase.functions.invoke('sync-football-data', {
+        body: payload
+      });
       
       if (error) {
         throw error;
       }
       
-      toast.success('Синхронизацията стартира успешно!');
+      const message = syncType === 'all' 
+        ? 'Пълната синхронизация стартира успешно!' 
+        : `Синхронизацията на ${syncType} стартира успешно!`;
+      toast.success(message);
       
       // Reload sync info after a delay to catch the new sync
       setTimeout(() => {
@@ -168,12 +174,49 @@ export function AdminSettings({ userRole }: AdminSettingsProps) {
           )}
 
 
+          {/* Specific sync buttons */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <Button 
+              onClick={() => handleSync('competitions')}
+              disabled={isLoading}
+              variant="outline"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+            >
+              🏆 Турнири
+            </Button>
+            <Button 
+              onClick={() => handleSync('teams')}
+              disabled={isLoading}
+              variant="outline"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+            >
+              ⚽ Отбори
+            </Button>
+            <Button 
+              onClick={() => handleSync('fixtures')}
+              disabled={isLoading}
+              variant="outline"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+            >
+              📅 Мачове
+            </Button>
+            <Button 
+              onClick={() => handleSync('standings')}
+              disabled={isLoading}
+              variant="outline"
+              className="border-purple-400 text-purple-300 hover:bg-purple-700/30"
+            >
+              📊 Класирания
+            </Button>
+          </div>
+
+          {/* Full sync button */}
           <Button 
-            onClick={handleSync}
+            onClick={() => handleSync('all')}
             disabled={isLoading}
             className="bg-purple-600 hover:bg-purple-700 w-full"
           >
-            Синхронизирай данни
+            🔄 Пълна синхронизация
           </Button>
           {isLoading && (
             <p className="text-purple-300 text-sm">⏳ Синхронизацията стартира...</p>
