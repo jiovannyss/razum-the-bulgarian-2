@@ -52,7 +52,7 @@ interface ProcessedMatch {
 
 const LiveScore = () => {
   const { user, userRole } = useAuth();
-  console.log('🚀 LiveScore component rendered - user:', user?.id, 'userRole:', userRole);
+  console.log('🚀 LiveScore rendered - user:', user?.id, 'role:', userRole);
   
   const [activeTab, setActiveTab] = useState("matches");
   const [matches, setMatches] = useState<ProcessedMatch[]>([]);
@@ -60,6 +60,7 @@ const LiveScore = () => {
   const [error, setError] = useState<string | null>(null);
   const [competitionsWithCurrentMatchday, setCompetitionsWithCurrentMatchday] = useState<Array<Competition & { currentMatchday: number }>>([]);
   const [userCompetitions, setUserCompetitions] = useState<Set<number>>(new Set());
+  const [competitionsLoaded, setCompetitionsLoaded] = useState(false);
   const { toast } = useToast();
 
   // Transform Football-Data.org API match to our format
@@ -310,28 +311,31 @@ const LiveScore = () => {
     }
   };
 
-  // Load user competitions and matches when component mounts or user changes
+  // Step 1: Load user competitions first
   useEffect(() => {
-    console.log('🔥 useEffect triggered - user:', user?.id, 'userRole:', userRole);
+    console.log('🔥 Initial useEffect - user:', user?.id, 'userRole:', userRole);
     if (user && userRole !== null) {
-      console.log('🔥 Calling loadUserCompetitions...');
-      loadUserCompetitions();
+      console.log('🔥 Loading user competitions...');
+      loadUserCompetitions().then(() => {
+        console.log('✅ User competitions loaded, setting flag');
+        setCompetitionsLoaded(true);
+      });
     }
   }, [user, userRole]);
 
-  // Load matches when user competitions change
+  // Step 2: Load matches only after competitions are loaded
   useEffect(() => {
-    if (userCompetitions.size > 0) {
+    console.log('🔥 Competitions effect - loaded:', competitionsLoaded, 'size:', userCompetitions.size);
+    if (competitionsLoaded) {
+      console.log('🔥 Loading matches...');
       loadMatches();
     }
-  }, [userCompetitions]);
+  }, [competitionsLoaded, userCompetitions]);
 
-  // Load matches on component mount for super admin or when no user competitions
+  // Set up realtime listeners
   useEffect(() => {
-    if (userRole === 'super_admin' || (user && userCompetitions.size === 0)) {
-      loadMatches();
-    }
-    
+    if (!user) return;
+
     // Set up realtime listener for matches table updates
     const matchesChannel = supabase
       .channel('matches-updates')
@@ -344,8 +348,9 @@ const LiveScore = () => {
         },
         (payload) => {
           console.log('Match updated via realtime:', payload);
-          // Reload matches when any match is updated
-          loadMatches();
+          if (competitionsLoaded) {
+            loadMatches();
+          }
         }
       )
       .subscribe();
@@ -359,12 +364,14 @@ const LiveScore = () => {
           event: '*',
           schema: 'public',
           table: 'user_competitions',
-          filter: `user_id=eq.${user?.id}`
+          filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           console.log('User competitions updated via realtime:', payload);
           // Reload user competitions and then matches
-          loadUserCompetitions();
+          loadUserCompetitions().then(() => {
+            setCompetitionsLoaded(true);
+          });
         }
       )
       .subscribe();
@@ -373,7 +380,7 @@ const LiveScore = () => {
       supabase.removeChannel(matchesChannel);
       supabase.removeChannel(competitionsChannel);
     };
-  }, [userRole, user, userCompetitions.size]);
+  }, [user, competitionsLoaded]);
 
   // Helper function to check if a match is today
   const isMatchToday = (match: ProcessedMatch) => {
